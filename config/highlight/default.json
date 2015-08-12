@@ -1,0 +1,15 @@
+{
+  "js": {
+    "keyword": "cyan",
+    "comment": "gray",
+    "number": "red",
+    "literal": "magenta",
+    "built_in": "yellow",
+    "string": "green",
+    "regexp": "magenta",
+    "function": "blue",
+    "title": "green",
+    "params": "black",
+    "pi": "yellow"
+  }
+}

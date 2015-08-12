@@ -24,7 +24,13 @@
   },
   "homepage": "https://github.com/dthree/uh#readme",
   "devDependencies": {},
-  "dependencies": {},
+  "dependencies": {
+    "chalk": "^1.1.0",
+    "highlight.js": "^8.7.0",
+    "lodash": "^3.10.1",
+    "request": "^2.60.0",
+    "vantage": "^1.3.3"
+  },
   "engines": {
     "node": ">= 0.11.16",
     "iojs": ">= 1.0.0"
