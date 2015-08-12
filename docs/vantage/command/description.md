@@ -1,6 +1,6 @@
-```js
-vantage.command.description(string);
+# vantage.command.description(string);
 
+```js
 // As the second argument to `.command`:
 vantage.command('foo', 'Outputs "bar".');
 

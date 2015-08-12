@@ -1,6 +1,6 @@
-```js
-vantage.command().option(option, [description]);
+# vantage.command().option(option, [description]);
 
+```js
 vantage.command('foo', 'Outputs "bar".')
   .option('-d, --double', 'Outputs "bar" twice.')
   .option('-f', 'Outputs "foo" instead.')
@@ -12,6 +12,8 @@ vantage.command('foo', 'Outputs "bar".')
   	cb();
 	});
 ```
+
+Option Usage:
 ```bash
 ~$ foo -dfw --time -e hello
 { options: {
