@@ -23,6 +23,10 @@
     "url": "https://github.com/dthree/uh/issues"
   },
   "homepage": "https://github.com/dthree/uh#readme",
+  "bin": {
+    "?": "./bin/index.js",
+    "uh": "./bin/index.js"
+  },
   "devDependencies": {},
   "dependencies": {
     "chalk": "^1.1.0",
@@ -36,7 +40,8 @@
     "iojs": ">= 1.0.0"
   },
   "files": [
-    "lib"
+    "lib",
+    "bin"
   ],
   "eslintConfig": {
     "env": {
