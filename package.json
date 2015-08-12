@@ -1,0 +1,45 @@
+{
+  "name": "uh",
+  "version": "0.0.1",
+  "description": "Community-controlled cheat sheets for every coder.",
+  "main": "./lib/index.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dthree/uh.git"
+  },
+  "keywords": [
+    "syntax",
+    "cheat",
+    "cheatsheet",
+    "cli",
+    "community"
+  ],
+  "author": "dthree",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/dthree/uh/issues"
+  },
+  "homepage": "https://github.com/dthree/uh#readme",
+  "devDependencies": {},
+  "dependencies": {},
+  "engines": {
+    "node": ">= 0.11.16",
+    "iojs": ">= 1.0.0"
+  },
+  "files": [
+    "lib"
+  ],
+  "eslintConfig": {
+    "env": {
+      "node": true,
+      "browser": false
+    },
+    "rules": {
+      "no-underscore-dangle": 0,
+      "no-process-exit": 0
+    }
+  }
+}
