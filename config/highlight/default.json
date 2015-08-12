@@ -1,4 +1,25 @@
 {
+  "markdown": {
+    "h1": "white",
+    "h2": "white",
+    "h3": "white",
+    "h4": "white",
+    "h5": "white"
+  },
+  "default": {
+    "keyword": "cyan",
+    "comment": "gray",
+    "number": "red",
+    "literal": "magenta",
+    "built_in": "yellow",
+    "string": "green",
+    "regexp": "magenta",
+    "function": "blue",
+    "title": "green",
+    "params": "black",
+    "pi": "yellow",
+    "operator": "yellow"
+  },
   "js": {
     "keyword": "cyan",
     "comment": "gray",
@@ -12,4 +33,5 @@
     "params": "black",
     "pi": "yellow"
   }
+
 }
