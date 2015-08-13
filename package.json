@@ -1,4 +1,4 @@
-{
+{  
   "name": "uh",
   "version": "0.0.3",
   "description": "Community-controlled cheat sheets for every coder.",
@@ -27,13 +27,17 @@
     "?": "./bin/index.js",
     "uh": "./bin/index.js"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "gulp": "^3.9.0",
+    "gulp-eslint": "^1.0.0"
+  },
   "dependencies": {
     "chalk": "^1.1.0",
     "highlight.js": "^8.7.0",
     "lodash": "^3.10.1",
     "request": "^2.60.0",
-    "vantage": "^1.3.4"
+    "vantage": "^1.3.4",
+    "walk": "^2.3.9"
   },
   "engines": {
     "node": ">= 0.11.16",

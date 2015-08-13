@@ -1,0 +1,17 @@
+{
+  "vantage": {
+    "command": {
+      "description": true,
+      "index": true,
+      "option": true
+    }
+  },
+  "js": {
+    "json": {
+      "stringify": true
+    },
+    "array": {
+      "slice": true
+    }
+  }
+}
