@@ -1,7 +1,6 @@
 ## wat
 
-
-
+Finally, community-built cheat sheets and docs for every coder, in every language and major framework. At the tip of your fingers.
 
 ##### Why?
 
@@ -12,3 +11,13 @@ Because **wat** is having to search `js array splice`, sift through [W3Schools](
 Because I would rather just type:
 
 `wat js array splice`
+
+###### It's easy
+
+Wat was designed to for ease. It takes you:
+
+- [30 seconds to install]()
+
+- [5 minutes to master]()
+
+- [10 minutes to contribute]()
