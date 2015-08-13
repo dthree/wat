@@ -9,28 +9,3 @@ vantage.command('foo', 'Outputs "foobar".')
   	cb();
 	});
 ```
----
-
------
-
---
-
--
-
-* I said so
-* And so on
-* And this is great.
-
-[Go Here](https://github.com/dthree/vantage)
-
-- This
-- Is
-- A numbered list
-
-1. Do things
-2. Do more things
-3. Do even more things
-
-Yes, I've broken it.
-
-And this too.

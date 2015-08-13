@@ -12,11 +12,11 @@ gulp.task("lint", function(){
 });
 
 gulp.task("buildIndex", function(done) {
-	indexer.build(function(index){
-		indexer.write(index);
-	  console.log(index);
-	  done();
-	});
+  indexer.build(function(index){
+    indexer.write(index);
+    console.log(index);
+    done();
+  });
 });
 
 gulp.task("watch", function() {
