@@ -1,10 +1,23 @@
 {
   "vantage": {
     "command": {
+      "alias": true,
       "description": true,
       "index": true,
       "option": true
     }
+  },
+  "robotjs": {
+    "getmousepos": true,
+    "getpixelcolor": true,
+    "getscreensize": true,
+    "keytap": true,
+    "keytoggle": true,
+    "mouseclick": true,
+    "mousetoggle": true,
+    "movemouse": true,
+    "movemousesmooth": true,
+    "typestring": true
   },
   "js": {
     "json": {
