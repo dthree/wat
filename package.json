@@ -1,6 +1,6 @@
 {
   "name": "uh",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "Community-controlled cheat sheets for every coder.",
   "main": "./lib/index.js",
   "scripts": {
