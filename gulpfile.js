@@ -23,4 +23,4 @@ gulp.task("watch", function() {
   gulp.watch("docs/**/*.*", ["buildIndex"]);
 });
 
-gulp.task("default", ["watch"]);
+gulp.task("default", ["watch", "buildIndex"]);

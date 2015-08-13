@@ -2,7 +2,7 @@
 
 ```js
 JSON.stringify({ x: 5 });																				 
-// '{"foo":"bar"}'
+// '{"x":5}'
 
 JSON.stringify({ foo: 'bar', bar: 'foo'}, function(key, value){  
 	return (key === 'bar') ? undefined : value;
@@ -12,7 +12,7 @@ JSON.stringify({ foo: 'bar', bar: 'foo'}, function(key, value){
 JSON.stringify({x:5, y:7}, null, '\t');
 // '{
 //      "x": 5,
-//    	"y": 7
+//      "y": 7
 // }'
 ```  
         
