@@ -46,7 +46,8 @@
   },
   "files": [
     "lib",
-    "bin"
+    "bin",
+    "config"
   ],
   "eslintConfig": {
     "env": {
