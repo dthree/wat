@@ -6,7 +6,7 @@ Finally, community-built cheat sheets and docs for every coder, in every languag
 
 Because **wat** is forgetting the syntax to splice an Array for the 10th time.
 
-Because **wat** is having to search `js splice an array`, sift through [W3Schools](http://www.w3fools.com/) and [MSDN](https://msdn.microsoft.com/en-US/) results, `Command + Click` three [Stack Overflow](http://stackoverflow.com/) tabs, close the first one, digest the second and then scroll to the answer to remember... again. I have 120 tabs open again? Sigh.
+Because **wat** is having to search `js splice an array`, sift through [W3Schools](http://www.w3fools.com/) and [MSDN](https://msdn.microsoft.com/en-US/) results, `Command + Click` three [Stack Overflow](http://stackoverflow.com/) tabs, close the first one, digest the second and then scroll to the answer to remember... again.
 
 Because I would rather just type:
 
@@ -26,3 +26,6 @@ Wat was designed for ease. It will take you:
 - [Thanks, but the command line isn't for me]()
 - [Er, that's not my choice of syntax highlighting]()
 
+###  Contribute
+
+[![Cheet Sheet on Wat](https://img.shields.io/badge/wat-cheat%20sheeted-4395D3.svg)]
