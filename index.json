@@ -2,75 +2,65 @@
   "vantage": {
     "command": {
       "alias": {
-        "index": true
+        "___basic": true
       },
       "description": {
-        "index": true
+        "___basic": true
       },
       "index": {
-        "index": true
+        "___basic": true
       },
       "option": {
-        "index": true
+        "___basic": true
       }
     }
   },
   "robotjs": {
     "getMousePos": {
-      "index": true
+      "___basic": true
     },
     "getPixelColor": {
-      "index": true
+      "___basic": true
     },
     "getScreenSize": {
-      "index": true
+      "___basic": true
     },
     "index": {
-      "install": true,
-      "index": true
+      "___install": true,
+      "___basic": true
     },
     "keyTap": {
-      "index": true
+      "___basic": true
     },
     "keyToggle": {
-      "index": true
+      "___basic": true
     },
     "mouseClick": {
-      "index": true
+      "___detail": true,
+      "___basic": true
     },
     "mouseToggle": {
-      "index": true
+      "___basic": true
     },
     "moveMouse": {
-      "index": true
+      "___basic": true
     },
     "moveMouseSmooth": {
-      "index": true
+      "___basic": true
     },
     "typeString": {
-      "index": true
-    },
-    "indexLess": {
-      "moveMouse": {
-        "index": true
-      },
-      "moveMouseSmooth": {
-        "index": true
-      },
-      "typeString": {
-        "index": true
-      }
+      "___basic": true
     }
   },
   "js": {
     "json": {
       "stringify": {
-        "index": true
+        "___basic": true
       }
     },
     "array": {
       "slice": {
-        "index": true
+        "___basic": true
       }
     }
   }
