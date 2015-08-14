@@ -1,6 +1,65 @@
 # Wat
 
-Finally, community-built cheat sheets and docs for every coder, in every language and major framework. At the tip of your fingers.
+> Your syntax nightmares are over.
+
+Finally, community-built cheat sheets for every coder, in every language and major framework. At the tip of your fingers.
+
+Wat is an interactive app built to drastically reduce time spent searching for syntax and code usage questions. If you forgot how to write a CSS transition, simply type `css transition`. Wat finds what you want, providing exactly and only what you need: a basic description and usage samples.
+
+#### Wat covers everything
+
+Wat provides the only centralized source of syntax cheat sheets for every language and every major framework and library. If a repo has an API and is sufficiently used by the community, it's supported here; be it jQuery, SASS, Go, Dragula or Rails.
+
+#### It's smart
+
+Wat combines an document index, edit-distance algorithms, tabbed auto-completion and common sense to make sure you get what you asked for. It updates itself automatically when the community makes document changes, and optimizes its performance based on the type of languages you use most.
+
+#### It's easy
+
+Wat was designed for ease. It will take you:
+
+- [60 seconds to install]()
+- [5 minutes to master]()
+- [15 minutes to contribute]()
+
+## Contents
+
+- [Install]()
+- [Learn]()
+- [Contribute]()
+- [FAQ]()
+- [License]()
+
+## Installation: 60 seconds
+
+```bash
+npm install -g wat
+```
+- [Oh. I don't do Node](#)
+
+## Mastering Wat: 5 minutes
+
+```bash
+wat tour
+```
+
+## Contributing: 15 minutes
+
+If you understand Markdown and are familiar with a language / library, you can contribute!
+
+1. Read the [contribution guidelines]().
+
+#### Show off your project
+
+![Cheat Sheet on Wat](https://img.shields.io/badge/wat-cheat%20sheeted-4395D3.svg)
+
+Made your project more accessible by contributing to Wat? Show it by copying the badge below into your README.md.
+
+> ![Cheat Sheet on Wat](https://img.shields.io/badge/wat-cheat%20sheeted-4395D3.svg)
+
+## FAQ
+
+- [Why](#why)
 
 #### Why?
 
@@ -12,20 +71,6 @@ Because I would rather just type:
 
 `wat js array splice`
 
-#### It's easy
+## License
 
-Wat was designed for ease. It will take you:
-
-- [30 seconds to install]()
-- [5 minutes to master]()
-- [10 minutes to contribute]()
-
-#### Problems you may think are problems that actually aren't a problem
-
-- [Sorry, I'm not a JS / Node guy]()
-- [Thanks, but the command line isn't for me]()
-- [Er, that's not my choice of syntax highlighting]()
-
-###  Contribute
-
-[![Cheet Sheet on Wat](https://img.shields.io/badge/wat-cheat%20sheeted-4395D3.svg)]
+MIT
