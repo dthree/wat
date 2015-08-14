@@ -12,7 +12,7 @@ Wat provides the only centralized source of syntax cheat sheets for every langua
 
 #### It's smart
 
-Wat combines a document index, edit-distance algorithms, tabbed auto-completion and common sense to make sure you get what you asked for. It updates itself automatically when the community makes document changes, and optimizes its performance based on the type of languages you use most.
+Wat combines a document index, edit-distance algorithms, tabbed auto-completion and common sense to make sure you get what you asked for. It auto-updates when the community adds content, and optimizes its performance based on the content you use most.
 
 #### It's easy
 
@@ -31,7 +31,7 @@ Wat was designed for ease. It takes you:
 - [FAQ]()
 - [License]()
 
-Made with :love: and a little [secret sauce](https://github.com/dthree/vantage).
+Made with :heart: and a little [secret sauce](https://github.com/dthree/vantage).
 
 ### Install
 
@@ -77,7 +77,10 @@ Made your project more accessible by contributing to Wat? Show it off by copying
 
 > JS, HTML, CSS
 
-##### Javascript Libraries
+##### JS Front-End Frameworks
+
+
+##### Node.js Frameworks
 
 > RobotJS, Vantage
 
