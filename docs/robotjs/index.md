@@ -1,4 +1,4 @@
-## robot.typeString(string)
+## Robot JS
 
 Node.js Desktop Automation. Control the mouse, keyboard, and read the screen.
 

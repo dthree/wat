@@ -49,6 +49,17 @@
     },
     "typeString": {
       "index": true
+    },
+    "indexLess": {
+      "moveMouse": {
+        "index": true
+      },
+      "moveMouseSmooth": {
+        "index": true
+      },
+      "typeString": {
+        "index": true
+      }
     }
   },
   "js": {
