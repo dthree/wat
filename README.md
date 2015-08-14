@@ -12,11 +12,11 @@ Wat provides the only centralized source of syntax cheat sheets for every langua
 
 #### It's smart
 
-Wat combines an document index, edit-distance algorithms, tabbed auto-completion and common sense to make sure you get what you asked for. It updates itself automatically when the community makes document changes, and optimizes its performance based on the type of languages you use most.
+Wat combines a document index, edit-distance algorithms, tabbed auto-completion and common sense to make sure you get what you asked for. It updates itself automatically when the community makes document changes, and optimizes its performance based on the type of languages you use most.
 
 #### It's easy
 
-Wat was designed for ease. It will take you:
+Wat was designed for ease. It takes you:
 
 - [60 seconds to install]()
 - [5 minutes to master]()
@@ -27,41 +27,65 @@ Wat was designed for ease. It will take you:
 - [Install]()
 - [Learn]()
 - [Contribute]()
+- [What's on Wat]()
 - [FAQ]()
 - [License]()
 
-## Installation: 60 seconds
+Made with :love: and a little [secret sauce](https://github.com/dthree/vantage).
+
+### Install
+
+> Installation takes 60 seconds.
 
 ```bash
 npm install -g wat
 ```
 - [Oh. I don't do Node](#)
 
-## Mastering Wat: 5 minutes
+### Learn
+
+> This tour will show you how to use Wat in 5 minutes.
 
 ```bash
 wat tour
 ```
 
-## Contributing: 15 minutes
+### Contribute
 
-If you understand Markdown and are familiar with a language / library, you can contribute!
+> Help the community and submit a pull request within 15 minutes.
 
-1. Read the [contribution guidelines]().
+If you understand Markdown and are familiar with a language or library, you can contribute!
+
+1. Pick something you are passionate about.
+
+2. Read the [contribution guidelines]().
+
+3. Start!
 
 #### Show off your project
 
 ![Cheat Sheet on Wat](https://img.shields.io/badge/wat-cheat%20sheeted-4395D3.svg)
 
-Made your project more accessible by contributing to Wat? Show it by copying the badge below into your README.md.
+Made your project more accessible by contributing to Wat? Show it off by copying the badge below into your README.md.
 
-> ![Cheat Sheet on Wat](https://img.shields.io/badge/wat-cheat%20sheeted-4395D3.svg)
+```
+![Cheat Sheet on Wat](https://img.shields.io/badge/wat-cheat%20sheeted-4395D3.svg)
+```
+### Projects now documented on Wat
 
-## FAQ
+##### Languages
 
-- [Why](#why)
+> JS, HTML, CSS
 
-#### Why?
+##### Javascript Libraries
+
+> RobotJS, Vantage
+
+### FAQ
+
+- [Why Wat?](#why)
+
+#### Why Wat?
 
 Because **wat** is forgetting the syntax to splice an Array for the 10th time.
 
@@ -71,6 +95,8 @@ Because I would rather just type:
 
 `wat js array splice`
 
-## License
+[Necessity is the mother of invention](https://en.wikipedia.org/wiki/Necessity_is_the_mother_of_invention), and I needed this.
+
+### License
 
 MIT
