@@ -8,7 +8,7 @@ Wat is an interactive app built to drastically reduce time spent searching for s
 
 #### Wat covers everything
 
-Wat provides the only centralized source of syntax cheat sheets for every language and every major framework and library. If a repo has an API and is sufficiently used by the community, it's supported here; be it jQuery, SASS, Go, Dragula or Rails.
+Wat provides the only centralized source of syntax cheat sheets for every language and every major framework and library. If it has an API and is used by the community, it's supported here; be it [jQuery](https://jquery.com), [Go](https://golang.org/), [React](http://facebook.github.io/react/), [Dragula](https://github.com/bevacqua/dragula) or [Rails](http://rubyonrails.org/).
 
 #### It's smart
 
@@ -18,18 +18,18 @@ Wat combines a document index, edit-distance algorithms, tabbed auto-completion 
 
 Wat was designed for ease. It takes you:
 
-- [60 seconds to install]()
-- [5 minutes to master]()
-- [15 minutes to contribute]()
+- [60 seconds to install](#install)
+- [5 minutes to master](#learn)
+- [15 minutes to contribute](#contribute)
 
 ## Contents
 
-- [Install]()
-- [Learn]()
-- [Contribute]()
-- [What's on Wat]()
-- [FAQ]()
-- [License]()
+- [Install](#install)
+- [Learn](#learn)
+- [Contribute](#contribute)
+- [What's on Wat](#projects-now-documented-on-wat)
+- [FAQ](#faq)
+- [License](#license)
 
 Made with :heart: and a little [secret sauce](https://github.com/dthree/vantage).
 
@@ -40,7 +40,7 @@ Made with :heart: and a little [secret sauce](https://github.com/dthree/vantage)
 ```bash
 npm install -g wat
 ```
-- [Oh. I don't do Node](#)
+- [Oh. I don't do Node](#er-i-dont-do-node)
 
 ### Learn
 
@@ -62,14 +62,18 @@ If you understand Markdown and are familiar with a language or library, you can 
 
 3. Start!
 
-#### Show off your project
+Love Wat? Help spread the word. Every contribution helps the community even more.
 
-![Cheat Sheet on Wat](https://img.shields.io/badge/wat-cheat%20sheeted-4395D3.svg)
+##### Show off your repo
 
-Made your project more accessible by contributing to Wat? Show it off by copying the badge below into your README.md.
+Made your project more accessible by contributing to Wat? 
+
+Show it off by copying the badge below into your README.md.
+
+![Cheat Sheet on Wat](https://img.shields.io/badge/wat-cheat%20sheeted-blue.svg)
 
 ```
-![Cheat Sheet on Wat](https://img.shields.io/badge/wat-cheat%20sheeted-4395D3.svg)
+![Cheat Sheet on Wat](https://img.shields.io/badge/wat-cheat%20sheeted-blue.svg)
 ```
 ### Projects now documented on Wat
 
@@ -88,7 +92,7 @@ Made your project more accessible by contributing to Wat? Show it off by copying
 
 - [Why Wat?](#why)
 
-#### Why Wat?
+##### Why Wat?
 
 Because **wat** is forgetting the syntax to splice an Array for the 10th time.
 
@@ -99,6 +103,16 @@ Because I would rather just type:
 `wat js array splice`
 
 [Necessity is the mother of invention](https://en.wikipedia.org/wiki/Necessity_is_the_mother_of_invention), and I needed this.
+
+##### Er, I don't do Node
+
+Don't worry, you don't have to write a single line of Javascript to use Wat.
+
+Installing Node is easy, and you really should do it. Useful command-line Node apps are being developed at mach speed these days, and Node lets you capitalize on these.
+
+- [Mac Install](https://nodejs.org/dist/v0.12.7/node-v0.12.7.pkg)
+- [Linux Install](https://nodejs.org/dist/v0.12.7/node-v0.12.7-linux-x64.tar.gz): [64 bit](https://nodejs.org/dist/v0.12.7/node-v0.12.7-linux-x64.tar.gz), [32 bit](https://nodejs.org/dist/v0.12.7/node-v0.12.7-linux-x86.tar.gz)
+- [Windows Install](https://nodejs.org/dist/v0.12.7/x64/node-v0.12.7-x64.msi): [64 bit](https://nodejs.org/dist/v0.12.7/x64/node-v0.12.7-x64.msi), [32 bit](https://nodejs.org/dist/v0.12.7/node-v0.12.7-x86.msi)
 
 ### License
 
