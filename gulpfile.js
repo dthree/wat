@@ -13,6 +13,9 @@ gulp.task("lint", function(){
 
 gulp.task("buildIndex", function(done) {
   clerk.start();
+
+
+  return;
   clerk.index.build(function(index){
     clerk.index.write(index);
     //console.log(index);
