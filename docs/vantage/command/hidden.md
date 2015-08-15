@@ -8,5 +8,5 @@ vantage
   .hidden()
   .action(function(args, cb) {
   	cb();
-	});
+	});   
 ```
