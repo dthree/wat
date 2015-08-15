@@ -2,7 +2,7 @@
 
 var gulp = require("gulp");
 var eslint = require("gulp-eslint");
-var indexer = require('./lib/indexer');
+var clerk = require('./lib/clerk');
 
 gulp.task("lint", function(){
   return gulp.src(["lib/*.js", "./*.js", "./bin/*.js"])
@@ -12,9 +12,10 @@ gulp.task("lint", function(){
 });
 
 gulp.task("buildIndex", function(done) {
-  indexer.build(function(index){
-    indexer.write(index);
-    console.log(index);
+  clerk.start();
+  clerk.index.build(function(index){
+    clerk.index.write(index);
+    //console.log(index);
     done();
   });
 });

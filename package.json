@@ -49,8 +49,7 @@
   "files": [
     "lib",
     "bin",
-    "config",
-    "index.json"
+    "config"
   ],
   "eslintConfig": {
     "env": {
