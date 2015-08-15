@@ -1,7 +1,14 @@
-## [].slice([begin[, end]])
+## Array.slice([begin[, end]])
 
 ```js
-['a', 'b', 'c'].slice(0, 2);   // ['a', 'b'];
-['a', 'b', 'c'].slice(2);      // ['c']
+let arr = ['a', 'b', 'c', 'd', 'e'];
+
+// Slicing an Array returns a value,
+// but does not modify the array.
+arr.slice(0, 2);       // ['a', 'b']
+arr.slice(2);          // ['c', 'd', 'e']
+
+arr = arr.slice(3, 4); 
+console.log(arr);      // ['d']
 ```  
              
