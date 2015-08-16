@@ -123,13 +123,13 @@ Node installation links:
 - [Linux Install](https://nodejs.org/dist/v0.12.7/node-v0.12.7-linux-x64.tar.gz): [64 bit](https://nodejs.org/dist/v0.12.7/node-v0.12.7-linux-x64.tar.gz), [32 bit](https://nodejs.org/dist/v0.12.7/node-v0.12.7-linux-x86.tar.gz)
 - [Windows Install](https://nodejs.org/dist/v0.12.7/x64/node-v0.12.7-x64.msi): [64 bit](https://nodejs.org/dist/v0.12.7/x64/node-v0.12.7-x64.msi), [32 bit](https://nodejs.org/dist/v0.12.7/node-v0.12.7-x86.msi)
 
-When done, a terminal and type:
+When done, open a terminal and type:
 
 ```bash
 npm install --global wat
 ```
 
-This automatically installs a software package from (npmjs.com)[http://npmjs.com] and makes the command `wat` recognized globally by your computer, so you just simply enter `wat` anywhere in your terminal. Easy, right? And you're still a proud `[insert language here...]` programmer.
+This automatically installs a software package from [npmjs.com](http://npmjs.com) and makes the command `wat` recognized globally by your computer, so you just simply enter `wat` anywhere in your terminal. Easy, right? And you're still a proud `[insert language here...]` programmer.
 
 [You're ready to use it!](#learn)
 
