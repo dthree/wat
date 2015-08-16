@@ -1,30 +1,34 @@
-"use strict";
+'use strict';
 
-var gulp = require("gulp");
-var eslint = require("gulp-eslint");
-var clerk = require('./lib/clerk');
+let gulp = require('gulp');
+let eslint = require('gulp-eslint');
+let clerk = require('./lib/clerk');
+let chalk = require('chalk');
 
-gulp.task("lint", function(){
-  return gulp.src(["lib/*.js", "./*.js", "./bin/*.js"])
+gulp.task('lint', function(){
+  return gulp.src(['lib/*.js', './*.js', './bin/*.js'])
     .pipe(eslint())
     .pipe(eslint.format())
     .pipe(eslint.failOnError());
 });
 
-gulp.task("buildIndex", function(done) {
-  clerk.start();
+gulp.task('init', function(){
+  clerk.start({
+    updateRemotely: false
+  });
+})
 
-
-  return;
+gulp.task('buildIndex', function(done) {
   clerk.index.build(function(index){
     clerk.index.write(index);
-    //console.log(index);
+    console.log(chalk.cyan('\n           Wat: Rebuilt index.\n'));
     done();
   });
 });
 
-gulp.task("watch", function() {
-  gulp.watch("docs/**/*.*", ["buildIndex"]);
+gulp.task('watch', function() {
+  gulp.watch('docs/**/*.md', ['buildIndex']);
 });
 
-gulp.task("default", ["watch", "buildIndex"]);
+gulp.task('default', ['init', 'watch', 'buildIndex']);
+

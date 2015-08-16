@@ -1,5 +1,5 @@
 {
-  "name": "uh",
+  "name": "wat",
   "version": "0.0.12",
   "description": "Community-controlled cheat sheets for every coder.",
   "main": "./lib/index.js",
@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/dthree/uh.git"
+    "url": "git+https://github.com/dthree/wat.git"
   },
   "keywords": [
     "syntax",
@@ -20,16 +20,17 @@
   "author": "dthree",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/dthree/uh/issues"
+    "url": "https://github.com/dthree/wat/issues"
   },
-  "homepage": "https://github.com/dthree/uh#readme",
+  "homepage": "https://github.com/dthree/wat#readme",
   "bin": {
     "?": "./bin/index.js",
-    "uh": "./bin/index.js"
+    "wat": "./bin/index.js"
   },
   "devDependencies": {
     "gulp": "^3.9.0",
-    "gulp-eslint": "^1.0.0"
+    "gulp-eslint": "^1.0.0",
+    "gulp-util": "^3.0.6"
   },
   "dependencies": {
     "chalk": "^1.1.0",
