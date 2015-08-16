@@ -45,7 +45,7 @@ Made with :heart: and a little [secret sauce](https://github.com/dthree/vantage)
 ```bash
 npm install -g wat
 ```
-[np-what? Oh, isn't that Node? I don't do Node.](#er-i-dont-do-node)
+[np-what? Oh, isn't that Node? I don't do Node.](#sorry-i-dont-speak-node)
 
 ### Learn
 
@@ -69,13 +69,13 @@ If you understand Markdown and are familiar with a language or library, you can 
 
 Love Wat? Help spread the word. Every contribution helps the community even more.
 
-##### Show off your repo
+##### Show off your repo ![Cheat Sheet on Wat](https://img.shields.io/badge/wat-cheat%20sheeted-blue.svg)
 
 Made your project more accessible by contributing to Wat? 
 
 Show it off by copying the badge below into your README.md.
 
-![Cheat Sheet on Wat](https://img.shields.io/badge/wat-cheat%20sheeted-blue.svg)
+
 
 ```
 ![Cheat Sheet on Wat](https://img.shields.io/badge/wat-cheat%20sheeted-blue.svg)
@@ -113,21 +113,23 @@ Because I would rather just type:
 
 Don't worry, it's really not a problem:
 
-You're using a web browser, right? Web browsers interpret javascript. You don't have to write Javascript to use a web browser.
+You're using a web browser, right? Web browsers interpret Javascript. You don't have to write JS to use a web browser. Node similarly interprets JS everywhere else. NPM is the package manager for Javascript. 
 
-Node similarly interprets javascript everywhere else. NPM is the package manager for Javascript. Installation is easy, and you really should do it. There are hundreds of incredible apps you'll be able to make use of, without having to write Javascript.
+Installation is easy and you really should do it: There's hundreds of incredible apps you'll be take advantage of without having to write a single line of Javascript.
 
-1. Simply use the following links to install Node:
+Node installation links:
 
 - [Mac Install](https://nodejs.org/dist/v0.12.7/node-v0.12.7.pkg)
 - [Linux Install](https://nodejs.org/dist/v0.12.7/node-v0.12.7-linux-x64.tar.gz): [64 bit](https://nodejs.org/dist/v0.12.7/node-v0.12.7-linux-x64.tar.gz), [32 bit](https://nodejs.org/dist/v0.12.7/node-v0.12.7-linux-x86.tar.gz)
 - [Windows Install](https://nodejs.org/dist/v0.12.7/x64/node-v0.12.7-x64.msi): [64 bit](https://nodejs.org/dist/v0.12.7/x64/node-v0.12.7-x64.msi), [32 bit](https://nodejs.org/dist/v0.12.7/node-v0.12.7-x86.msi)
 
-2. Open a terminal and type:
+When done, a terminal and type:
 
 ```bash
-npm install -g wat
+npm install --global wat
 ```
+
+This automatically installs a software package from (npmjs.com)[http://npmjs.com] and makes the command `wat` recognized globally by your computer, so you just simply enter `wat` anywhere in your terminal. Easy, right? And you're still a proud `[insert language here...]` programmer.
 
 [You're ready to use it!](#learn)
 
