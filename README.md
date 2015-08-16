@@ -45,7 +45,7 @@ Made with :heart: and a little [secret sauce](https://github.com/dthree/vantage)
 ```bash
 npm install -g wat
 ```
-- [Oh. I don't do Node](#er-i-dont-do-node)
+[np-what? Oh, isn't that Node? I don't do Node.](#er-i-dont-do-node)
 
 ### Learn
 
@@ -109,15 +109,27 @@ Because I would rather just type:
 
 [Necessity is the mother of invention](https://en.wikipedia.org/wiki/Necessity_is_the_mother_of_invention), and I needed this.
 
-##### Er, I don't do Node
+##### Sorry, I don't speak Node
 
-Don't worry, you don't have to write a single line of Javascript to use Wat.
+Don't worry, it's really not a problem:
 
-Installing Node is easy, and you really should do it. Useful command-line Node apps are being developed at mach speed these days, and Node lets you capitalize on these.
+You're using a web browser, right? Web browsers interpret javascript. You don't have to write Javascript to use a web browser.
+
+Node similarly interprets javascript everywhere else. NPM is the package manager for Javascript. Installation is easy, and you really should do it. There are hundreds of incredible apps you'll be able to make use of, without having to write Javascript.
+
+1. Simply use the following links to install Node:
 
 - [Mac Install](https://nodejs.org/dist/v0.12.7/node-v0.12.7.pkg)
 - [Linux Install](https://nodejs.org/dist/v0.12.7/node-v0.12.7-linux-x64.tar.gz): [64 bit](https://nodejs.org/dist/v0.12.7/node-v0.12.7-linux-x64.tar.gz), [32 bit](https://nodejs.org/dist/v0.12.7/node-v0.12.7-linux-x86.tar.gz)
 - [Windows Install](https://nodejs.org/dist/v0.12.7/x64/node-v0.12.7-x64.msi): [64 bit](https://nodejs.org/dist/v0.12.7/x64/node-v0.12.7-x64.msi), [32 bit](https://nodejs.org/dist/v0.12.7/node-v0.12.7-x86.msi)
+
+2. Open a terminal and type:
+
+```bash
+npm install -g wat
+```
+
+[You're ready to use it!](#learn)
 
 ### License
 
