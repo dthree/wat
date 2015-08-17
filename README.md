@@ -84,14 +84,14 @@ Show it off by copying the badge below into your README.md.
 
 ##### Languages
 
-> JS, HTML, CSS
+> JS
 
 ##### JS Front-End Frameworks
 
 
 ##### Node.js Frameworks
 
-> RobotJS, Vantage
+> Chalk, RobotJS, Vantage
 
 ### FAQ
 
