@@ -1,4 +1,4 @@
-## chalk.yellow[.style](string[, string...])
+## chalk.yellow\[.style\](string[, string...])
 
 Colors a string yellow.
 

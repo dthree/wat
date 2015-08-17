@@ -1,4 +1,4 @@
-## chalk.bold[.style](string[, string...])
+## chalk.bold\[.style\](string[, string...])
 
 Applies a bold modifier to a string.
 

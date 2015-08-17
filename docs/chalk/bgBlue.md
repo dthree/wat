@@ -1,4 +1,4 @@
-## chalk.bgBlue[.style](string[, string...])
+## chalk.bgBlue\[.style\](string[, string...])
 
 Applies a blue background color to a string.
 

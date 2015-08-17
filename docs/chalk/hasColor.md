@@ -1,3 +1,4 @@
+
 ## chalk.hasColor(string)
 
 Check whether a string has color.

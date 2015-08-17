@@ -1,4 +1,4 @@
-## chalk.strikethrough[.style](string[, string...])
+## chalk.strikethrough\[.style\](string[, string...])
 
 Applies a strikethrough modifier to a string *(not widely supported)*.
 

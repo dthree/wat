@@ -1,4 +1,4 @@
-## chalk.hidden[.style](string[, string...])
+## chalk.hidden\[.style\](string[, string...])
 
 Hides string so nothing appears to be displayed.
 

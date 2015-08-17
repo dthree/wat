@@ -1,4 +1,4 @@
-## chalk.magenta[.style](string[, string...])
+## chalk.magenta\[.style\](string[, string...])
 
 Colors a string magenta.
 

@@ -1,4 +1,4 @@
-## chalk.blue[.style](string[, string...])
+## chalk.blue\[.style\](string[, string...])
 
 Colors a string blue.
 *On Windows the bright version is used as normal blue is illegible.*

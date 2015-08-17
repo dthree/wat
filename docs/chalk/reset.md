@@ -1,4 +1,4 @@
-## chalk.reset[.style](string[, string...])
+## chalk.reset\[.style\](string[, string...])
 
 Resets any Chalk styles applied to a string.
 

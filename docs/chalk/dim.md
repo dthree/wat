@@ -1,4 +1,4 @@
-## chalk.dim[.style](string[, string...])
+## chalk.dim\[.style\](string[, string...])
 
 Applies a dim modifier to a string.
 

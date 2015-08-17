@@ -1,4 +1,4 @@
-## chalk.underline[.style](string[, string...])
+## chalk.underline\[.style\](string[, string...])
 
 Applies an underline modifier to a string.
 

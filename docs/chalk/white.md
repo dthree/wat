@@ -1,4 +1,4 @@
-## chalk.white[.style](string[, string...])
+## chalk.white\[.style\](string[, string...])
 
 Colors a string white.
 

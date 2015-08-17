@@ -1,4 +1,4 @@
-## chalk.inverse[.style](string[, string...])
+## chalk.inverse\[.style\](string[, string...])
 
 Inverts the default foreground and background colors of a string.
 

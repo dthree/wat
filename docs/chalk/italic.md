@@ -1,4 +1,4 @@
-## chalk.italic[.style](string[, string...])
+## chalk.italic\[.style\](string[, string...])
 
 Applies an italic modifier to a string *(not widely supported)*.
 
