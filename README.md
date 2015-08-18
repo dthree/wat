@@ -4,7 +4,7 @@
 
 #### Wat is nearing its launch, and you can help!
 
-##### Feel free to install and try Wat out, as long as you are running io.js. Wanted are suggestions that to make Wat even more insanely helpful and ridiculously easy to use. Also needed are documentation contributions!
+##### Feel free to install and try Wat out, as long as you are running io.js. Wanted are suggestions on how to make Wat even more ridiculously easy to use and insanely helpful. All document contributions are welcome as well!
 
 ---
 
