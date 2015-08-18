@@ -1,4 +1,4 @@
-## Array.slice([begin[, end]])
+## array.slice([begin[, end]])
 
 ```js
 let arr = ['a', 'b', 'c', 'd', 'e'];
