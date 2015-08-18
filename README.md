@@ -2,8 +2,9 @@
 
 > Your syntax nightmares are over.
 
-### Note: this repo is a work in progress and is not production ready.
+#### Wat is nearing its launch, and you can help!
 
+##### Feel free to install and try Wat out, as long as you are running io.js. Wanted are suggestions that to make Wat even more insanely helpful and ridiculously easy to use. Also needed are documentation contributions!
 
 ---
 
