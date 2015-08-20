@@ -20,6 +20,12 @@ Wat provides the only centralized source of syntax cheat sheets for every langua
 
 Wat combines a document index, edit-distance algorithms, tabbed auto-completion and common sense to make sure you get what you asked for. It auto-updates when the community adds content, and optimizes its performance based on the content you use most.
 
+#### Wat shreds red tape like a frisky cat
+
+Wat's content is not perfect, it isn't formal and it isn't pedantic. Wat doesn't aim to provide letter-perfect, offical documentation for languages. Work like that [is in good hands](https://developer.mozilla.org/en-US/).
+
+If you're building a web browser, refer to [W3C](http://www.w3.org/) for specifications. Wat is targeted for the 99.99% of us who have the basic familiarity with a Library and simply need to look up API or usage samples. 
+
 #### It's easy
 
 Wat was designed for ease. It takes you:
