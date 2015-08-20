@@ -38,3 +38,18 @@ $ git config --global user.email "joctocat@gmail.com"
 ```
 
 ### Step 5: Rebase
+
+Use `git rebase` (not `git merge`) to sync your work from time to time.
+
+```text
+$ git fetch upstream
+$ git rebase upstream/master
+```
+
+### Step 6: Push
+
+```text
+git push
+```
+
+Go to your fork on Github. Click the 'Pull Request' button and fill out the form.
