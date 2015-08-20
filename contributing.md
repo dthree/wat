@@ -4,7 +4,7 @@ Wat is aiming to become a reliable, central source for API and usage snippits fo
 
 ### Step 1: Fork
 
-Fork the project [on GitHub](https://github.com/dthree/wat) then check out your copy locally.
+Fork the project [on GitHub](https://github.com/dthree/wat).
 
 ```text
 $ git clone git@github.com:username/wat.git

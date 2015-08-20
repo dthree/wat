@@ -70,7 +70,7 @@ If you understand Markdown and are familiar with a language or library, you can 
 
 1. Pick something you are passionate about.
 
-2. Read the [contribution guidelines]().
+2. Read the [contribution guidelines](https://github.com/dthree/wat/blob/master/editing.md).
 
 3. Start!
 
