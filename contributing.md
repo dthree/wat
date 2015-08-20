@@ -37,6 +37,11 @@ $ git config --global user.name "Jhonny Octocat"
 $ git config --global user.email "joctocat@gmail.com"
 ```
 
+```
+$ git add .
+$ git commit -m "your commit message"
+```
+
 ### Step 5: Rebase
 
 Use `git rebase` (not `git merge`) to sync your work from time to time.

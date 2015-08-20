@@ -24,7 +24,6 @@
   },
   "homepage": "https://github.com/dthree/wat#readme",
   "bin": {
-    "?": "./bin/index.js",
     "wat": "./bin/index.js"
   },
   "devDependencies": {
