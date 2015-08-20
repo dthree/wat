@@ -36,3 +36,5 @@ Make sure git knows your name and email address:
 $ git config --global user.name "Jhonny Octocat"
 $ git config --global user.email "joctocat@gmail.com"
 ```
+
+### Step 5: Rebase
