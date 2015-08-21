@@ -13,13 +13,10 @@ const argv = require('minimist')(process.argv.slice(2));
 const indexer = require('./indexer');
 const utili = require('./util');
 const clerk = require('./clerk');
-const logger = require('./logger');
 
 const vantage = new Vantage();
 
 clerk.start();
-
-let log = logger(vantage);
 
 // Goodbye in one of 12 languages on sigint.
 vantage.sigint(function(){

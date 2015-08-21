@@ -12,13 +12,10 @@ var argv = require('minimist')(process.argv.slice(2));
 var indexer = require('./indexer');
 var utili = require('./util');
 var clerk = require('./clerk');
-var logger = require('./logger');
 
 var vantage = new Vantage();
 
 clerk.start();
-
-var log = logger(vantage);
 
 // Goodbye in one of 12 languages on sigint.
 vantage.sigint(function () {

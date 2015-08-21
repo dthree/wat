@@ -44,7 +44,7 @@ var indexer = {
     var self = this;
     options = options || {};
     if (options.clerk) {
-      this.clerk = options.clerk;
+      indexer.clerk = options.clerk;
     }
     if (options.updateRemotely === false) {
       this.updateRemotely = false;
@@ -134,8 +134,8 @@ var indexer = {
     var index = JSON.stringify(json, null, '');
     var result = fs.writeFileSync(__dirname + '/../config/index.json', JSON.stringify(json, null, ''));
     this._index = json;
-    this.clerk.config.setLocal("docIndexLastWrite", new Date());
-    this.clerk.config.setLocal("docIndexSize", String(index).length);
+    indexer.clerk.config.setLocal("docIndexLastWrite", new Date());
+    indexer.clerk.config.setLocal("docIndexSize", String(index).length);
     return result;
   },
 

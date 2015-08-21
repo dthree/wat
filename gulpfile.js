@@ -3,8 +3,9 @@
 var gulp = require('gulp');
 var eslint = require('gulp-eslint');
 var babel = require('gulp-babel');
-var clerk = require('./dist/clerk');
 var chalk = require('chalk');
+
+var clerk;
 
 gulp.task('lint', function(){
   return gulp.src(['lib/*.js', './*.js', './bin/*.js'])
@@ -13,8 +14,8 @@ gulp.task('lint', function(){
     .pipe(eslint.failOnError());
 });
 
-gulp.task('init', function(){
-  return;
+gulp.task('initClerk', function(){
+  clerk = require('./dist/clerk');
   clerk.start({
     updateRemotely: false
   });
@@ -40,5 +41,5 @@ gulp.task('babel', function() {
     .pipe(gulp.dest('dist'));
 });
 
-gulp.task('default', ['babel', 'init', 'watch', 'buildIndex']);
+gulp.task('default', ['babel', 'initClerk', 'buildIndex', 'watch']);
 

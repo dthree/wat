@@ -4,7 +4,7 @@
 
 #### Wat is nearing its launch, and you can help
 
-##### Feel free to install and try Wat out, as long as you are running io.js. Wanted are suggestions on how to make Wat even more ridiculously easy to use and insanely helpful. All document contributions are welcome as well!
+##### Feel free to install and try Wat out. Wanted are suggestions on how to make Wat even more ridiculously easy to use and insanely helpful. All document contributions are welcome as well!
 
 #### 1.0 targets:
 
@@ -17,13 +17,13 @@
 - Change temp directory for all persistent local storage and configurations.
 - Finish readme / editing guidelines.
 - At least 20 complete libraries or languages documented.
-- Babel transpiling.
 - Tests.
 - XO linting.
 - *Suggestions? Wat is for you, and must be uncomprimisingly amazing.*
 
 ##### Done
 
+- <s>Babel transpiling.</s>
 - <s>Pass args into initial app call (i.e. make `$ wat js array splice` start up the application and return the results.)</s>
 - <s>Graceful exiting with CONTROL + C.</s>
 
