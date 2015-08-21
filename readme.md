@@ -17,8 +17,7 @@
 - Change temp directory for all persistent local storage and configurations.
 - Finish readme / editing guidelines.
 - At least 20 complete libraries or languages documented.
-
-* Suggestions? Wat is for you, and must be uncomprimisingly amazing.
+- *Suggestions? Wat is for you, and must be uncomprimisingly amazing.*
 
 ##### Done
 
