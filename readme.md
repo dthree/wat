@@ -17,6 +17,9 @@
 - Change temp directory for all persistent local storage and configurations.
 - Finish readme / editing guidelines.
 - At least 20 complete libraries or languages documented.
+- Babel transpiling.
+- Tests.
+- XO linting.
 - *Suggestions? Wat is for you, and must be uncomprimisingly amazing.*
 
 ##### Done

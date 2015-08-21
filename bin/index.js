@@ -2,5 +2,5 @@
 
 'use strict';
 
-const uh = require("./../");
+var uh = require("./../");
 
