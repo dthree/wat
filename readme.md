@@ -14,7 +14,6 @@
 - Preference commands implemented (syntax highlighting flavor, etc.).
 - Import / Export preference commands.
 - Raw command-line auto-completion implemented.
-- Change temp directory for all persistent local storage and configurations.
 - Finish readme / editing guidelines.
 - At least 20 complete libraries or languages documented.
 - Tests.
@@ -23,6 +22,7 @@
 
 ##### Done
 
+- <s>Change temp directory for all persistent local storage and configurations.</s>
 - <s>Babel transpiling.</s>
 - <s>Pass args into initial app call (i.e. make `$ wat js array splice` start up the application and return the results.)</s>
 - <s>Graceful exiting with CONTROL + C.</s>
