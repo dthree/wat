@@ -86,7 +86,7 @@ vantage
     if (queue.length > 0) {
       this.log(chalk.bold('\n  Command'));
     } else {
-      this.log(chalk.bold('\n  No updates in the queue.\n  To do a fresh update, run the "' + chalk.cyan('update') + '" command.'))
+      this.log(chalk.bold('\n  No updates in the queue.\n  To do a fresh update, run the "' + chalk.cyan('update') + '" command.'));
     }
     for (let i = queue.length - 1; i > limit; i--) {
       let item = String(queue[i]).split('docs/');

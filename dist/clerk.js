@@ -13,12 +13,16 @@ var cosmetician = require('./cosmetician');
 var request = require('request');
 var chalk = require('chalk');
 var util = require('./util');
+var tmp = require('tmp');
+var os = require('os');
+var path = require('path');
 
 var clerk = {
 
   lastUserAction: void 0,
 
   paths: {
+    tempDir: path.join(os.tmpdir(), '/.wat'),
     prefs: './.local/prefs.json',
     cache: './.local/cache.json',
     hist: './.local/hist.json',
@@ -39,18 +43,19 @@ var clerk = {
   },
 
   scaffold: function scaffold() {
-    mkdirp.sync(__dirname + '/../.local');
-    mkdirp.sync(__dirname + '/../.local/docs');
+    mkdirp.sync(path.join(os.tmpdir(), '/.wat'));
+    mkdirp.sync(clerk.paths.tempDir + '/.local');
+    mkdirp.sync(clerk.paths.tempDir + '/.local/docs');
     this.scaffoldDocs();
-    fs.appendFileSync(__dirname + '/../' + this.paths.prefs, '');
-    fs.appendFileSync(__dirname + '/../' + this.paths.cache, '');
-    fs.appendFileSync(__dirname + '/../' + this.paths.hist, '');
+    fs.appendFileSync(clerk.paths.tempDir + '/' + this.paths.prefs, '');
+    fs.appendFileSync(clerk.paths.tempDir + '/' + this.paths.cache, '');
+    fs.appendFileSync(clerk.paths.tempDir + '/' + this.paths.hist, '');
     return this;
   },
 
   scaffoldDocs: function scaffoldDocs() {
     var index = this.index.index() || {};
-    var dir = __dirname + '/../.local/docs/';
+    var dir = clerk.paths.tempDir + '/.local/docs/';
     function traverse(idx, path) {
       for (var key in idx) {
         // Clean out all files with '__...'
@@ -70,7 +75,7 @@ var clerk = {
 
   forEachInIndex: function forEachInIndex(callback) {
     var index = this.index.index() || {};
-    var dir = __dirname + '/../.local/docs/';
+    var dir = clerk.paths.tempDir + '/.local/docs/';
     function traverse(idx, path) {
       var _loop = function (key) {
         // Clean out all files with '__...'
@@ -156,7 +161,7 @@ var clerk = {
   },
 
   load: function load() {
-    var hist = fs.readFileSync(__dirname + '/../' + this.paths.hist, { encoding: 'utf-8' });
+    var hist = fs.readFileSync(this.paths.tempDir + '/' + this.paths.hist, { encoding: 'utf-8' });
     try {
       hist = JSON.parse(hist);
       this.history._hist = hist;
@@ -199,7 +204,7 @@ var clerk = {
   fetchLocal: function fetchLocal(path) {
     var file = undefined;
     try {
-      file = fs.readFileSync(__dirname + '/../' + this.paths.docs + path, { encoding: 'utf-8' });
+      file = fs.readFileSync(clerk.paths.tempDir + '/' + this.paths.docs + path, { encoding: 'utf-8' });
       return file;
     } catch (e) {
       return void 0;
@@ -222,7 +227,7 @@ var clerk = {
 
   file: function file(path, data, retry) {
     try {
-      fs.appendFileSync(__dirname + '/../' + this.paths.docs + path, data, { flag: 'w' });
+      fs.appendFileSync(clerk.paths.tempDir + '/' + this.paths.docs + path, data, { flag: 'w' });
     } catch (e) {
       if (retry === undefined) {
         this.scaffold();
@@ -377,7 +382,7 @@ var clerk = {
       if (this._hist.length > this._max) {
         this._hist = this._hist.slice(this._hist.length - this._max);
       }
-      fs.writeFileSync(__dirname + '/../.local/hist.json', JSON.stringify(this._hist));
+      fs.writeFileSync(clerk.paths.tempDir + '/.local/hist.json', JSON.stringify(this._hist));
       return this;
     }
 
