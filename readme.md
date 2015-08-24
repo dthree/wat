@@ -64,7 +64,7 @@ Wat was designed for ease. It takes you:
 - [FAQ](#faq)
 - [License](#license)
 
-Made with :heart: and a little [secret sauce](https://github.com/dthree/vantage).
+Made with :heart: and a little [secret sauce](https://github.com/dthree/vorpal).
 
 ### Install
 

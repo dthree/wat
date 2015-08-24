@@ -6,7 +6,7 @@
  */
 
 const _ = require('lodash');
-const Vantage = require('vantage');
+const Vorpal = require('vorpal');
 const moment = require('moment');
 const chalk = require('chalk');
 const argv = require('minimist')(process.argv.slice(2));
@@ -14,28 +14,28 @@ const indexer = require('./indexer');
 const utili = require('./util');
 const clerk = require('./clerk');
 
-const vantage = new Vantage();
+const vorpal = new Vorpal();
 
 clerk.start();
 
 // Goodbye in one of 12 languages on sigint.
-vantage.sigint(function(){
+vorpal.sigint(function(){
   const goodbye = ['Adios', 'Goodbye', 'Au Revoir', 'Ciao', 'Pa', 'Ade', 'Dag', 'Farvel', 'Poka', 'Ćao', 'Shalom', 'Aloha'];
   const address = goodbye[Math.floor(Math.random() * goodbye.length)];
-  vantage.log(chalk.cyan(address + '!'));
-  vantage.ui.pause();
+  vorpal.log(chalk.cyan(address + '!'));
+  vorpal.ui.pause();
   process.exit(0);
 });
 
-vantage
+vorpal
   .delimiter('?')
   .hideCommand('help')
   .removeCommand('use')
-  .removeCommand('vantage')
+  .removeCommand('vorpal')
   .removeCommand('repl')
   .show();
 
-vantage
+vorpal
   .command('index', 'Rebuilds index.')
   .action(function(args, cb){
     clerk.index.build(function(index){
@@ -43,14 +43,14 @@ vantage
     });
   });
 
-vantage
+vorpal
   .command('compare', 'Compare\'s index doc dates to existing dates in local docs.')
   .action(function(args, cb){
     clerk.compareDocs();
     cb();
   });
 
-vantage
+vorpal
   .command('update', 'Forces an update of the document index.')
   //.option('-a, --all', 'Downloads all Wat documents (takes a bit).')
   .action(function(args, cb){
@@ -75,7 +75,7 @@ vantage
 
   });
 
-vantage
+vorpal
   .command('show updates', 'Shows what docs are mid being updated.')
   .option('-m, --max', 'Maximum history items to show.')
   .action(function(args, cb){
@@ -102,7 +102,7 @@ vantage
     cb();
   })
 
-vantage
+vorpal
   .command('show hist', 'Shows recent command history.')
   .option('-m, --max', 'Maximum history items to show.')
   .action(function(args, cb){
@@ -125,7 +125,7 @@ vantage
     cb();
   })
 
-vantage
+vorpal
   .catch('[commands...]')
   .option('-d, --detail', 'View detailed markdown on item.')
   .option('-i, --install', 'View installation instructions.')
@@ -205,7 +205,7 @@ for (let item in argv) {
 }
 
 if (process.argv.length > 2) {
-  vantage.exec(args.commands.join(' '), args)
+  vorpal.exec(args.commands.join(' '), args)
 }
 
 //console.log(args);

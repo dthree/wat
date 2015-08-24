@@ -17,17 +17,18 @@ const tmp = require('tmp');
 const os = require('os');
 const path = require('path');
 
+const temp = path.join(os.tmpdir(), '/.wat');
+
 const clerk = {
 
   lastUserAction: void 0,
 
-
   paths: {
-    tempDir: path.join(os.tmpdir(), '/.wat'),
-    prefs: paths.tempDir + '/.local/prefs.json',
-    cache: paths.tempDir + '/.local/cache.json',
-    hist: paths.tempDir + '/.local/hist.json',
-    docs: paths.tempDir + '/.local/docs/',
+    tempDir: temp,
+    prefs: temp + '/.local/prefs.json',
+    cache: temp + '/.local/cache.json',
+    hist: temp + '/.local/hist.json',
+    docs: temp + '/.local/docs/',
     config: './config/config.json',
     remoteDocUrl: '',
     remoteConfigUrl: '',

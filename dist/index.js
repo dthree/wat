@@ -5,7 +5,7 @@
  */
 
 var _ = require('lodash');
-var Vantage = require('vantage');
+var Vorpal = require('vorpal');
 var moment = require('moment');
 var chalk = require('chalk');
 var argv = require('minimist')(process.argv.slice(2));
@@ -13,33 +13,33 @@ var indexer = require('./indexer');
 var utili = require('./util');
 var clerk = require('./clerk');
 
-var vantage = new Vantage();
+var vorpal = new Vorpal();
 
 clerk.start();
 
 // Goodbye in one of 12 languages on sigint.
-vantage.sigint(function () {
+vorpal.sigint(function () {
   var goodbye = ['Adios', 'Goodbye', 'Au Revoir', 'Ciao', 'Pa', 'Ade', 'Dag', 'Farvel', 'Poka', 'Ćao', 'Shalom', 'Aloha'];
   var address = goodbye[Math.floor(Math.random() * goodbye.length)];
-  vantage.log(chalk.cyan(address + '!'));
-  vantage.ui.pause();
+  vorpal.log(chalk.cyan(address + '!'));
+  vorpal.ui.pause();
   process.exit(0);
 });
 
-vantage.delimiter('?').hideCommand('help').removeCommand('use').removeCommand('vantage').removeCommand('repl').show();
+vorpal.delimiter('?').hideCommand('help').removeCommand('use').removeCommand('vorpal').removeCommand('repl').show();
 
-vantage.command('index', 'Rebuilds index.').action(function (args, cb) {
+vorpal.command('index', 'Rebuilds index.').action(function (args, cb) {
   clerk.index.build(function (index) {
     cb();
   });
 });
 
-vantage.command('compare', 'Compare\'s index doc dates to existing dates in local docs.').action(function (args, cb) {
+vorpal.command('compare', 'Compare\'s index doc dates to existing dates in local docs.').action(function (args, cb) {
   clerk.compareDocs();
   cb();
 });
 
-vantage.command('update', 'Forces an update of the document index.')
+vorpal.command('update', 'Forces an update of the document index.')
 //.option('-a, --all', 'Downloads all Wat documents (takes a bit).')
 .action(function (args, cb) {
   var self = this;
@@ -61,7 +61,7 @@ vantage.command('update', 'Forces an update of the document index.')
   }
 });
 
-vantage.command('show updates', 'Shows what docs are mid being updated.').option('-m, --max', 'Maximum history items to show.').action(function (args, cb) {
+vorpal.command('show updates', 'Shows what docs are mid being updated.').option('-m, --max', 'Maximum history items to show.').action(function (args, cb) {
   var queue = clerk.updater.queue;
   var max = args.options.max || 30;
   var limit = queue.length - 1 - max;
@@ -85,7 +85,7 @@ vantage.command('show updates', 'Shows what docs are mid being updated.').option
   cb();
 });
 
-vantage.command('show hist', 'Shows recent command history.').option('-m, --max', 'Maximum history items to show.').action(function (args, cb) {
+vorpal.command('show hist', 'Shows recent command history.').option('-m, --max', 'Maximum history items to show.').action(function (args, cb) {
   var types = {
     'command': 'Command',
     'update': 'Update'
@@ -105,7 +105,7 @@ vantage.command('show hist', 'Shows recent command history.').option('-m, --max'
   cb();
 });
 
-vantage['catch']('[commands...]').option('-d, --detail', 'View detailed markdown on item.').option('-i, --install', 'View installation instructions.').autocompletion(function (text, iteration, cb) {
+vorpal['catch']('[commands...]').option('-d, --detail', 'View detailed markdown on item.').option('-i, --install', 'View installation instructions.').autocompletion(function (text, iteration, cb) {
   var self = this;
   var index = clerk.index.index();
   var result = utili.autocomplete(text, iteration, index, function (word, options) {
@@ -179,7 +179,7 @@ for (var item in argv) {
 }
 
 if (process.argv.length > 2) {
-  vantage.exec(args.commands.join(' '), args);
+  vorpal.exec(args.commands.join(' '), args);
 }
 
 //console.log(args);
