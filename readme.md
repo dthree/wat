@@ -22,6 +22,7 @@
 
 ##### Done
 
+- <s>Refactor Vorpal dependency to Vantage.</s>
 - <s>Change temp directory for all persistent local storage and configurations.</s>
 - <s>Babel transpiling.</s>
 - <s>Pass args into initial app call (i.e. make `$ wat js array splice` start up the application and return the results.)</s>

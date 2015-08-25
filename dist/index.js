@@ -26,7 +26,12 @@ vorpal.sigint(function () {
   process.exit(0);
 });
 
-vorpal.delimiter('?').hideCommand('help').removeCommand('use').removeCommand('vorpal').removeCommand('repl').show();
+var help = vorpal.find('help');
+if (help) {
+  help.remove();
+}
+
+vorpal.delimiter('?').show();
 
 vorpal.command('index', 'Rebuilds index.').action(function (args, cb) {
   clerk.index.build(function (index) {

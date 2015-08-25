@@ -27,12 +27,13 @@ vorpal.sigint(function(){
   process.exit(0);
 });
 
+const help = vorpal.find('help');
+if (help) {
+  help.remove();  
+}
+
 vorpal
   .delimiter('?')
-  .hideCommand('help')
-  .removeCommand('use')
-  .removeCommand('vorpal')
-  .removeCommand('repl')
   .show();
 
 vorpal
