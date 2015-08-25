@@ -1,11 +1,11 @@
-# vantage.command.description(string);
+## vorpal.command.description(string);
 
 ```js
 // As the second argument to `.command`:
-vantage.command('foo', 'Outputs "bar".');
+vorpal.command('foo', 'Outputs "bar".');
 
 // As its own command.
-vantage
+vorpal
 	.command('foo')
 	.description('Outputs "bar"');
 ```

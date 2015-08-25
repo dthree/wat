@@ -1,5 +1,5 @@
 ```js
-vantage
+vorpal
   .command('foo <requiredArg> [optionalArg] [variadicArgs...]')
   .description('Outputs "bar".')
   .alias('foobar')

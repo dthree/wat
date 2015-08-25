@@ -1,7 +1,7 @@
-# vantage.command().alias(string);
+## vorpal.command().alias(string);
 
 ```js
-vantage.command('foo', 'Outputs "foobar".')
+vorpal.command('foo', 'Outputs "foobar".')
   .alias('foobar')
   .alias('foosball')
   .action(function(args, cb) {

@@ -1,7 +1,7 @@
-# vantage.command().option(option, [description]);
+# vorpal.command().option(option, [description]);
 
 ```js
-vantage.command('foo', 'Outputs "bar".')
+vorpal.command('foo', 'Outputs "bar".')
   .option('-d, --double', 'Outputs "bar" twice.')
   .option('-f', 'Outputs "foo" instead.')
   .option('--time', 'Outputs the current time.')

@@ -97,7 +97,7 @@ If you understand Markdown and are familiar with a language or library, you can 
 
 Love Wat? Help spread the word. Every contribution helps the community even more.
 
-##### Show off your repo ![Cheat Sheet on Wat](https://img.shields.io/badge/wat-cheat%20sheeted-blue.svg)
+##### Show off your repo [![Wat: Cheat Sheeted](https://img.shields.io/badge/wat-cheat%20sheeted-blue.svg)](https://github.com/dthree/wat)
 
 Made your project more accessible by contributing to Wat? 
 
@@ -106,7 +106,7 @@ Show it off by copying the badge below into your README.md.
 
 
 ```
-![Cheat Sheet on Wat](https://img.shields.io/badge/wat-cheat%20sheeted-blue.svg)
+[![Wat: Cheat Sheeted](https://img.shields.io/badge/wat-cheat%20sheeted-blue.svg)](https://github.com/dthree/wat)
 ```
 ### Projects now documented on Wat
 
