@@ -91,7 +91,7 @@ If you understand Markdown and are familiar with a language or library, you can 
 
 1. Pick something you are passionate about.
 
-2. Read the [contribution guidelines](https://github.com/dthree/wat/blob/master/editing.md).
+2. Read the [contribution guidelines](https://github.com/dthree/wat/blob/master/contributing.md).
 
 3. Start!
 
@@ -103,12 +103,9 @@ Love Wat? Help spread the word. Every contribution helps the community even more
 
 > JS
 
-##### JS Front-End Frameworks
-
-
 ##### Node.js Frameworks
 
-> Chalk, RobotJS, Vantage
+> [Chalk](https://github.com/sindresorhus/chalk), [Robot JS](https://github.com/octalmage/robotjs), [Vantage](https://github.com/dthree/vantage), [Vorpal](https://github.com/dthree/vorpal)
 
 ### FAQ
 
