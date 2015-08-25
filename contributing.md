@@ -58,3 +58,15 @@ git push
 ```
 
 Go to your fork on Github. Click the 'Pull Request' button and fill out the form.
+
+### Now show off your repo! 
+
+[![Wat: Cheat Sheeted](https://img.shields.io/badge/wat-cheat%20sheeted-blue.svg)](https://github.com/dthree/wat)
+
+Made your project more accessible by contributing to Wat? 
+
+Show it off by copying the badge below into your README.md.
+
+```
+[![Wat: Cheat Sheeted](https://img.shields.io/badge/wat-cheat%20sheeted-blue.svg)](https://github.com/dthree/wat)
+```
