@@ -14,9 +14,7 @@ $ git remote add upstream git://github.com/dthree/wat.git
 
 ### Step 2: Adding / editing content
 
-All editing is done in the `./docs/` folder of the project root. 
-
-Please refer to the [editing guidelines](https://github.com/dthree/wat/blob/master/editing.md) on how to place and structure content.
+Add your content! Ensure you follow the [editing guidelines](https://github.com/dthree/wat/blob/master/editing.md).
 
 ### Step 3: Rebuild
 
