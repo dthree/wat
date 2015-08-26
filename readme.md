@@ -52,35 +52,35 @@ Wat was designed for ease. It takes you:
 
 Made with :heart: and a little [secret sauce](https://github.com/dthree/vorpal).
 
-### Introduction
+## Introduction
 
-##### Wat covers everything
+#### Wat covers everything
 
 Wat provides the only centralized source of syntax cheat sheets for every language and every major framework and library. If it has an API and is used by the community, it's supported here; be it [jQuery](https://jquery.com), [Go](https://golang.org/), [React](http://facebook.github.io/react/), [Dragula](https://github.com/bevacqua/dragula) or [Rails](http://rubyonrails.org/).
 
-##### It's smart
+#### It's smart
 
 Wat combines a document index, edit-distance algorithms, tabbed auto-completion and common sense to make sure you get what you asked for. It auto-updates when the community adds content, and optimizes its performance based on the content you use most.
 
-##### Wat shreds red tape like a frisky cat
+#### Wat shreds red tape like a frisky cat
 
 Wat's content is not perfect, it isn't formal and it isn't pedantic. Wat doesn't aim to provide letter-perfect, offical documentation for languages. Work like that [is in good hands](https://developer.mozilla.org/en-US/).
 
 If you're building a web browser, refer to [W3C](http://www.w3.org/) for specifications. Wat is targeted for the 99.99% of us who have the basic familiarity with a Library and simply need to look up API or usage samples. 
 
-### Install
+## Install
 
 ```bash
 npm install -g wat
 ```
 [np-what? Oh, isn't that Node? I don't do Node.](#sorry-i-dont-speak-node)
 
-### Learn
+## Learn
 
 ```bash
 wat tour
 ```
-### Contribute
+## Contribute
 
 > Help the community and submit a pull request within 15 minutes.
 
@@ -96,7 +96,7 @@ If you understand Markdown and are familiar with a language or library, you can 
 
 Love Wat? Help spread the word. Every contribution helps the community even more.
 
-### Projects now documented on Wat
+## Projects now documented on Wat
 
 ##### Languages
 
@@ -106,7 +106,7 @@ Love Wat? Help spread the word. Every contribution helps the community even more
 
 > [Chalk](https://github.com/sindresorhus/chalk), [Robot JS](https://github.com/octalmage/robotjs), [Vantage](https://github.com/dthree/vantage), [Vorpal](https://github.com/dthree/vorpal)
 
-### FAQ
+## FAQ
 
 - [Why Wat?](#why)
 - [Sorry, I don't speak Node](#why)
@@ -126,11 +126,11 @@ Because I would rather just type:
 
 Don't worry, it's not a problem:
 
-You're using a web browser, right? Web browsers interpret Javascript on the internet. 
+You're using a web browser, right? Web browsers interpret Javascript on the Internet. 
 
 Similarly, Node interprets Javascript everywhere else. You don't have to write JS to use Node.
 
-Installation is easy and you won't regret it: There's hundreds of incredible apps you'll be able to take advantage of.
+Installation is easy and you won't regret it: there's hundreds of incredible apps you'll be able to take advantage of.
 
 Node installation links:
 
@@ -138,24 +138,26 @@ Node installation links:
 - [Linux Install](https://nodejs.org/dist/v0.12.7/node-v0.12.7-linux-x64.tar.gz): [64 bit](https://nodejs.org/dist/v0.12.7/node-v0.12.7-linux-x64.tar.gz), [32 bit](https://nodejs.org/dist/v0.12.7/node-v0.12.7-linux-x86.tar.gz)
 - [Windows Install](https://nodejs.org/dist/v0.12.7/x64/node-v0.12.7-x64.msi): [64 bit](https://nodejs.org/dist/v0.12.7/x64/node-v0.12.7-x64.msi), [32 bit](https://nodejs.org/dist/v0.12.7/node-v0.12.7-x86.msi)
 
-When done, open a terminal and type:
+Once installed, open a terminal and type:
 
 ```bash
 npm install --global wat
 ```
 
-This automatically installs a software package and makes the command `wat` recognized globally by your computer, so you just run `wat` in your terminal. Easy, right? And you're still a proud `[insert language here...]` developer.
+This automatically installs it and makes the command `wat` recognized globally by your computer, so you just run `wat` in your terminal. 
+
+Easy, right? And you're still a proud `[insert language here...]` developer.
 
 [You're ready to use it!](#learn)
 
 #### How does Wat relate to Dash?
 
-[Dash](https://kapeli.com/dash) is extraordinarily well put together API Documentation Browser and Code Snippet Manager for OS X and iOS. It stores snippets of code and instantly searches offline documentation sets for 150+ APIs. 
+[Dash](https://kapeli.com/dash) is extraordinarily well put together API Documentation Browser and Code Snippet Manager for OSX and iOS. It stores snippets of code and instantly searches offline documentation sets for 150+ APIs. 
 
 Dash is a desktop application, and is more focused on centralizing official docs in addition to its cheat sheets. Wat is a command-line-based application and is more targeted at centralizing smaller libraries across all languages.
 
-Whichever your preference, Dash and Wat intend to work together to cover all bases, with the common purpose of giving you fast-as-possible reference to the code you use.
+Whichever your preference, Dash and Wat intend to work together to cover all bases with the common purpose of giving you fast-as-possible reference to the code you use.
 
-### License
+## License
 
 MIT
