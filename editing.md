@@ -115,15 +115,6 @@ Returns an array from the passed in arguments.
 ```
 
 ```text
-## Array.of(element[, elementN...])
-
-Returns an array from the passed in arguments.
-
-    const arr = Array.of(1, 2, 3); // [1, 2, 3]
-    const arr = Array.of(3);       // [3]
-```
-
-```text
 ## JSON.stringify(value[, replacer[, space]])
 
     JSON.stringify({ x: 5 });                                        
