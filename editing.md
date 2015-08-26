@@ -2,7 +2,7 @@
 
 ## Folder Structure
 
-Wat documents are organized to as much as possible mirror the syntactic structure of a language or library. The root `/docs` folder has a folder for each language or library. Each `function`, `method` or `property` of that library has a corresponding markdown file. 
+Wat documents are designed to mirror the syntactic structure of a language or library as much as possible. The root `/docs` folder has a folder for each language or library. Each `function`, `method` or `property` of that library has a corresponding markdown file. 
 
 For example, to represent the cheat sheat for Javascript's `array.splice()` method, use this folder structure:
 
@@ -29,7 +29,7 @@ If an item has child properties and so needs a folder but also deserves document
 
 ##### Basic: [item].md
 
-Every `function`, `method` and `property` of a language or library should have its own markdown. As a general rule, these documents are *snippits* and should not exceed 24 lines. This matches the bottom line on terminal line heights: the user should not have to scroll his terminal to get the information needed.
+Every `function`, `method` and `property` of a language or library should have its own markdown file. As a general rule, these documents are *snippits* and should not exceed 24 lines. This matches the bottom line on terminal line heights: the user should not have to scroll his terminal to get the information needed.
 
 ##### Detail: [item].detail.md
 
@@ -63,11 +63,11 @@ $ wat chalk
 ```
 ## Naming Conventions
 
-Regardless of the language or library's naming conventions, all folder and file names should be in camel case. The purpose of this is to give Wat a clean feel for the user and not distract them by attempts to remember proper casing.
+Regardless of the language or library's naming conventions, all folder and file names should be in camel case. The purpose of this is to give Wat a clean feel for the user and not a distraction.
 
 The only permitted characters for all files and folders are alphanumeric. If you find yourself putting a `.`, it means you should probably make a folder instead.
 
-### Markdown style
+## Markdown style
 
 While languages differ and keeping perfect uniformity will not be possible, try to follow this guide as best as possible.
 
@@ -87,7 +87,7 @@ Optional parameters are covered in brackets. Limitless parameters would be shown
 ## .splice(start, deleteCount[, itemN...])
 ```
 
-For `methods` and `properties`, the root object *instance* is implied. Do not use `array.splice()`. However, if referring to a `function` of the class itself and not an instance, include the capitalized full class name:
+For `methods` and `properties`, the root object *instance* is implied. Omit the `array` in `array.splice()`. However, if referring to a `function` of the class itself and not an instance, include the capitalized full class name:
 
 ```text
 ## Array.of(element[, elementN...])
@@ -114,6 +114,7 @@ Returns an array from the passed in arguments.
 const arr = Array.of(1, 2, 3); // [1, 2, 3]
 const arr = Array.of(3);       // [3]
 ``````
+
 ```
 
 ```text
@@ -125,6 +126,7 @@ Returns an array from the passed in arguments.
 const arr = Array.of(1, 2, 3); // [1, 2, 3]
 const arr = Array.of(3);       // [3]
 ``````
+
 ```
 
 ```text
@@ -145,6 +147,7 @@ JSON.stringify({x:5, y:7}, null, '\t');
 //      "y": 7
 // }'
 ``````  
+
 ```
 
 ## Summary
