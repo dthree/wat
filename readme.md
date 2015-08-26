@@ -2,6 +2,30 @@
 
 > Your syntax nightmares are over.
 
+Finally, community-built cheat sheets for every coder, in every language and major framework. At the tip of your fingers.
+
+Wat is an interactive app built to drastically reduce time spent searching for syntax and code usage questions. If you forgot how to write a CSS transition, simply type `css transition`. Wat finds what you want, providing exactly and only what you need: a basic description and usage samples.
+
+Wat was designed for ease. It takes you:
+
+- [60 seconds to install](#install)
+- [5 minutes to master](#learn)
+- [15 minutes to contribute](#contribute)
+
+## Contents
+
+- [Introduction](#introduction)
+- [Install](#install)
+- [Learn](#learn)
+- [Contribute](#contribute)
+- [What's on Wat](#projects-now-documented-on-wat)
+- [FAQ](#faq)
+- [License](#license)
+
+Made with :heart: and a little [secret sauce](https://github.com/dthree/vorpal).
+
+## Introduction
+
 #### Wat is nearing its launch, and you can help
 
 ##### Feel free to install and try Wat out. Wanted are suggestions on how to make Wat even more ridiculously easy to use and insanely helpful. All document contributions are welcome as well!
@@ -29,30 +53,6 @@
 - <s>Graceful exiting with CONTROL + C.</s>
 
 ---
-
-Finally, community-built cheat sheets for every coder, in every language and major framework. At the tip of your fingers.
-
-Wat is an interactive app built to drastically reduce time spent searching for syntax and code usage questions. If you forgot how to write a CSS transition, simply type `css transition`. Wat finds what you want, providing exactly and only what you need: a basic description and usage samples.
-
-Wat was designed for ease. It takes you:
-
-- [60 seconds to install](#install)
-- [5 minutes to master](#learn)
-- [15 minutes to contribute](#contribute)
-
-## Contents
-
-- [Introduction](#introduction)
-- [Install](#install)
-- [Learn](#learn)
-- [Contribute](#contribute)
-- [What's on Wat](#projects-now-documented-on-wat)
-- [FAQ](#faq)
-- [License](#license)
-
-Made with :heart: and a little [secret sauce](https://github.com/dthree/vorpal).
-
-## Introduction
 
 #### Wat covers everything
 
