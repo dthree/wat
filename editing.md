@@ -110,11 +110,8 @@ Code samples should give a use of the item, and then a comment giving the result
 
 Returns an array from the passed in arguments.
 
-``````js
-const arr = Array.of(1, 2, 3); // [1, 2, 3]
-const arr = Array.of(3);       // [3]
-``````
-
+    const arr = Array.of(1, 2, 3); // [1, 2, 3]
+    const arr = Array.of(3);       // [3]
 ```
 
 ```text
@@ -122,32 +119,26 @@ const arr = Array.of(3);       // [3]
 
 Returns an array from the passed in arguments.
 
-``````js
-const arr = Array.of(1, 2, 3); // [1, 2, 3]
-const arr = Array.of(3);       // [3]
-``````
-
+    const arr = Array.of(1, 2, 3); // [1, 2, 3]
+    const arr = Array.of(3);       // [3]
 ```
 
 ```text
 ## JSON.stringify(value[, replacer[, space]])
 
-``````js
-JSON.stringify({ x: 5 });                                        
-// '{"x":5}'
+    JSON.stringify({ x: 5 });                                        
+    // '{"x":5}'
 
-JSON.stringify({ foo: 'bar', bar: 'foo'}, function(key, value){  
-  return (key === 'bar') ? undefined : value;
-});
-// '{"foo":"bar"}'
+    JSON.stringify({ foo: 'bar', bar: 'foo'}, function(key, value){  
+      return (key === 'bar') ? undefined : value;
+    });
+    // '{"foo":"bar"}'
 
-JSON.stringify({x:5, y:7}, null, '\t');
-// '{
-//      "x": 5,
-//      "y": 7
-// }'
-``````  
-
+    JSON.stringify({x:5, y:7}, null, '\t');
+    // '{
+    //      "x": 5,
+    //      "y": 7
+    // }'
 ```
 
 ## Summary
