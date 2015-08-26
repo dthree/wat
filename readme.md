@@ -15,7 +15,8 @@
 - Import / Export preference commands.
 - Raw command-line auto-completion implemented.
 - Finish readme / editing guidelines.
-- At least 20 complete libraries or languages documented.
+- At least 20 complete libraries or languages documented. (4 done)
+- Tour
 - Tests.
 - XO linting.
 - *Suggestions? Wat is for you, and must be uncomprimisingly amazing.*

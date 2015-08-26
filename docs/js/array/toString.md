@@ -1,4 +1,4 @@
-## array.toString()
+## .toString()
 
 Returns a string representing the specified array and its elements.
 
