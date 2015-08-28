@@ -1,6 +1,6 @@
 {
   "name": "wat",
-  "version": "0.0.29",
+  "version": "0.0.30",
   "description": "Community-controlled cheat sheets for every coder.",
   "main": "./dist/index.js",
   "scripts": {
@@ -52,7 +52,7 @@
   "files": [
     "dist",
     "bin",
-    "config" 
+    "config"
   ],
   "eslintConfig": {
     "env": {
@@ -64,4 +64,4 @@
       "no-process-exit": 0
     }
   }
-}  
+}
