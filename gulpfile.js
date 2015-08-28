@@ -35,10 +35,15 @@ gulp.task('watch', function() {
 });
 
 gulp.task('babel', function() {
-  console.log(chalk.cyan('\n           Wat: Transpiled to ES5.\n'));
-  return gulp.src('src/**/*.js')
-    .pipe(babel())
-    .pipe(gulp.dest('dist'));
+  try {
+    gulp.src('src/**/*.js')
+      .pipe(babel())
+      .pipe(gulp.dest('dist'));
+    console.log(chalk.cyan('\n           Wat: Transpiled to ES5.\n'));
+  } catch(e) {
+    console.log('Couldn\'t parse docs: ', e);    
+  }
+  return;
 });
 
 gulp.task('default', ['babel', 'initClerk', 'buildIndex', 'watch']);

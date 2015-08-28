@@ -7,6 +7,7 @@
     "h5": "white"
   },
   "default": {
+    "variable": "cyan",
     "keyword": "cyan",
     "comment": "gray",
     "number": "red",

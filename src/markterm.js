@@ -855,7 +855,7 @@ Renderer.prototype.em = function(text) {
 };
 
 Renderer.prototype.codespan = function(text) {
-  return text;
+  return chalk.bold(text);
 };
 
 Renderer.prototype.br = function() {

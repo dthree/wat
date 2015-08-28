@@ -7,6 +7,7 @@
 
 var _ = require('lodash');
 var lev = require('leven');
+var request = require('request');
 
 var util = {
 
@@ -104,6 +105,18 @@ var util = {
     }
   },
 
+  parseCommandsFromPath: function parseCommandsFromPath(path) {
+    var parts = String(path).split('docs/');
+    var commands = '';
+    if (parts.length > 1) {
+      parts.shift();
+      commands = parts.join('docs/');
+    } else {
+      commands = path;
+    }
+    return String(commands).split('/');
+  },
+
   levenshteinCompare: function levenshteinCompare(word, obj) {
     var keys = Object.keys(obj);
     var results = {
@@ -170,6 +183,20 @@ var util = {
       }
       return items;
     }
+  },
+
+  fetchRemote: function fetchRemote(path, cb) {
+    request(path, function (err, response, body) {
+      if (!err) {
+        if (body === 'Not Found') {
+          cb('Not Found', void 0);
+        } else {
+          cb(void 0, body, response);
+        }
+      } else {
+        cb(err, '');
+      }
+    });
   },
 
   pad: function pad(str, width, delimiter) {

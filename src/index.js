@@ -11,8 +11,10 @@ const moment = require('moment');
 const chalk = require('chalk');
 const argv = require('minimist')(process.argv.slice(2));
 const indexer = require('./indexer');
+const searcher = require('./searcher');
 const utili = require('./util');
 const clerk = require('./clerk');
+const cosmetician = require('./cosmetician');
 
 const vorpal = new Vorpal();
 
@@ -42,6 +44,56 @@ vorpal
     clerk.index.build(function(index){
       cb();
     });
+  });
+
+  //http://api.stackexchange.com/2.2/answers/264298?order=desc&sort=activity&site=meta&filter=!GeEyUcJFJeD0Q
+  //http://api.stackexchange.com/2.2/answers/2125714?order=desc&sort=activity&site=stackoverflow&filter=!GeEyUcJFJeD0Q
+
+vorpal
+  .command('search [command...]', 'Searches for a command.')
+  .action(function(args, cb){
+    var command = (args.command || []).join(' ');
+    clerk.search(command);
+    cb();
+  });
+
+vorpal
+  .command('google [command...]', 'Searches Google.')
+  .alias('so')
+  .action(function(args, cb){
+    var command = (args.command || []).join(' ');
+    var self = this;
+    const sites = ['stackoverflow'];
+    self.log(' ');
+    searcher.google(command, function(err, next, links){
+      let wanted = searcher.filterGoogle(links, ['stackoverflow']);
+      let q = wanted.shift();
+      //console.log('question', q);
+      if (q) {
+        //console.log(q);
+        let questionId = searcher.stackOverflow.parseQuestionId(q);
+        //console.log('question Id', questionId);
+        if (questionId) {
+          searcher.stackOverflow.getAnswers(questionId, function(err, answers) {
+
+            let margin = String(_.max(answers, function(answ){
+              return String(answ.score).length;
+            }).score).length + 4;
+
+            self.log('  ' + chalk.yellow('Stack Overflow') + '\n  Question ' + questionId + '\n');
+
+            for (let l = 0; l < answers.length; ++l) {
+              let result = searcher.stackOverflow.formatAnswer(answers[l], margin);
+              self.log(result);
+            }
+            cb();
+
+          });
+        }
+      }
+
+    });
+
   });
 
 vorpal

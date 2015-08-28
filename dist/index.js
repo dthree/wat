@@ -10,8 +10,10 @@ var moment = require('moment');
 var chalk = require('chalk');
 var argv = require('minimist')(process.argv.slice(2));
 var indexer = require('./indexer');
+var searcher = require('./searcher');
 var utili = require('./util');
 var clerk = require('./clerk');
+var cosmetician = require('./cosmetician');
 
 var vorpal = new Vorpal();
 
@@ -36,6 +38,50 @@ vorpal.delimiter('?').show();
 vorpal.command('index', 'Rebuilds index.').action(function (args, cb) {
   clerk.index.build(function (index) {
     cb();
+  });
+});
+
+//http://api.stackexchange.com/2.2/answers/264298?order=desc&sort=activity&site=meta&filter=!GeEyUcJFJeD0Q
+//http://api.stackexchange.com/2.2/answers/2125714?order=desc&sort=activity&site=stackoverflow&filter=!GeEyUcJFJeD0Q
+
+vorpal.command('search [command...]', 'Searches for a command.').action(function (args, cb) {
+  var command = (args.command || []).join(' ');
+  clerk.search(command);
+  cb();
+});
+
+vorpal.command('google [command...]', 'Searches Google.').alias('so').action(function (args, cb) {
+  var command = (args.command || []).join(' ');
+  var self = this;
+  var sites = ['stackoverflow'];
+  self.log(' ');
+  searcher.google(command, function (err, next, links) {
+    var wanted = searcher.filterGoogle(links, ['stackoverflow']);
+    var q = wanted.shift();
+    //console.log('question', q);
+    if (q) {
+      (function () {
+        //console.log(q);
+        var questionId = searcher.stackOverflow.parseQuestionId(q);
+        //console.log('question Id', questionId);
+        if (questionId) {
+          searcher.stackOverflow.getAnswers(questionId, function (err, answers) {
+
+            var margin = String(_.max(answers, function (answ) {
+              return String(answ.score).length;
+            }).score).length + 4;
+
+            self.log('  ' + chalk.yellow('Stack Overflow') + '\n  Question ' + questionId + '\n');
+
+            for (var l = 0; l < answers.length; ++l) {
+              var result = searcher.stackOverflow.formatAnswer(answers[l], margin);
+              self.log(result);
+            }
+            cb();
+          });
+        }
+      })();
+    }
   });
 });
 

@@ -7,6 +7,7 @@
 
 const _ = require('lodash');
 const lev = require('leven');
+const request = require('request');
 
 const util = {
 
@@ -107,6 +108,18 @@ const util = {
     }
   },
 
+  parseCommandsFromPath(path) {
+    const parts = String(path).split('docs/');
+    let commands = '';
+    if (parts.length > 1) {
+      parts.shift();
+      commands = parts.join('docs/');
+    } else {
+      commands = path;
+    }
+    return String(commands).split('/');
+  },
+
   levenshteinCompare(word, obj) {
     let keys = Object.keys(obj);
     let results = {
@@ -171,6 +184,20 @@ const util = {
       }
       return items;
     }
+  },
+
+  fetchRemote(path, cb) {
+    request(path, function(err, response, body) {
+      if (!err) {
+        if (body === 'Not Found') {
+          cb('Not Found', void 0);
+        } else {
+          cb(void 0, body, response);
+        }
+      } else {
+        cb(err, '');
+      }
+    });
   },
 
   pad(str, width, delimiter) {

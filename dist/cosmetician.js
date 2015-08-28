@@ -90,12 +90,11 @@ var cosmetician = {
     return parts.join('\n');
   },
 
-  pad: function pad(data, amt, char) {
-    var str = data;
-    for (var i = 0; i < amt; ++i) {
-      str = str + char;
-    }
-    return str;
+  pad: function pad(str, width, delimiter) {
+    width = Math.floor(width);
+    delimiter = delimiter || " ";
+    var len = Math.max(0, width - String(str).length);
+    return str + Array(len + 1).join(delimiter);
   },
 
   wrap: function wrap(string, width) {

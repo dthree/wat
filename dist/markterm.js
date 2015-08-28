@@ -779,7 +779,7 @@
   };
 
   Renderer.prototype.codespan = function (text) {
-    return text;
+    return chalk.bold(text);
   };
 
   Renderer.prototype.br = function () {

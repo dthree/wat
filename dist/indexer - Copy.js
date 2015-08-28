@@ -10,7 +10,6 @@ var walk = require('walk');
 var fs = require('fs');
 var path = require('path');
 var moment = require('moment');
-var util = require('./util');
 var chalk = require('chalk');
 
 var indexer = {
@@ -172,7 +171,7 @@ var indexer = {
 
   getRemoteIndex: function getRemoteIndex(callback) {
     var self = this;
-    util.fetchRemote(self.clerk.paths.remoteConfigUrl + 'index.json', function (err, data) {
+    self.clerk.fetchRemote(self.clerk.paths.remoteConfigUrl + 'index.json', function (err, data) {
       if (!err) {
         var err2 = false;
         var json = undefined;

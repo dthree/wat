@@ -56,7 +56,11 @@ module.exports = function (data, lang, options) {
   if (lang === 'markdown') {
     hl = module.exports.unescape(data);
   } else {
-    hl = hljs.highlight(lang, data);
+    if (!lang) {
+      hl = hljs.highlightAuto(data);
+    } else {
+      hl = hljs.highlight(lang, data);
+    }
     hl = hl.value;
   }
 

@@ -76,12 +76,11 @@ const cosmetician = {
     return parts.join('\n');
   },
 
-  pad(data, amt, char) {
-    let str = data;
-    for (var i = 0; i < amt; ++i) {
-      str = str + char;
-    }
-    return str;
+  pad(str, width, delimiter) {
+    width = Math.floor(width);
+    delimiter = delimiter || " ";
+    var len = Math.max(0, width - String(str).length);
+    return str + Array(len + 1).join(delimiter);
   },
 
   wrap(string, width) {

@@ -81,7 +81,6 @@ var clerk = {
     function traverse(idx, path) {
       var _loop = function (key) {
         // Clean out all files with '__...'
-
         var content = Object.keys(idx[key]);
         var special = {};
         content = _.reject(content, function (str) {
@@ -91,8 +90,6 @@ var clerk = {
           }
           return isSpecial;
         });
-        //for ()
-        //console.log(dir + path + key + special)
         var fullPath = dir + path + key;
         for (var item in special) {
           callback(fullPath, item, special[item]);
@@ -108,6 +105,59 @@ var clerk = {
       }
     }
     traverse(index, '');
+  },
+
+  search: function search(str) {
+    var search = String(str).split(' ');
+
+    var matches = [];
+    this.forEachInIndex(function (path, key, value) {
+
+      if (key !== '__basic') {
+        return;
+      }
+
+      var commands = util.parseCommandsFromPath(path);
+
+      var points = 0;
+      var dirty = 0;
+      for (var i = 0; i < search.length; ++i) {
+
+        var word = String(search[i]).toLowerCase().trim();
+        var finds = 0;
+        for (var j = 0; j < commands.length; ++j) {
+          var cmd = String(commands[j]).toLowerCase().trim();
+          if (word === cmd) {
+            finds++;
+            if (i === j) {
+              points += 2;
+            } else {
+              points += 1;
+            }
+          }
+        }
+        if (finds === 0) {
+          dirty++;
+          points--;
+        }
+      }
+
+      if (points > 0) {
+        matches.push({
+          points: points,
+          command: commands.join(' '),
+          dirty: dirty
+        });
+      }
+    });
+
+    matches = matches.sort(function (a, b) {
+      return a.points > b.points ? -1 : a.points < b.points ? 1 : 0;
+    });
+
+    //matches = matches.
+
+    console.log(matches);
   },
 
   compareDocs: function compareDocs() {
@@ -186,7 +236,7 @@ var clerk = {
       var formatted = cosmetician.markdownToTerminal(local);
       cb(void 0, formatted);
     } else {
-      this.fetchRemote(this.paths.remoteDocUrl + path, function (err, data) {
+      util.fetchRemote(this.paths.remoteDocUrl + path, function (err, data) {
         if (err) {
           if (String(err).indexOf('Not Found') > -1) {
             var response = chalk.yellow('\n  ' + 'Wat couldn\'t find the Markdown file for this command.\n  ' + 'This probably means your index needs an update.\n\n') + '  ' + 'File: ' + self.path.remoteDocUrl + path + '\n';
@@ -211,20 +261,6 @@ var clerk = {
     } catch (e) {
       return void 0;
     }
-  },
-
-  fetchRemote: function fetchRemote(path, cb) {
-    request(path, function (err, response, body) {
-      if (!err) {
-        if (body === 'Not Found') {
-          cb('Not Found', void 0);
-        } else {
-          cb(void 0, '' + body);
-        }
-      } else {
-        cb(err, '');
-      }
-    });
   },
 
   file: function file(path, data, retry) {
@@ -259,7 +295,7 @@ var clerk = {
         (function () {
           var partial = String(item).split('docs/');
           var url = partial.length > 1 ? partial[1] : partial[0];
-          clerk.fetchRemote(clerk.paths.remoteDocUrl + url, function (err, data) {
+          util.fetchRemote(clerk.paths.remoteDocUrl + url, function (err, data) {
             if (err) {
               console.log('PROBLEM...');
               console.log(err);
@@ -313,7 +349,7 @@ var clerk = {
     getRemote: function getRemote(callback) {
       callback = callback || function () {};
       var url = clerk.paths.remoteConfigUrl + 'config.json';
-      clerk.fetchRemote(url, function (err, data) {
+      util.fetchRemote(url, function (err, data) {
         if (!err) {
           try {
             var json = JSON.parse(data);

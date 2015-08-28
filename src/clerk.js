@@ -81,8 +81,6 @@ const clerk = {
     function traverse(idx, path) {
       for (let key in idx) {
         // Clean out all files with '__...'
-
-
         let content = Object.keys(idx[key]);
         let special = {};
         content = _.reject(content, function(str){
@@ -92,8 +90,6 @@ const clerk = {
           }
           return isSpecial;
         });
-        //for ()
-        //console.log(dir + path + key + special)
         let fullPath = dir + path + key;
         for (let item in special) {
           callback(fullPath, item, special[item]);
@@ -105,6 +101,66 @@ const clerk = {
       }
     }
     traverse(index, '');
+  },
+
+
+  search(str) {
+    let search = String(str).split(' ');
+
+    let matches = [];
+    this.forEachInIndex(function(path, key, value){
+
+      if (key !== '__basic') {
+        return;
+      }
+
+      let commands = util.parseCommandsFromPath(path);
+
+      let points = 0;
+      let dirty = 0;
+      for (let i = 0; i < search.length; ++i) {
+
+        let word = String(search[i]).toLowerCase().trim();
+        let finds = 0;
+        for (let j = 0; j < commands.length; ++j) {
+          let cmd = String(commands[j]).toLowerCase().trim();
+          if (word === cmd) {
+            finds++;
+            if (i === j) {
+              points += 2;
+            } else {
+              points += 1;
+            }
+          }
+        }
+        if (finds === 0) {
+          dirty++;
+          points--;
+        }
+      }
+
+      if (points > 0) {
+        matches.push({
+          points: points,
+          command: commands.join(' '),
+          dirty: dirty
+        });
+      }
+
+    });
+
+    matches = matches.sort(function(a, b){
+      return (
+        (a.points > b.points) ? -1 : 
+        (a.points < b.points) ? 1 : 0
+      );
+    });
+
+    //matches = matches.
+
+
+    console.log(matches);
+
   },
 
   compareDocs() {
@@ -181,7 +237,7 @@ const clerk = {
       const formatted = cosmetician.markdownToTerminal(local);
       cb(void 0, formatted);
     } else {
-      this.fetchRemote(this.paths.remoteDocUrl + path, function(err, data) {
+      util.fetchRemote(this.paths.remoteDocUrl + path, function(err, data) {
         if (err) {
           if (String(err).indexOf('Not Found') > -1) {
             const response = 
@@ -210,20 +266,6 @@ const clerk = {
     } catch(e) {
       return void 0;
     }
-  },
-
-  fetchRemote(path, cb) {
-    request(path, function(err, response, body) {
-      if (!err) {
-        if (body === 'Not Found') {
-          cb('Not Found', void 0);
-        } else {
-          cb(void 0, `${body}`);
-        }
-      } else {
-        cb(err, '');
-      }
-    });
   },
 
   file(path, data, retry) {
@@ -257,7 +299,7 @@ const clerk = {
       if (item && lastAction > 10000) {
         let partial = String(item).split('docs/');
         let url  = (partial.length > 1) ? partial[1] : partial[0];
-        clerk.fetchRemote(clerk.paths.remoteDocUrl + url, function(err, data) {
+        util.fetchRemote(clerk.paths.remoteDocUrl + url, function(err, data) {
           if (err) {
             console.log('PROBLEM...');
             console.log(err);
@@ -312,7 +354,7 @@ const clerk = {
     getRemote(callback) {
       callback = callback || function() {}
       let url = clerk.paths.remoteConfigUrl + 'config.json';
-      clerk.fetchRemote(url, function(err, data){
+      util.fetchRemote(url, function(err, data){
         if (!err) {
           try {
             let json = JSON.parse(data);
