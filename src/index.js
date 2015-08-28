@@ -233,8 +233,7 @@ vorpal
         self.log(' ');
       } else {
 
-        let results = clerk.search(args.commands);
-
+        let results = clerk.search(args.commands.join(' '));
 
         if (results.length === 1 && results[0].points > 0) {
 

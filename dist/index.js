@@ -204,7 +204,7 @@ vorpal['catch']('[commands...]').option('-d, --detail', 'View detailed markdown 
       self.log(' ');
     } else {
 
-      var results = clerk.search(args.commands);
+      var results = clerk.search(args.commands.join(' '));
 
       if (results.length === 1 && results[0].points > 0) {
 
