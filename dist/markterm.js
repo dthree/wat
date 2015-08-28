@@ -750,9 +750,7 @@
   };
 
   Renderer.prototype.paragraph = function (text) {
-    //console.log(cosmetician)
-    //return text + '\n';
-    return module.exports.cosmetician.wrap(text, process.stdout.columns - 4) + '\n';
+    return module.exports.cosmetician.wrap(text, this.options.lineWidth) + '\n';
   };
 
   Renderer.prototype.table = function (header, body) {
@@ -771,7 +769,7 @@
 
   // span level renderer
   Renderer.prototype.strong = function (text) {
-    return '<strong>' + text + '</strong>';
+    return chalk.bold(text);
   };
 
   Renderer.prototype.em = function (text) {
@@ -779,7 +777,7 @@
   };
 
   Renderer.prototype.codespan = function (text) {
-    return chalk.bold(text);
+    return chalk.gray(text);
   };
 
   Renderer.prototype.br = function () {
@@ -801,7 +799,7 @@
         return '';
       }
     }
-    return text;
+    return chalk.blue(text);
   };
 
   Renderer.prototype.image = function (href, title, text) {
@@ -1045,6 +1043,7 @@
    */
 
   function markterm(src, opt, callback) {
+
     if (callback || typeof opt === 'function') {
       if (!callback) {
         callback = opt;
@@ -1136,6 +1135,7 @@
   markterm.defaults = {
     gfm: true,
     tables: true,
+    lineWidth: process.stdout.columns - 2,
     breaks: false,
     pedantic: false,
     sanitize: false,

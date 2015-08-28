@@ -817,9 +817,7 @@ Renderer.prototype.listitem = function(text) {
 };
 
 Renderer.prototype.paragraph = function(text) {
-  //console.log(cosmetician)
-  //return text + '\n';
-  return module.exports.cosmetician.wrap(text, process.stdout.columns-4) + '\n';
+  return module.exports.cosmetician.wrap(text, this.options.lineWidth) + '\n';
 };
 
 Renderer.prototype.table = function(header, body) {
@@ -847,7 +845,7 @@ Renderer.prototype.tablecell = function(content, flags) {
 
 // span level renderer
 Renderer.prototype.strong = function(text) {
-  return '<strong>' + text + '</strong>';
+  return chalk.bold(text);
 };
 
 Renderer.prototype.em = function(text) {
@@ -855,7 +853,7 @@ Renderer.prototype.em = function(text) {
 };
 
 Renderer.prototype.codespan = function(text) {
-  return chalk.bold(text);
+  return chalk.gray(text);
 };
 
 Renderer.prototype.br = function() {
@@ -879,7 +877,7 @@ Renderer.prototype.link = function(href, title, text) {
       return '';
     }
   }
-  return text;
+  return chalk.blue(text);
 };
 
 Renderer.prototype.image = function(href, title, text) {
@@ -1134,6 +1132,7 @@ function merge(obj) {
  */
 
 function markterm(src, opt, callback) {
+
   if (callback || typeof opt === 'function') {
     if (!callback) {
       callback = opt;
@@ -1230,6 +1229,7 @@ markterm.setOptions = function(opt) {
 markterm.defaults = {
   gfm: true,
   tables: true,
+  lineWidth: process.stdout.columns - 2,
   breaks: false,
   pedantic: false,
   sanitize: false,

@@ -38,8 +38,8 @@ const cosmetician = {
     });
   },
 
-  markdownToTerminal(data) {
-    data = markterm(data, {});
+  markdownToTerminal(data, options) {
+    data = markterm(data, options || {});
     data = highlighter(data, 'markdown', {});
     data = this.shave(data);
     //data = this.wrap(data, process.stdout.columns - 4);
@@ -74,6 +74,17 @@ const cosmetician = {
     shaveStart();
     shaveEnd();
     return parts.join('\n');
+  },
+
+  hr(pad) {
+    pad = pad || 2;
+    var width = process.stdout.columns - (pad * 2);
+    var str = '';
+    for (var i = 0; i < width; ++i) {
+      str += '-';
+    }
+
+    return '' + str + '\n';
   },
 
   pad(str, width, delimiter) {

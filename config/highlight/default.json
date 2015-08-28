@@ -7,19 +7,26 @@
     "h5": "white"
   },
   "default": {
+    "tag": "cyan",
+    "atom": "cyan",
+    "value": "cyan",
+    "attribute": "cyan",
+    "preprocessor": "cyan",
+    "hexcolor": "cyan",
+    "subst": "cyan",
     "variable": "cyan",
     "keyword": "cyan",
-    "comment": "gray",
-    "number": "red",
-    "literal": "magenta",
-    "built_in": "yellow",
-    "string": "green",
-    "regexp": "magenta",
-    "function": "blue",
-    "title": "green",
-    "params": "black",
-    "pi": "yellow",
-    "operator": "yellow"
+    "comment": "cyan",
+    "number": "cyan",
+    "literal": "cyan",
+    "built_in": "cyan",
+    "string": "cyan",
+    "regexp": "cyan",
+    "function": "cyan",
+    "title": "cyan",
+    "params": "cyan",
+    "pi": "cyan",
+    "operator": "cyan"
   },
   "js": {
     "keyword": "cyan",
@@ -33,6 +40,7 @@
     "title": "green",
     "params": "black",
     "pi": "yellow"
-  }
+  },
+  "cpp": {}
 
 }

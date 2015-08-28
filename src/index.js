@@ -46,9 +46,6 @@ vorpal
     });
   });
 
-  //http://api.stackexchange.com/2.2/answers/264298?order=desc&sort=activity&site=meta&filter=!GeEyUcJFJeD0Q
-  //http://api.stackexchange.com/2.2/answers/2125714?order=desc&sort=activity&site=stackoverflow&filter=!GeEyUcJFJeD0Q
-
 vorpal
   .command('search [command...]', 'Searches for a command.')
   .action(function(args, cb){
@@ -58,40 +55,35 @@ vorpal
   });
 
 vorpal
-  .command('google [command...]', 'Searches Google.')
+  .command('stackoverflow [command...]', 'Searches Stack Overflow.')
   .alias('so')
+  .alias('stack')
   .action(function(args, cb){
     var command = (args.command || []).join(' ');
     var self = this;
     const sites = ['stackoverflow'];
     self.log(' ');
+
+    function process(itm) {
+      searcher.stackoverflow.getPage(itm, function(err, text) {
+        if (err) {
+          self.log('Error: ', err);
+        } else {
+          self.log(text);
+        }
+        cb();
+      });
+    }
+
     searcher.google(command, function(err, next, links){
       let wanted = searcher.filterGoogle(links, ['stackoverflow']);
-      let q = wanted.shift();
-      //console.log('question', q);
-      if (q) {
-        //console.log(q);
-        let questionId = searcher.stackOverflow.parseQuestionId(q);
-        //console.log('question Id', questionId);
-        if (questionId) {
-          searcher.stackOverflow.getAnswers(questionId, function(err, answers) {
-
-            let margin = String(_.max(answers, function(answ){
-              return String(answ.score).length;
-            }).score).length + 4;
-
-            self.log('  ' + chalk.yellow('Stack Overflow') + '\n  Question ' + questionId + '\n');
-
-            for (let l = 0; l < answers.length; ++l) {
-              let result = searcher.stackOverflow.formatAnswer(answers[l], margin);
-              self.log(result);
-            }
-            cb();
-
-          });
-        }
+      let item = wanted.shift();
+      if (item) {
+        process(item);
+      } else {
+        self.log(chalk.yellow('  Wat couldn\'t find any matches on Stack Overflow.') + '\n  Try re-wording your question.\n');
+        cb();
       }
-
     });
 
   });
@@ -200,6 +192,11 @@ vorpal
 
     args = args || {}
     args.options = args.options || {}
+
+    // Handle humans.
+    if (String(args.commands[0]).toLowerCase() === 'wat') {
+      args.commands.shift();
+    }
 
     var path = utili.command.buildPath(args.commands.join(' '), args.options, clerk.index.index());
 

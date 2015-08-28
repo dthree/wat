@@ -47,33 +47,37 @@ for (var lang in config) {
 module.exports = function(data, lang, options) {
 
   let fallback = (!mapping[lang]) ? 'default' : void 0;
-  if (!mapping[lang]) {
-    //lang = 'default';
-    //throw new Error(`${lang} is not a supported highlighting language.`);
-  }
 
   let hl;
+  data = module.exports.unescape(data);
   if (lang === 'markdown') {
-    hl = module.exports.unescape(data);
+    hl = data;
   } else {
     if (!lang) {
       hl = hljs.highlightAuto(data);
     } else {
       hl = hljs.highlight(lang, data);
     }
+    if (hl.language) {
+      fallback = hl.language;
+    }
     hl = hl.value;
   }
 
   var mappingLang = fallback || lang;
+  mappingLang = (!mapping[mappingLang]) ? 'default' : mappingLang;
 
   for (let color in mapping[mappingLang]) {
     let clr = String(color).replace(/[0-9]/g, '');
-    hl = hl.replace(mapping[mappingLang][color], chalk[clr]('$1'));
+    hl = String(hl).replace(mapping[mappingLang][color], chalk[clr]('$1'));
   }
 
-  if (lang !== 'markdown') {
-    hl = module.exports.unescape(hl);
-  } 
+  // Catch any highlighting not seen with defaults.
+  for (let color in mapping['default']) {
+    let clr = String(color).replace(/[0-9]/g, '');
+    hl = String(hl).replace(mapping['default'][color], chalk[clr]('$1'));
+  }
+
 
   return hl;
 };
