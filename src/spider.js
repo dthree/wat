@@ -11,9 +11,9 @@ const google = require('google');
 const cosmetician = require('./cosmetician');
 const moment = require('moment');
 const chalk = require('chalk');
-const stackoverflow = require('./searcher.stackoverflow');
+const stackoverflow = require('./spider.stackoverflow');
 
-const searcher = {
+const spider = {
 
   google(command, cb) {
     google(command, cb);
@@ -30,7 +30,7 @@ const searcher = {
     let matches = [];
     for (let i = 0; i < links.length; ++i) {
       for (let j = 0; j < sites.length; ++j) {
-        if (String(links[i].link).indexOf(searcher.sites[sites[j]]) > -1) {
+        if (String(links[i].link).indexOf(spider.sites[sites[j]]) > -1) {
           matches.push(links[i]);
           break;
         }
@@ -41,5 +41,5 @@ const searcher = {
 
 }
 
-module.exports = searcher;
+module.exports = spider;
 

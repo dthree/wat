@@ -33,6 +33,8 @@ const stackoverflow = {
         return String(answ.score).length;
       }).score).length + 4;
 
+      margin = (String(question.score).length + 4) > margin ? String(question.score).length + 4 : margin;
+
       let headerLength = String(question.title).length + 2;
       let viewLength = String(question.view_count).length + 8;
       let padding = process.stdout.columns - (headerLength + viewLength);
@@ -96,7 +98,7 @@ const stackoverflow = {
 
   getQuestion(questionId, callback) {
     callback = callback || {}
-    const url = 'http://api.stackexchange.com/2.2/questions/' + questionId + '?order=desc&sort=activity&site=stackoverflow&filter=!)Ehu.SDh9PeCcJmhDxT60pU1mT_mgvdo9d3mN8WYbPzQzO6Te';
+    const url = 'http://api.stackexchange.com/2.2/questions/' + questionId + '?order=desc&sort=votes&site=stackoverflow&filter=!)Ehu.SDh9PeCcJmhDxT60pU1mT_mgvdo9d3mN8WYbPzQzO6Te';
     util.fetchRemote({
       url: url,
       gzip: true 
@@ -126,7 +128,7 @@ const stackoverflow = {
     const self = this;
     callback = callback || {}
     const filter = '!t)I()ziOdWLVHc78tC981)pqWLzTas-';
-    const url = 'http://api.stackexchange.com/2.2/questions/' + questionId + '/answers?order=asc&sort=votes&site=stackoverflow&filter=' + filter;
+    const url = 'http://api.stackexchange.com/2.2/questions/' + questionId + '/answers?order=desc&sort=votes&site=stackoverflow&filter=' + filter;
     util.fetchRemote({
       url: url,
       gzip: true 

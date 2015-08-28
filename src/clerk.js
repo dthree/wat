@@ -158,9 +158,7 @@ const clerk = {
 
     //matches = matches.
 
-
-    console.log(matches);
-
+    return matches;
   },
 
   compareDocs() {

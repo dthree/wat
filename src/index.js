@@ -11,7 +11,7 @@ const moment = require('moment');
 const chalk = require('chalk');
 const argv = require('minimist')(process.argv.slice(2));
 const indexer = require('./indexer');
-const searcher = require('./searcher');
+const spider = require('./spider');
 const utili = require('./util');
 const clerk = require('./clerk');
 const cosmetician = require('./cosmetician');
@@ -50,7 +50,8 @@ vorpal
   .command('search [command...]', 'Searches for a command.')
   .action(function(args, cb){
     var command = (args.command || []).join(' ');
-    clerk.search(command);
+    let matches = clerk.search(command);
+    this.log(matches)
     cb();
   });
 
@@ -65,7 +66,7 @@ vorpal
     self.log(' ');
 
     function process(itm) {
-      searcher.stackoverflow.getPage(itm, function(err, text) {
+      spider.stackoverflow.getPage(itm, function(err, text) {
         if (err) {
           self.log('Error: ', err);
         } else {
@@ -75,8 +76,8 @@ vorpal
       });
     }
 
-    searcher.google(command, function(err, next, links){
-      let wanted = searcher.filterGoogle(links, ['stackoverflow']);
+    spider.google(command, function(err, next, links){
+      let wanted = spider.filterGoogle(links, ['stackoverflow']);
       let item = wanted.shift();
       if (item) {
         process(item);
@@ -200,23 +201,11 @@ vorpal
 
     var path = utili.command.buildPath(args.commands.join(' '), args.options, clerk.index.index());
 
-    if (path.exists === false) {
-      if (path.suggestions) {
-        self.log(chalk.yellow(`\n  Sorry, there's no cheat sheet for that command. However, you can try these:\n`));
-        for (let i = 0; i < path.suggestions.length; ++i) {
-          var str = '  ' + String(String(path.path).split('/').join(' ')).trim() + ' ' + path.suggestions[i];
-          self.log(str);
-        }
-        self.log(' ');
-      } else {
-        self.log(chalk.yellow(`\n  Sorry, there's no command like that.\n`));
-      }
-      cb();
-    } else {
 
-      let fullPath = utili.command.buildExtension(path.path, path.index, args.options);
-      let noDetail = (args.options.detail && !path.index.__detail);
-      let noInstall = (args.options.install && !path.index.__install);
+    function execPath(pathObj) {
+      let fullPath = utili.command.buildExtension(pathObj.path, pathObj.index, args.options);
+      let noDetail = (args.options.detail && !pathObj.index.__detail);
+      let noInstall = (args.options.install && !pathObj.index.__install);
 
       if (noDetail) {
         self.log(chalk.yellow(`\n  Sorry, there's no detailed write-up for this command. Showing the basic one instead.`));
@@ -232,6 +221,45 @@ vorpal
         }
         cb();
       });
+    }
+
+    if (path.exists === false) {
+      if (path.suggestions) {
+        self.log(chalk.yellow(`\n  Sorry, there's no cheat sheet for that command. However, you can try these:\n`));
+        for (let i = 0; i < path.suggestions.length; ++i) {
+          var str = '  ' + String(String(path.path).split('/').join(' ')).trim() + ' ' + path.suggestions[i];
+          self.log(str);
+        }
+        self.log(' ');
+      } else {
+
+        let results = clerk.search(args.commands);
+
+
+        if (results.length === 1 && results[0].points > 0) {
+
+          self.log(chalk.yellow(`\n  Showing results for "${results[0].command}":`));
+          let path = utili.command.buildPath(results[0].command, args.options, clerk.index.index());
+          execPath(path);
+
+        } else if (results.length > 0) {
+
+          self.log(chalk.yellow(`\n  Did you mean:`));
+          for (let i = 0; i < results.length; ++i) {
+            if (i > 7) { break; }
+            let cmd = results[i].command;
+            cmd = cmd.replace(args.commands, chalk.white(args.commands));
+            self.log('  ' + cmd);
+          }
+          self.log(' ');
+        } else {
+
+          self.log(chalk.yellow(`\n  Sorry, there's no command like that.\n`));
+        }
+      }
+      cb();
+    } else {
+      execPath(path);
     }
   });
 

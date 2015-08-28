@@ -730,8 +730,7 @@
   };
 
   Renderer.prototype.hr = function () {
-
-    var width = process.stdout.columns - 4;
+    var width = this.options.lineWidth - 4;
     var str = '';
     for (var i = 0; i < width; ++i) {
       str += '-';
