@@ -52,7 +52,7 @@
   "files": [
     "dist",
     "bin",
-    "config"
+    "config" 
   ],
   "eslintConfig": {
     "env": {
@@ -64,4 +64,4 @@
       "no-process-exit": 0
     }
   }
-}
+}  

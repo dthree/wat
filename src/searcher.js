@@ -53,7 +53,7 @@ const searcher = {
       const url = 'http://api.stackexchange.com/2.2/questions/' + questionId + '/answers?order=asc&sort=votes&site=stackoverflow&filter=' + filter;
       util.fetchRemote({
         url: url,
-        gzip: true
+        gzip: true 
       }, function(err, answ, response){
         if (!err) {
           let answers;
