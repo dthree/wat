@@ -1,5 +1,4 @@
-
-"use strict";
+'use strict';
 
 /**
  * Module dependencies.
@@ -10,11 +9,6 @@ const lev = require('leven');
 const request = require('request');
 
 const util = {
-
-  formatDate(date) {
-    //let year = date.getFullYear();
-    //let month = 
-  },
 
   /**
   * Handles tabbed auto-completion based on
@@ -29,33 +23,32 @@ const util = {
   */
 
   autocomplete(text, iteration, index, matchFn) {
-    let commands = util.command.prepare(text, {}, index);
-    let lastWord = String(commands[commands.length-1]).trim();
-    let otherWords = commands.slice(0, commands.length-1);
+    const commands = util.command.prepare(text, {}, index);
+    const lastWord = String(commands[commands.length - 1]).trim();
+    const otherWords = commands.slice(0, commands.length - 1);
 
     let levels = 0;
-    const possibilities = util.traverseIndex(_.clone(commands), index, function(arr, idx){
+    const possibilities = util.traverseIndex(_.clone(commands), index, function () {
       levels++;
     });
 
     const match = matchFn(String(lastWord).trim(), possibilities);
-    const exactMatch = (possibilities.indexOf(lastWord) > -1);
 
+    let response;
     if (match && levels !== otherWords.length + 1) {
-      let space = (possibilities.indexOf(String(match).trim()) > -1) ? ' ' : '';
-      let result = String(otherWords.join(' ') + ' ' + match).trim() + space;
-      return result;
+      const space = (possibilities.indexOf(String(match).trim()) > -1) ? ' ' : '';
+      response = `${String(`${otherWords.join(` `)}  match`).trim()}${space}`;
     } else {
-      let space = (levels === otherWords.length + 1) ? ' ' : '';
-      let original = commands.join(' ') + space;
+      const space = (levels === otherWords.length + 1) ? ' ' : '';
+      const original = `${commands.join(' ')}${space}`;
       if (iteration > 1 && possibilities.length > 1) {
-        return possibilities;
+        response = possibilities;
       } else if (iteration > 1 && possibilities.length === 1 && (otherWords.length !== levels)) {
-        let result = original + possibilities[0] + ' ';
-        return result;
+        response = `${original}${possibilities[0]}  `;
       } else {
-        return original;
+        response = original;
       }
+      return response;
     }
   },
 
@@ -67,7 +60,7 @@ const util = {
   * it cleans up the word and returns it.
   * For example,
   * ['the', 'veryquick ', 'fox'] will become
-  * ['the', 'veryQuick', 'fox'] 
+  * ['the', 'veryQuick', 'fox']
   * based on the index.
   *
   * @param {Array} arr
@@ -80,32 +73,36 @@ const util = {
 
   standardizeAgainstIndex(arr, idx, each, results) {
     results = results || [];
-    each = each  || function(){}
+    each = each || function () {};
     let word = arr.shift();
-    let wordProper = void 0;
 
     // Use a levenshtein distance algorithm
     // to look for appriximate matches. If we feel
     // safe enough, automagically adopt the match.
     if (String(word).trim().length > 0) {
-      let res = util.levenshteinCompare(word, idx);
+      const res = util.levenshteinCompare(word, idx);
 
-      word = (res.distance === 0) ? res.key 
-        : (res.distance === 1 && res.difference > 3) ? res.key
-        : (res.distance === 2 && res.difference > 5 && String(res.key).length > 5) ? res.key
-        : word;
+      if (res.distance === 0) {
+        word = res.key;
+      } else if (res.distance === 1 && res.difference > 3) {
+        word = res.key;
+      } else if (res.distance === 2 && res.difference > 5 && String(res.key).length > 5) {
+        word = res.key;
+      }
     }
 
+    let response;
     if (idx[word]) {
       each(arr, idx[word]);
       results.push(word);
-      return util.standardizeAgainstIndex(arr, idx[word], each, results);
+      response = util.standardizeAgainstIndex(arr, idx[word], each, results);
     } else {
       if (word) {
         results.push(word);
       }
-      return results;
+      response = results;
     }
+    return response;
   },
 
   parseCommandsFromPath(path) {
@@ -121,18 +118,18 @@ const util = {
   },
 
   levenshteinCompare(word, obj) {
-    let keys = Object.keys(obj);
-    let results = {
-      firstKey: void 0,
+    const keys = Object.keys(obj);
+    const results = {
+      firstKey: undefined,
       firstDistance: 1000,
-      secondKey: void 0,
+      secondKey: undefined,
       secondDistance: 1000
-    }
-    let first = { key: void 0, distance: 1000 };
-    let second = { key: void 0, distance: 1000 };
+    };
     for (let i = 0; i < keys.length; ++i) {
-      if (keys[i] === 'index') { continue; }
-      let distance = lev(String(word).trim().toLowerCase(), String(keys[i]).trim().toLowerCase());
+      if (keys[i] === 'index') {
+        continue;
+      }
+      const distance = lev(String(word).trim().toLowerCase(), String(keys[i]).trim().toLowerCase());
       if (distance < results.firstDistance) {
         results.firstDistance = distance;
         results.firstKey = keys[i];
@@ -145,7 +142,7 @@ const util = {
       key: results.firstKey,
       distance: results.firstDistance,
       difference: results.secondDistance - results.firstDistance
-    })
+    });
   },
 
   /**
@@ -155,7 +152,7 @@ const util = {
   * command, having matched x commands so far.
   * For example,
   * ['the', 'quick', 'brown'] will return
-  * ['fox', 'dog', 'goat'] 
+  * ['fox', 'dog', 'goat']
   * based on the index, as the index has
   * three .md files in the `brown` folder.
   *
@@ -167,32 +164,34 @@ const util = {
   */
 
   traverseIndex(arr, idx, each) {
-    each = each  || function(){}
-    let word = arr.shift();
+    each = each || function () {};
+    const word = arr.shift();
+    let result;
     if (idx[word]) {
       each(arr, idx[word]);
-      return util.traverseIndex(arr, idx[word], each);
+      result = util.traverseIndex(arr, idx[word], each);
     } else {
-      let items = [];
-      for (let item in idx) {
+      const items = [];
+      for (const item in idx) {
         if (idx.hasOwnProperty(item) && String(item).slice(0, 2) !== '__' && String(item) !== 'index') {
-          var match = (String(word || '').toLowerCase() === String(item).slice(0, String(word || '').length).toLowerCase());
+          const match = (String(word || '').toLowerCase() === String(item).slice(0, String(word || '').length).toLowerCase());
           if (match) {
             items.push(item);
-          } 
+          }
         }
       }
-      return items;
+      result = items;
     }
+    return result;
   },
 
   fetchRemote(path, cb) {
-    request(path, function(err, response, body) {
+    request(path, function (err, response, body) {
       if (!err) {
         if (body === 'Not Found') {
-          cb('Not Found', void 0);
+          cb('Not Found', undefined);
         } else {
-          cb(void 0, body, response);
+          cb(undefined, body, response);
         }
       } else {
         cb(err, '');
@@ -202,8 +201,8 @@ const util = {
 
   pad(str, width, delimiter) {
     width = Math.floor(width);
-    delimiter = delimiter || " ";
-    var len = Math.max(0, width - str.length);
+    delimiter = delimiter || ' ';
+    const len = Math.max(0, width - str.length);
     return str + Array(len + 1).join(delimiter);
   },
 
@@ -226,16 +225,15 @@ const util = {
     */
 
     prepare(str, options, index) {
-      //console.log(options)
-      options = options || {}
-      let all = [];
-      let commands = (_.isArray(str)) 
-        ? str 
+      options = options || {};
+      const all = [];
+      const commands = (_.isArray(str))
+        ? str
         : String(str).trim().split(' ');
       for (let i = 0; i < commands.length; ++i) {
-        var parts = commands[i].split('.');
+        const parts = commands[i].split('.');
         for (let j = 0; j < parts.length; ++j) {
-          let word = String(parts[j])
+          const word = String(parts[j])
             .trim()
             .replace(/\)/g, '')
             .replace(/\(/g, '')
@@ -244,7 +242,7 @@ const util = {
         }
       }
 
-      let standardized = util.standardizeAgainstIndex(_.clone(all), index);
+      const standardized = util.standardizeAgainstIndex(_.clone(all), index);
       return standardized;
     },
 
@@ -258,28 +256,24 @@ const util = {
     */
 
     buildPath(str, options, index) {
-      let all = util.command.prepare(str, options, index);
-
-      let indexObject = util.command.getIndex(_.clone(all), index);
-      
-      var response = {
-        path: void 0,
+      const all = util.command.prepare(str, options, index);
+      const indexObject = util.command.getIndex(_.clone(all), index);
+      const response = {
+        path: undefined,
         exists: false,
-        suggestions: void 0,
-        index: void 0
-      }
+        suggestions: undefined,
+        index: undefined
+      };
 
       if (!indexObject) {
         response.exists = false;
+      } else if (_.isArray(indexObject)) {
+        response.suggestions = indexObject;
       } else {
-        if (_.isArray(indexObject)) {
-          response.suggestions = indexObject;
-        } else {
-          response.index = indexObject;
-          response.exists = true;
-        }
+        response.index = indexObject;
+        response.exists = true;
       }
-      let path = all.join('/');
+      const path = all.join('/');
       response.path = path;
       return response;
     },
@@ -296,29 +290,27 @@ const util = {
     */
 
     getIndex(arr, idx) {
-      let word = arr.shift();
+      const word = arr.shift();
+      let result;
       if (idx[word]) {
-        return util.command.getIndex(arr, idx[word]);
-      } else {
-        if (!word) {
-          if (idx['index']) {
-            if (_.isObject(idx['index'])) {
-              idx['index'].__isIndexFile = true;
-            }
-            return idx['index'];
-          } else if (idx['__basic']) {
-            return idx;
-          } else {
-            return Object.keys(idx);
+        result = util.command.getIndex(arr, idx[word]);
+      } else if (!word) {
+        if (idx.index) {
+          if (_.isObject(idx.index)) {
+            idx.index.__isIndexFile = true;
           }
+          result = idx.index;
+        } else if (idx.__basic) {
+          result = idx;
         } else {
-          return void 0;
+          result = Object.keys(idx);
         }
       }
+      return result;
     },
 
     /**
-    * Takes the end string of command, 
+    * Takes the end string of command,
     * 'splice' in 'js array splice',
     * reads its index JSON, and compares
     * these to the passed in options in order
@@ -341,18 +333,15 @@ const util = {
       }
 
       if (options.detail && index.__detail) {
-        result = path + '.detail.md';        
+        result = `${path}.detail.md`;
       } else if (options.install && index.__install) {
-        result = path + '.install.md';
+        result = `${path}.install.md`;
       } else {
-        result = path + '.md';
+        result = `${path}.md`;
       }
       return result;
-    },
-
-  },
-
-}
+    }
+  }
+};
 
 module.exports = util;
-

@@ -1,5 +1,4 @@
-
-"use strict";
+'use strict';
 
 /**
  * Module dependencies.
@@ -10,11 +9,6 @@ var lev = require('leven');
 var request = require('request');
 
 var util = {
-
-  formatDate: function formatDate(date) {
-    //let year = date.getFullYear();
-    //let month =
-  },
 
   /**
   * Handles tabbed auto-completion based on
@@ -34,28 +28,27 @@ var util = {
     var otherWords = commands.slice(0, commands.length - 1);
 
     var levels = 0;
-    var possibilities = util.traverseIndex(_.clone(commands), index, function (arr, idx) {
+    var possibilities = util.traverseIndex(_.clone(commands), index, function () {
       levels++;
     });
 
     var match = matchFn(String(lastWord).trim(), possibilities);
-    var exactMatch = possibilities.indexOf(lastWord) > -1;
 
+    var response = undefined;
     if (match && levels !== otherWords.length + 1) {
       var space = possibilities.indexOf(String(match).trim()) > -1 ? ' ' : '';
-      var result = String(otherWords.join(' ') + ' ' + match).trim() + space;
-      return result;
+      response = '' + String(otherWords.join(' ') + '  match').trim() + space;
     } else {
       var space = levels === otherWords.length + 1 ? ' ' : '';
-      var original = commands.join(' ') + space;
+      var original = '' + commands.join(' ') + space;
       if (iteration > 1 && possibilities.length > 1) {
-        return possibilities;
+        response = possibilities;
       } else if (iteration > 1 && possibilities.length === 1 && otherWords.length !== levels) {
-        var result = original + possibilities[0] + ' ';
-        return result;
+        response = '' + original + possibilities[0] + '  ';
       } else {
-        return original;
+        response = original;
       }
+      return response;
     }
   },
 
@@ -67,7 +60,7 @@ var util = {
   * it cleans up the word and returns it.
   * For example,
   * ['the', 'veryquick ', 'fox'] will become
-  * ['the', 'veryQuick', 'fox'] 
+  * ['the', 'veryQuick', 'fox']
   * based on the index.
   *
   * @param {Array} arr
@@ -82,7 +75,6 @@ var util = {
     results = results || [];
     each = each || function () {};
     var word = arr.shift();
-    var wordProper = void 0;
 
     // Use a levenshtein distance algorithm
     // to look for appriximate matches. If we feel
@@ -90,19 +82,27 @@ var util = {
     if (String(word).trim().length > 0) {
       var res = util.levenshteinCompare(word, idx);
 
-      word = res.distance === 0 ? res.key : res.distance === 1 && res.difference > 3 ? res.key : res.distance === 2 && res.difference > 5 && String(res.key).length > 5 ? res.key : word;
+      if (res.distance === 0) {
+        word = res.key;
+      } else if (res.distance === 1 && res.difference > 3) {
+        word = res.key;
+      } else if (res.distance === 2 && res.difference > 5 && String(res.key).length > 5) {
+        word = res.key;
+      }
     }
 
+    var response = undefined;
     if (idx[word]) {
       each(arr, idx[word]);
       results.push(word);
-      return util.standardizeAgainstIndex(arr, idx[word], each, results);
+      response = util.standardizeAgainstIndex(arr, idx[word], each, results);
     } else {
       if (word) {
         results.push(word);
       }
-      return results;
+      response = results;
     }
+    return response;
   },
 
   parseCommandsFromPath: function parseCommandsFromPath(path) {
@@ -120,13 +120,11 @@ var util = {
   levenshteinCompare: function levenshteinCompare(word, obj) {
     var keys = Object.keys(obj);
     var results = {
-      firstKey: void 0,
+      firstKey: undefined,
       firstDistance: 1000,
-      secondKey: void 0,
+      secondKey: undefined,
       secondDistance: 1000
     };
-    var first = { key: void 0, distance: 1000 };
-    var second = { key: void 0, distance: 1000 };
     for (var i = 0; i < keys.length; ++i) {
       if (keys[i] === 'index') {
         continue;
@@ -154,7 +152,7 @@ var util = {
   * command, having matched x commands so far.
   * For example,
   * ['the', 'quick', 'brown'] will return
-  * ['fox', 'dog', 'goat'] 
+  * ['fox', 'dog', 'goat']
   * based on the index, as the index has
   * three .md files in the `brown` folder.
   *
@@ -168,9 +166,10 @@ var util = {
   traverseIndex: function traverseIndex(arr, idx, each) {
     each = each || function () {};
     var word = arr.shift();
+    var result = undefined;
     if (idx[word]) {
       each(arr, idx[word]);
-      return util.traverseIndex(arr, idx[word], each);
+      result = util.traverseIndex(arr, idx[word], each);
     } else {
       var items = [];
       for (var item in idx) {
@@ -181,17 +180,18 @@ var util = {
           }
         }
       }
-      return items;
+      result = items;
     }
+    return result;
   },
 
   fetchRemote: function fetchRemote(path, cb) {
     request(path, function (err, response, body) {
       if (!err) {
         if (body === 'Not Found') {
-          cb('Not Found', void 0);
+          cb('Not Found', undefined);
         } else {
-          cb(void 0, body, response);
+          cb(undefined, body, response);
         }
       } else {
         cb(err, '');
@@ -201,7 +201,7 @@ var util = {
 
   pad: function pad(str, width, delimiter) {
     width = Math.floor(width);
-    delimiter = delimiter || " ";
+    delimiter = delimiter || ' ';
     var len = Math.max(0, width - str.length);
     return str + Array(len + 1).join(delimiter);
   },
@@ -225,7 +225,6 @@ var util = {
     */
 
     prepare: function prepare(str, options, index) {
-      //console.log(options)
       options = options || {};
       var all = [];
       var commands = _.isArray(str) ? str : String(str).trim().split(' ');
@@ -252,25 +251,21 @@ var util = {
 
     buildPath: function buildPath(str, options, index) {
       var all = util.command.prepare(str, options, index);
-
       var indexObject = util.command.getIndex(_.clone(all), index);
-
       var response = {
-        path: void 0,
+        path: undefined,
         exists: false,
-        suggestions: void 0,
-        index: void 0
+        suggestions: undefined,
+        index: undefined
       };
 
       if (!indexObject) {
         response.exists = false;
+      } else if (_.isArray(indexObject)) {
+        response.suggestions = indexObject;
       } else {
-        if (_.isArray(indexObject)) {
-          response.suggestions = indexObject;
-        } else {
-          response.index = indexObject;
-          response.exists = true;
-        }
+        response.index = indexObject;
+        response.exists = true;
       }
       var path = all.join('/');
       response.path = path;
@@ -290,28 +285,26 @@ var util = {
 
     getIndex: function getIndex(arr, idx) {
       var word = arr.shift();
+      var result = undefined;
       if (idx[word]) {
-        return util.command.getIndex(arr, idx[word]);
-      } else {
-        if (!word) {
-          if (idx['index']) {
-            if (_.isObject(idx['index'])) {
-              idx['index'].__isIndexFile = true;
-            }
-            return idx['index'];
-          } else if (idx['__basic']) {
-            return idx;
-          } else {
-            return Object.keys(idx);
+        result = util.command.getIndex(arr, idx[word]);
+      } else if (!word) {
+        if (idx.index) {
+          if (_.isObject(idx.index)) {
+            idx.index.__isIndexFile = true;
           }
+          result = idx.index;
+        } else if (idx.__basic) {
+          result = idx;
         } else {
-          return void 0;
+          result = Object.keys(idx);
         }
       }
+      return result;
     },
 
     /**
-    * Takes the end string of command, 
+    * Takes the end string of command,
     * 'splice' in 'js array splice',
     * reads its index JSON, and compares
     * these to the passed in options in order
@@ -342,9 +335,7 @@ var util = {
       }
       return result;
     }
-
   }
-
 };
 
 module.exports = util;

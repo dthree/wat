@@ -1,5 +1,4 @@
-
-"use strict";
+'use strict';
 
 /**
  * Module dependencies.
@@ -14,45 +13,39 @@ const chalk = require('chalk');
 const stackoverflow = {
 
   getPage(searchResult, callback) {
-    let self = this;
-    callback = callback || {}
-    let questionId = (_.isObject(searchResult)) 
-      ? this.parseQuestionId(searchResult) 
+    callback = callback || {};
+    const self = this;
+    const questionId = (_.isObject(searchResult))
+      ? this.parseQuestionId(searchResult)
       : searchResult;
 
-    self.getJSON(questionId, function(err, page) {
+    self.getJSON(questionId, function (err, page) {
       if (err) {
         callback(err);
         return;
       }
 
-      let question = page.question;
-      let answers = page.answers;
+      const question = page.question;
+      const answers = page.answers;
 
-      let margin = String(_.max(answers, function(answ){
+      let margin = String(_.max(answers, function (answ) {
         return String(answ.score).length;
       }).score).length + 4;
-
       margin = (String(question.score).length + 4) > margin ? String(question.score).length + 4 : margin;
 
-      let headerLength = String(question.title).length + 2;
-      let viewLength = String(question.view_count).length + 8;
-      let padding = process.stdout.columns - (headerLength + viewLength);
-      let header = '  ' + chalk.cyan(question.title) + cosmetician.pad('', padding) + question.view_count + ' views';
-      let quest = self.formatAnswer(question, margin);
+      const headerLength = String(question.title).length + 2;
+      const viewLength = String(question.view_count).length + 8;
+      const padding = process.stdout.columns - (headerLength + viewLength);
+      const header = `  ${chalk.cyan(question.title)}${cosmetician.pad('', padding)}${question.view_count} views`;
+      const quest = self.formatAnswer(question, margin);
+      const title = chalk.yellow('Stack Overflow');
+      const hr = cosmetician.hr(2);
 
-      let result =
-        '  ' + chalk.yellow('Stack Overflow') + '\n' + 
-        header + '\n' + 
-        '\n' + 
-        quest + '\n\n' + 
-        '  Answers\n' + 
-        '  ' + cosmetician.hr(2) + '\n';
-
+      let result = `  ${title}\n${header}\n\n${quest}\n\n  Answers\n  ${hr}\n`;
       for (let l = 0; l < answers.length; ++l) {
-        result += self.formatAnswer(answers[l], margin) + '\n';
+        result += `${self.formatAnswer(answers[l], margin)}\n`;
         if (l < answers.length - 1) {
-          result += cosmetician.pad('', margin) + cosmetician.hr(margin) + '\n';
+          result += `${cosmetician.pad('', margin) + cosmetician.hr(margin)}\n`;
         }
       }
       callback(undefined, result);
@@ -69,9 +62,9 @@ const stackoverflow = {
   },
 
   getJSON(questionId, cb) {
-    let self = this;
+    const self = this;
+    const result = {};
     let dones = 0;
-    let result = {};
     let returned = false;
     function handler(err) {
       if (err && !returned) {
@@ -85,24 +78,24 @@ const stackoverflow = {
       }
     }
 
-    self.getQuestion(questionId, function(err, questions){
+    self.getQuestion(questionId, function (err, questions) {
       result.question = questions;
       handler(err, questions);
     });
 
-    self.getAnswers(questionId, function(err, data){
+    self.getAnswers(questionId, function (err, data) {
       result.answers = data;
       handler(err, data);
     });
   },
 
   getQuestion(questionId, callback) {
-    callback = callback || {}
-    const url = 'http://api.stackexchange.com/2.2/questions/' + questionId + '?order=desc&sort=votes&site=stackoverflow&filter=!)Ehu.SDh9PeCcJmhDxT60pU1mT_mgvdo9d3mN8WYbPzQzO6Te';
+    callback = callback || {};
+    const url = `http://api.stackexchange.com/2.2/questions/${questionId}?order=desc&sort=votes&site=stackoverflow&filter=!)Ehu.SDh9PeCcJmhDxT60pU1mT_mgvdo9d3mN8WYbPzQzO6Te`;
     util.fetchRemote({
-      url: url,
-      gzip: true 
-    }, function(err, answ, response){
+      url,
+      gzip: true
+    }, function (err, answ) {
       if (!err) {
         let answers;
         let error;
@@ -125,14 +118,14 @@ const stackoverflow = {
   },
 
   getAnswers(questionId, callback) {
+    callback = callback || {};
     const self = this;
-    callback = callback || {}
     const filter = '!t)I()ziOdWLVHc78tC981)pqWLzTas-';
-    const url = 'http://api.stackexchange.com/2.2/questions/' + questionId + '/answers?order=desc&sort=votes&site=stackoverflow&filter=' + filter;
+    const url = `http://api.stackexchange.com/2.2/questions/${questionId}/answers?order=desc&sort=votes&site=stackoverflow&filter=${filter}`;
     util.fetchRemote({
-      url: url,
-      gzip: true 
-    }, function(err, answ, response){
+      url,
+      gzip: true
+    }, function (err, answ) {
       if (!err) {
         let answers;
         let error;
@@ -158,25 +151,30 @@ const stackoverflow = {
   },
 
   sortAnswers(answ) {
-    let result = answ.sort(function(a, b){
-      let aScore = (a.is_accepted) ? a.score + 5 : a.score;
-      let bScore = (b.is_accepted) ? b.score + 5 : b.score;
-      let order = (aScore > bScore) ? -1 : (aScore < bScore) ? 1 : 0;
+    const result = answ.sort(function (a, b) {
+      const aScore = (a.is_accepted) ? a.score + 5 : a.score;
+      const bScore = (b.is_accepted) ? b.score + 5 : b.score;
+      let order = 0;
+      if (aScore > bScore) {
+        order = -1;
+      } else if (aScore < bScore) {
+        order = 1;
+      }
       return order;
-    })
+    });
     return result;
   },
 
   filterAnswers(answers) {
-    let results = [];
+    const results = [];
     let sum = 0;
     let best = 0;
     for (let i = 0; i < answers.length; ++i) {
-      let score = answers[i].score;
+      const score = answers[i].score;
       best = (score > best) ? score : best;
       sum += score;
     }
-    let avg = (sum > 0) ? (sum / answers.length) : 0;
+    const avg = (sum > 0) ? (sum / answers.length) : 0;
     answers = answers.slice(0, 3);
     for (let i = 0; i < answers.length; ++i) {
       if (answers[i].score >= avg || answers[i].is_accepted === true) {
@@ -193,15 +191,14 @@ const stackoverflow = {
     const score = answ.score;
     const creation = moment(parseFloat(answ.creation_date) * 1000).format('DD MMM YYYY');
     const owner = answ.owner;
-    
+
     let scoreSpace = cosmetician.pad(score, margin - 4, ' ');
     scoreSpace = (accepted === true) ? chalk.green(scoreSpace) : scoreSpace;
-    let creator = '  ' + scoreSpace + '  ' + chalk.cyan(owner.display_name + ' on ' + creation);
-    let formatted = cosmetician.tab(cosmetician.markdownToTerminal(markdown, { lineWidth: (process.stdout.columns - margin - 2) }), margin - 2);
+    const creator = `  ${scoreSpace}  ${chalk.cyan(`${owner.display_name} on ${creation}`)}`;
+    const formatted = cosmetician.tab(cosmetician.markdownToTerminal(markdown, {lineWidth: (process.stdout.columns - margin - 2)}), margin - 2);
 
-    return creator + '\n' + formatted;
-  },
-}
+    return `${creator}\n${formatted}`;
+  }
+};
 
 module.exports = stackoverflow;
-

@@ -1,29 +1,22 @@
-
-"use strict";
+'use strict';
 
 /**
  * Module dependencies.
  */
 
 var _ = require('lodash');
-var util = require('./util');
-var _google = require('google');
-var cosmetician = require('./cosmetician');
-var moment = require('moment');
-var chalk = require('chalk');
+var google = require('google');
 var stackoverflow = require('./spider.stackoverflow');
 
 var spider = {
 
-  google: function google(command, cb) {
-    _google(command, cb);
-  },
+  google: google,
+
+  stackoverflow: stackoverflow,
 
   sites: {
     'stackoverflow': 'stackoverflow'
   },
-
-  stackoverflow: stackoverflow,
 
   filterGoogle: function filterGoogle(links, sites) {
     sites = !_.isArray(sites) ? [sites] : sites;
@@ -38,7 +31,6 @@ var spider = {
     }
     return matches;
   }
-
 };
 
 module.exports = spider;

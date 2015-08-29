@@ -1,33 +1,26 @@
-
-"use strict";
+'use strict';
 
 /**
  * Module dependencies.
  */
 
 const _ = require('lodash');
-const util = require('./util');
 const google = require('google');
-const cosmetician = require('./cosmetician');
-const moment = require('moment');
-const chalk = require('chalk');
 const stackoverflow = require('./spider.stackoverflow');
 
 const spider = {
 
-  google(command, cb) {
-    google(command, cb);
-  },
+  google,
+
+  stackoverflow,
 
   sites: {
     'stackoverflow': 'stackoverflow'
   },
 
-  stackoverflow: stackoverflow,
-
   filterGoogle(links, sites) {
     sites = (!_.isArray(sites)) ? [sites] : sites;
-    let matches = [];
+    const matches = [];
     for (let i = 0; i < links.length; ++i) {
       for (let j = 0; j < sites.length; ++j) {
         if (String(links[i].link).indexOf(spider.sites[sites[j]]) > -1) {
@@ -35,11 +28,9 @@ const spider = {
           break;
         }
       }
-    } 
+    }
     return matches;
   }
-
-}
+};
 
 module.exports = spider;
-

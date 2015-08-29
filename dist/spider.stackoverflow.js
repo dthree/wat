@@ -1,5 +1,4 @@
-
-"use strict";
+'use strict';
 
 /**
  * Module dependencies.
@@ -14,8 +13,8 @@ var chalk = require('chalk');
 var stackoverflow = {
 
   getPage: function getPage(searchResult, callback) {
-    var self = this;
     callback = callback || {};
+    var self = this;
     var questionId = _.isObject(searchResult) ? this.parseQuestionId(searchResult) : searchResult;
 
     self.getJSON(questionId, function (err, page) {
@@ -30,7 +29,6 @@ var stackoverflow = {
       var margin = String(_.max(answers, function (answ) {
         return String(answ.score).length;
       }).score).length + 4;
-
       margin = String(question.score).length + 4 > margin ? String(question.score).length + 4 : margin;
 
       var headerLength = String(question.title).length + 2;
@@ -38,9 +36,10 @@ var stackoverflow = {
       var padding = process.stdout.columns - (headerLength + viewLength);
       var header = '  ' + chalk.cyan(question.title) + cosmetician.pad('', padding) + question.view_count + ' views';
       var quest = self.formatAnswer(question, margin);
+      var title = chalk.yellow('Stack Overflow');
+      var hr = cosmetician.hr(2);
 
-      var result = '  ' + chalk.yellow('Stack Overflow') + '\n' + header + '\n' + '\n' + quest + '\n\n' + '  Answers\n' + '  ' + cosmetician.hr(2) + '\n';
-
+      var result = '  ' + title + '\n' + header + '\n\n' + quest + '\n\n  Answers\n  ' + hr + '\n';
       for (var l = 0; l < answers.length; ++l) {
         result += self.formatAnswer(answers[l], margin) + '\n';
         if (l < answers.length - 1) {
@@ -62,8 +61,8 @@ var stackoverflow = {
 
   getJSON: function getJSON(questionId, cb) {
     var self = this;
-    var dones = 0;
     var result = {};
+    var dones = 0;
     var returned = false;
     function handler(err) {
       if (err && !returned) {
@@ -94,7 +93,7 @@ var stackoverflow = {
     util.fetchRemote({
       url: url,
       gzip: true
-    }, function (err, answ, response) {
+    }, function (err, answ) {
       if (!err) {
         var answers = undefined;
         var error = undefined;
@@ -117,14 +116,14 @@ var stackoverflow = {
   },
 
   getAnswers: function getAnswers(questionId, callback) {
-    var self = this;
     callback = callback || {};
+    var self = this;
     var filter = '!t)I()ziOdWLVHc78tC981)pqWLzTas-';
     var url = 'http://api.stackexchange.com/2.2/questions/' + questionId + '/answers?order=desc&sort=votes&site=stackoverflow&filter=' + filter;
     util.fetchRemote({
       url: url,
       gzip: true
-    }, function (err, answ, response) {
+    }, function (err, answ) {
       if (!err) {
         var answers = undefined;
         var error = undefined;
@@ -153,7 +152,12 @@ var stackoverflow = {
     var result = answ.sort(function (a, b) {
       var aScore = a.is_accepted ? a.score + 5 : a.score;
       var bScore = b.is_accepted ? b.score + 5 : b.score;
-      var order = aScore > bScore ? -1 : aScore < bScore ? 1 : 0;
+      var order = 0;
+      if (aScore > bScore) {
+        order = -1;
+      } else if (aScore < bScore) {
+        order = 1;
+      }
       return order;
     });
     return result;

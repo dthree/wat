@@ -4,9 +4,7 @@
  * Module dependencies.
  */
 
-var _ = require('lodash');
 var Vorpal = require('vorpal');
-var moment = require('moment');
 var argv = require('minimist')(process.argv.slice(2));
 var clerk = require('./clerk');
 var cosmetician = require('./cosmetician');
@@ -32,9 +30,9 @@ var app = {
       help.remove();
     }
 
-    var dir = __dirname + '/./';
+    var dir = __dirname + '/.';
 
-    vorpal.use(dir + 'vorpal.sigint.js', { parent: app }).use(dir + 'vorpal.theme.js', { parent: app }).use(dir + 'vorpal.updater.js', { parent: app }).use(dir + 'vorpal.spider.js', { parent: app }).use(dir + 'vorpal.catch.js', { parent: app }).use(dir + 'vorpal.hist.js', { parent: app }).delimiter('?').show();
+    vorpal.use(dir + '/vorpal.sigint.js', { parent: app }).use(dir + '/vorpal.theme.js', { parent: app }).use(dir + '/vorpal.updater.js', { parent: app }).use(dir + '/vorpal.spider.js', { parent: app }).use(dir + '/vorpal.catch.js', { parent: app }).use(dir + '/vorpal.hist.js', { parent: app }).delimiter('?').show();
 
     var xlt = {
       'd': 'detail',
@@ -45,12 +43,10 @@ var app = {
     for (var item in argv) {
       if (item === '_') {
         args.commands = argv[item];
+      } else if (xlt[item]) {
+        args.options[xlt[item]] = argv[item];
       } else {
-        if (xlt[item]) {
-          args.options[xlt[item]] = argv[item];
-        } else {
-          args.options[item] = argv[item];
-        }
+        args.options[item] = argv[item];
       }
     }
 
