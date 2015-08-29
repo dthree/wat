@@ -2,5 +2,8 @@
 
 'use strict';
 
-var uh = require("./../");
+var wat = require("./../");
+wat.init({
+  updateRemotely: true
+});
 

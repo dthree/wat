@@ -57,7 +57,7 @@ git push
 
 Go to your fork on Github. Click the 'Pull Request' button and fill out the form.
 
-### Now show off your repo! 
+### Step 7: Show off your docs
 
 [![Wat: Cheat Sheeted](https://img.shields.io/badge/wat-cheat%20sheeted-blue.svg)](https://github.com/dthree/wat)
 

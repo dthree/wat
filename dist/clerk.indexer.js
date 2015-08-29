@@ -51,9 +51,12 @@ var indexer = {
     if (options.clerk) {
       indexer.clerk = options.clerk;
     }
-    if (options.updateRemotely === false) {
-      this.updateRemotely = false;
-    } else {
+
+    if (options.updateRemotely !== undefined) {
+      this.updateRemotely = options.updateRemotely;
+    }
+
+    if (this.updateRemotely === true) {
       setInterval(this.update, 3600000);
       setTimeout(function () {
         self.update();

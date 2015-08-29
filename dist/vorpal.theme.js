@@ -1,9 +1,8 @@
-"use strict";
+'use strict';
 
 var chalk = require('chalk');
 
 module.exports = function (vorpal, options) {
-
   var parent = options.parent;
 
   vorpal.command('set theme <name>', 'Sets the syntax highlighting theme.').action(function (args, cb) {

@@ -1,10 +1,10 @@
-"use strict";
+'use strict';
 
 var chalk = require('chalk');
 var util = require('./util');
+var moment = require('moment');
 
 module.exports = function (vorpal, options) {
-
   var parent = options.parent;
   var histTypes = {
     'command': 'Command',

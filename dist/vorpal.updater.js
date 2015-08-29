@@ -1,14 +1,13 @@
-"use strict";
+'use strict';
 
 var chalk = require('chalk');
 
 module.exports = function (vorpal, options) {
-
   var parent = options.parent;
 
   vorpal.command('update', 'Forces an update of the document index.').action(function (args, cb) {
     var self = this;
-    parent.clerk.indexer.update({ force: true }, function (err, data) {
+    parent.clerk.indexer.update({ force: true }, function (err) {
       if (!err) {
         self.log(chalk.cyan('\n  Successfully updated index.'));
         var amt = parent.clerk.updater.queue.length;

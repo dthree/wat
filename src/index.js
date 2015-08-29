@@ -1,6 +1,5 @@
 'use strict';
 
-
 /**
  * Module dependencies.
  */
@@ -8,16 +7,11 @@
 const _ = require('lodash');
 const Vorpal = require('vorpal');
 const moment = require('moment');
-const chalk = require('chalk');
 const argv = require('minimist')(process.argv.slice(2));
 const clerk = require('./clerk');
 const cosmetician = require('./cosmetician');
 
-
 const vorpal = new Vorpal();
-
-
-var prefs = clerk.prefs.get();
 
 const app = {
 
@@ -27,52 +21,51 @@ const app = {
 
   clerk: clerk,
 
-  init() {
+  init(options) {
+    options = options || {}
     this.cosmetician.init(app); 
     this.clerk.init(app);
+    this.clerk.start(options);
 
-    this.clerk.start();
-  },
+    const help = vorpal.find('help');
+    if (help) {
+      help.remove();  
+    }
 
-}
+    const dir = __dirname + '/./';
 
-app.init();
+    vorpal
+      .use(dir + 'vorpal.sigint.js', { parent: app })
+      .use(dir + 'vorpal.theme.js', { parent: app })
+      .use(dir + 'vorpal.updater.js', { parent: app })
+      .use(dir + 'vorpal.spider.js', { parent: app })
+      .use(dir + 'vorpal.catch.js', { parent: app })
+      .use(dir + 'vorpal.hist.js', { parent: app })
+      .delimiter('?')
+      .show();
 
-const help = vorpal.find('help');
-if (help) {
-  help.remove();  
-}
+    const xlt = {
+      'd': 'detail',
+      'i': 'install'
+    }
 
-const dir = __dirname + '/./';
+    let args = { options: {} } 
+    for (let item in argv) {
+      if (item === '_') {
+        args.commands = argv[item];
+      } else {
+        if (xlt[item]) {
+          args.options[xlt[item]] = argv[item];
+        } else {
+          args.options[item] = argv[item];
+        }
+      }
+    }
 
-vorpal
-  .use(dir + 'vorpal.sigint.js', { parent: app })
-  .use(dir + 'vorpal.theme.js', { parent: app })
-  .use(dir + 'vorpal.updater.js', { parent: app })
-  .use(dir + 'vorpal.spider.js', { parent: app })
-  .use(dir + 'vorpal.catch.js', { parent: app })
-  .use(dir + 'vorpal.hist.js', { parent: app })
-  .delimiter('?')
-  .show();
-
-const xlt = {
-  'd': 'detail',
-  'i': 'install'
-}
-
-let args = { options: {} } 
-for (let item in argv) {
-  if (item === '_') {
-    args.commands = argv[item];
-  } else {
-    if (xlt[item]) {
-      args.options[xlt[item]] = argv[item];
-    } else {
-      args.options[item] = argv[item];
+    if (process.argv.length > 2) {
+      vorpal.exec(args.commands.join(' '), args)
     }
   }
 }
 
-if (process.argv.length > 2) {
-  vorpal.exec(args.commands.join(' '), args)
-}
+module.exports = app;

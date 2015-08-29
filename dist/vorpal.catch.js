@@ -1,26 +1,24 @@
-"use strict";
+'use strict';
 
 var chalk = require('chalk');
 var util = require('./util');
 var _ = require('lodash');
 
 module.exports = function (vorpal, options) {
-
   var parent = options.parent;
 
   vorpal['catch']('[commands...]').option('-d, --detail', 'View detailed markdown on item.').option('-i, --install', 'View installation instructions.').autocompletion(function (text, iteration, cb) {
     var self = this;
     var index = parent.clerk.indexer.index();
     var result = util.autocomplete(text, iteration, index, function (word, options) {
-      var result = self.match.call(self, word, options);
+      var result = self.match(word, options);
       return result;
     });
     if (_.isArray(result)) {
       result.sort();
     }
-    cb(void 0, result);
+    cb(undefined, result);
   }).action(function (args, cb) {
-
     var self = this;
 
     args = args || {};
@@ -63,16 +61,12 @@ module.exports = function (vorpal, options) {
         }
         self.log(' ');
       } else {
-
         var results = parent.clerk.search(args.commands.join(' '));
-
         if (results.length === 1 && results[0].points > 0) {
-
-          self.log(chalk.yellow('\n  Showing results for "' + results[0].command + '":'));
+          self.log(chalk.yellow('\n  Showing results for \'' + results[0].command + '\':'));
           var _path = util.command.buildPath(results[0].command, args.options, parent.clerk.indexer.index());
           execPath(_path);
         } else if (results.length > 0) {
-
           self.log(chalk.yellow('\n  Did you mean:'));
           for (var i = 0; i < results.length; ++i) {
             if (i > 7) {
@@ -84,7 +78,6 @@ module.exports = function (vorpal, options) {
           }
           self.log(' ');
         } else {
-
           self.log(chalk.yellow('\n  Sorry, there\'s no command like that.\n'));
         }
       }

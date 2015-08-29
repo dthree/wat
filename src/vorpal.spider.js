@@ -1,18 +1,17 @@
-"use strict";
+'use strict';
 
 const spider = require('./spider');
 const chalk = require('chalk');
 
-module.exports = function(vorpal, options) {
-
+module.exports = function (vorpal, options) {
   const parent = options.parent;
 
   vorpal
     .command('search [command...]', 'Searches for a command.')
-    .action(function(args, cb){
-      var command = (args.command || []).join(' ');
-      let matches = parent.clerk.search(command);
-      this.log(matches)
+    .action(function (args, cb) {
+      const command = (args.command || []).join(' ');
+      const matches = parent.clerk.search(command);
+      this.log(matches);
       cb();
     });
 
@@ -20,14 +19,13 @@ module.exports = function(vorpal, options) {
     .command('stackoverflow [command...]', 'Searches Stack Overflow.')
     .alias('so')
     .alias('stack')
-    .action(function(args, cb){
-      var command = (args.command || []).join(' ');
-      var self = this;
-      const sites = ['stackoverflow'];
+    .action(function (args, cb) {
+      const self = this;
+      const command = (args.command || []).join(' ');
       self.log(' ');
 
       function process(itm) {
-        spider.stackoverflow.getPage(itm, function(err, text) {
+        spider.stackoverflow.getPage(itm, function (err, text) {
           if (err) {
             self.log('Error: ', err);
           } else {
@@ -37,15 +35,20 @@ module.exports = function(vorpal, options) {
         });
       }
 
-      spider.google(command, function(err, next, links){
-        let wanted = spider.filterGoogle(links, ['stackoverflow']);
-        let item = wanted.shift();
+      spider.google(command, function (err, next, links) {
+        const wanted = spider.filterGoogle(links, ['stackoverflow']);
+        const item = wanted.shift();
+        if (err) {
+          self.log(`  ${chalk.yellow(`Hmmm.. Wat had trouble searching this question.`)}\n`);
+          cb();
+          return;
+        }
         if (item) {
           process(item);
         } else {
-          self.log(chalk.yellow('  Wat couldn\'t find any matches on Stack Overflow.') + '\n  Try re-wording your question.\n');
+          self.log(`${chalk.yellow(`  Wat couldn\'t find any matches on Stack Overflow.`)}\n  Try re-wording your question.\n`);
           cb();
         }
       });
     });
-}
+};

@@ -1,10 +1,9 @@
-"use strict";
+'use strict';
 
 var spider = require('./spider');
 var chalk = require('chalk');
 
 module.exports = function (vorpal, options) {
-
   var parent = options.parent;
 
   vorpal.command('search [command...]', 'Searches for a command.').action(function (args, cb) {
@@ -15,9 +14,8 @@ module.exports = function (vorpal, options) {
   });
 
   vorpal.command('stackoverflow [command...]', 'Searches Stack Overflow.').alias('so').alias('stack').action(function (args, cb) {
-    var command = (args.command || []).join(' ');
     var self = this;
-    var sites = ['stackoverflow'];
+    var command = (args.command || []).join(' ');
     self.log(' ');
 
     function process(itm) {
@@ -34,6 +32,11 @@ module.exports = function (vorpal, options) {
     spider.google(command, function (err, next, links) {
       var wanted = spider.filterGoogle(links, ['stackoverflow']);
       var item = wanted.shift();
+      if (err) {
+        self.log('  ' + chalk.yellow('Hmmm.. Wat had trouble searching this question.') + '\n');
+        cb();
+        return;
+      }
       if (item) {
         process(item);
       } else {
