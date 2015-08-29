@@ -2,6 +2,8 @@
 
 > Your syntax nightmares are over.
 
+[![Build Status](https://travis-ci.org/dthree/wat.svg)](https://travis-ci.org/dthree/wat)
+
 Finally, community-built cheat sheets for every coder, in every language and major framework. At the tip of your fingers.
 
 Wat is an interactive app built to drastically reduce time spent searching for syntax and code usage questions. If you forgot how to write a CSS transition, simply type `css transition`. Wat finds what you want, providing exactly and only what you need: a basic description and usage samples.
