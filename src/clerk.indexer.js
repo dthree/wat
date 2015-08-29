@@ -33,6 +33,10 @@ const indexer = {
   // be smart and override your index.
   updateRemotely: true,
 
+  init(parent) {
+    this.parent = parent;
+  },
+
   /**
   * Thump, thump... It's alive!
   *
@@ -41,7 +45,7 @@ const indexer = {
   * @api public
   */
 
-  init(options) {
+  start(options) {
     const self = this;
     options = options || {}
     if (options.clerk) {
@@ -272,12 +276,9 @@ const indexer = {
       });
     }
 
-  },
+  }
 
 }
 
 module.exports = indexer;
-
-
-
 

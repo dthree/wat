@@ -34,10 +34,6 @@ Made with :heart: and a little [secret sauce](https://github.com/dthree/vorpal).
 
 ##### To do
 
-- Search commands implemented.
-- Preference commands implemented (syntax highlighting flavor, etc.).
-- Import / Export preference commands.
-- Finish readme / <s>editing guidelines</s>.
 - At least 20 complete libraries or languages documented. (4 done)
 - Tour
 - Tests.
@@ -46,6 +42,9 @@ Made with :heart: and a little [secret sauce](https://github.com/dthree/vorpal).
 
 ##### Done
 
+- <s>Search commands implemented.</s>
+- <s>Preference commands implemented (syntax highlighting flavor, etc.).</s>
+- <s>Finish readme / editing guidelines</s>.
 - <s>Refactor Vorpal dependency to Vantage.</s>
 - <s>Change temp directory for all persistent local storage and configurations.</s>
 - <s>Babel transpiling.</s>

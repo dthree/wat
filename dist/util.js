@@ -328,9 +328,12 @@ var util = {
 
     buildExtension: function buildExtension(path, index, options) {
       var result = undefined;
+
       if (_.isObject(index) && index.__isIndexFile === true) {
-        result = path + '/index.md';
-      } else if (options.detail && index.__detail) {
+        path += '/index';
+      }
+
+      if (options.detail && index.__detail) {
         result = path + '.detail.md';
       } else if (options.install && index.__install) {
         result = path + '.install.md';

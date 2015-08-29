@@ -8,6 +8,7 @@
 ;(function() {
 
 var chalk = require('chalk');
+var wrap = require('wrap-ansi');
 
 /**
  * Block-Level Grammar
@@ -816,7 +817,7 @@ Renderer.prototype.listitem = function(text) {
 };
 
 Renderer.prototype.paragraph = function(text) {
-  return module.exports.cosmetician.wrap(text, this.options.lineWidth) + '\n';
+  return wrap(text, this.options.lineWidth - 8) + '\n';
 };
 
 Renderer.prototype.table = function(header, body) {

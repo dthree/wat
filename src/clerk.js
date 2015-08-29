@@ -8,14 +8,18 @@ const _ = require('lodash');
 const mkdirp = require('mkdirp');
 const fs = require('fs');
 const moment = require('moment');
-const indexer = require('./indexer');
-const cosmetician = require('./cosmetician');
 const request = require('request');
 const chalk = require('chalk');
 const util = require('./util');
 const tmp = require('tmp');
 const os = require('os');
 const path = require('path');
+
+const indexer = require('./clerk.indexer');
+const history = require('./clerk.history');
+const updater = require('./clerk.updater');
+const config = require('./clerk.config');
+const prefs = require('./clerk.prefs');
 
 const temp = path.join(os.tmpdir(), '/.wat');
 
@@ -35,19 +39,42 @@ const clerk = {
     remoteArchiveUrl: ''
   },
 
+  indexer: indexer,
+
+  history: history,
+
+  updater: updater,
+
+  config: config,
+
+  prefs: prefs,
+
+  init(parent) {
+    this.parent = parent || {};
+    this.cosmetician = this.parent.cosmetician;
+    this.history.init(this);
+    this.indexer.init(this);
+    this.updater.init(this);
+    this.config.init(this);
+    this.prefs.init(this);
+  },
+
   start(options) {
     options = options || {}
     this.scaffold();
     this.load();
-    indexer.init({ clerk: clerk, updateRemotely: options.updateRemotely });
+    this.indexer.start({
+      clerk: this, 
+      updateRemotely: options.updateRemotely
+    });
     setInterval(this.history.worker, 5000);
     setInterval(this.updater.nextQueueItem, 6000);
   },
 
   scaffold() {
     mkdirp.sync(path.join(os.tmpdir(), '/.wat'));
-    mkdirp.sync(clerk.paths.tempDir + '/.local');
-    mkdirp.sync(clerk.paths.tempDir + '/.local/docs');
+    mkdirp.sync(this.paths.tempDir + '/.local');
+    mkdirp.sync(this.paths.tempDir + '/.local/docs');
     this.scaffoldDocs();
     fs.appendFileSync(this.paths.prefs, '');
     fs.appendFileSync(this.paths.cache, '');
@@ -56,7 +83,7 @@ const clerk = {
   },
 
   scaffoldDocs() {
-    let index = this.index.index() || {};
+    let index = this.indexer.index() || {};
     let dir = clerk.paths.docs;
     function traverse(idx, path) {
       for (let key in idx) {
@@ -76,7 +103,7 @@ const clerk = {
   },
 
   forEachInIndex(callback) {
-    let index = this.index.index() || {};
+    let index = this.indexer.index() || {};
     let dir = clerk.paths.docs;
     function traverse(idx, path) {
       for (let key in idx) {
@@ -102,7 +129,6 @@ const clerk = {
     }
     traverse(index, '');
   },
-
 
   search(str) {
     let search = String(str).split(' ');
@@ -156,13 +182,11 @@ const clerk = {
       );
     });
 
-    //matches = matches.
-
     return matches;
   },
 
   compareDocs() {
-    let index = this.index.index();
+    let index = this.indexer.index();
     let changes = [];
     let newDocs = [];
     this.forEachInIndex(function(path, key, value){
@@ -225,14 +249,14 @@ const clerk = {
   fetch(path, cb) {
     cb = cb || function() {}
     clerk.lastUserAction = new Date();
-    const self = this;
+    const self = clerk;
     const local = clerk.fetchLocal(path);
     this.history.push({
       type: 'command',
       value: path
     });
     if (local !== undefined) {
-      const formatted = cosmetician.markdownToTerminal(local);
+      const formatted = self.cosmetician.markdownToTerminal(local);
       cb(void 0, formatted);
     } else {
       util.fetchRemote(this.paths.remoteDocUrl + path, function(err, data) {
@@ -242,13 +266,13 @@ const clerk = {
               chalk.yellow('\n  ' + 
               'Wat couldn\'t find the Markdown file for this command.\n  ' + 
               'This probably means your index needs an update.\n\n') + '  ' + 
-              'File: ' + self.path.remoteDocUrl + path + '\n';
+              'File: ' + self.paths.remoteDocUrl + path + '\n';
             cb(void 0, response);
           } else {
             cb(err);
           }
         } else {
-          const formatted = cosmetician.markdownToTerminal(data);
+          const formatted = self.cosmetician.markdownToTerminal(data);
           clerk.file(path, data);
           cb(void 0, formatted);
         }
@@ -277,161 +301,7 @@ const clerk = {
         throw new Error('Unexpected rrror writing to cache: ' + e);
       }
     }
-  },
-
-  updater: {
-
-    queue: [],
-
-    push(obj) {
-      if (this.queue.indexOf(obj) === -1) {
-        this.queue.push(obj);
-      }
-    },
-
-    nextQueueItem() {
-
-      const self = clerk.updater;
-      let item = self.queue.shift();
-      let lastAction = (!clerk.lastUserAction) ? 10000000 : (new Date() - clerk.lastUserAction);
-      if (item && lastAction > 10000) {
-        let partial = String(item).split('docs/');
-        let url  = (partial.length > 1) ? partial[1] : partial[0];
-        util.fetchRemote(clerk.paths.remoteDocUrl + url, function(err, data) {
-          if (err) {
-            console.log('PROBLEM...');
-            console.log(err);
-          } else {
-            clerk.file(url, data);
-            clerk.history.push({
-              type: 'update',
-              value: url
-            });
-          }
-        });
-      }
-    },
-  },
-
-  /**
-   * The config object sets and gets the ./config/config.json 
-   * file locally and remotely. This file is used to ensure 
-   * we always know the URL for the remote docs, in case it 
-   * changes in the future.
-   *
-   * It also syncs the last update of the index.json file, 
-   * which in turn knows when all docs were last updated, 
-   * and so keeps the remote repo's docs and local docs 
-   * in sync.
-   */
-
-  config: {
-
-    _config: {},
-
-    getLocal() {
-      try {
-        let config = fs.readFileSync(__dirname + '/../' + clerk.paths.config, { encoding: 'utf-8' });
-        config = JSON.parse(config);
-        this._config = config;
-      } catch(e) {
-        let error = chalk.yellow('\n\nHouston, we have a problem.\n' + 
-          'Wat can\'t read its local config file, which should be at `./config/config.json`. ' + 
-          'Without this, Wat can\'t do much. Try re-installing Wat from scratch.\n\nIf that doesn\'t work, please file an issue.\n');
-        console.log(error);
-        throw new Error(e);
-      }
-
-      // Read local config on how to find remote data.
-      clerk.paths.remoteDocUrl = this._config.remoteDocUrl || clerk.paths.remoteDocUrl;
-      clerk.paths.remoteConfigUrl = this._config.remoteConfigUrl || clerk.paths.remoteConfigUrl;
-      clerk.paths.remoteArchiveUrl = this._config.remoteArchiveUrl || clerk.paths.remoteArchiveUrl;
-      return this._config;
-    },
-
-    getRemote(callback) {
-      callback = callback || function() {}
-      let url = clerk.paths.remoteConfigUrl + 'config.json';
-      util.fetchRemote(url, function(err, data){
-        if (!err) {
-          try {
-            let json = JSON.parse(data);
-            callback(void 0, json);
-          } catch(e) {
-            callback("Error parsing json: " + data + ", Error: " + e + ", url: " + url);
-          }
-        } else {
-          callback(err);
-        }
-      });
-    },
-
-    setLocal(key, value) {
-      if (key && value) {
-        this._config[key] = value;
-      }
-      fs.writeFileSync(__dirname + '/../' + clerk.paths.config, JSON.stringify(this._config, null, '  '));
-    },
-
-  },
-
-  /**
-   * History stores records of the most recent commands,
-   * which is kept for the user's convenience and reference,
-   * as well as so as to optimize remote storage of 
-   * the user's most used languages.
-   */
-
-  history: {
-
-    _hist: [],
-
-    _adds: 0,
-
-    _lastWrite: new Date(),
-
-    _max: 600,
-
-    get() {
-      return this._hist;
-    },
-
-    push(obj) {
-      obj = obj || {
-        type: 'unknown'
-      }
-      obj.date = new Date();
-      this._hist.push(obj);
-      this._adds++;
-    },
-
-    worker() {
-
-      const self = clerk.history;
-
-      let lastWrite = new Date() - self._lastWrite;
-      let write = (self._adds > 5) ? true 
-        : (self._adds > 0 && lastWrite > 30000) ? true
-        : false;
-
-      if (write) {
-        self._adds = 0;
-        self._lastWrite = new Date();
-        self.write();
-      }
-    },
-
-    write() {
-      if (this._hist.length > this._max) {
-        this._hist = this._hist.slice(this._hist.length - this._max);
-      }
-      fs.writeFileSync(clerk.paths.hist, JSON.stringify(this._hist));
-      return this;
-    }
-
-  },
-
-  index: indexer
+  }
 
 }
 
