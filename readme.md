@@ -1,8 +1,8 @@
 # Wat
 
-> Your syntax nightmares are over.
+[![Build Status](https://travis-ci.org/dthree/wat.svg)](https://travis-ci.org/dthree/wat) [![Build Status](https://img.shields.io/badge/gitter-join%20chat-brightgreen.svg)](https://gitter.im/dthree/wat?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge) [![Build Status](https://img.shields.io/npm/v/wat.svg)](https://www.npmjs.com/package/wat)
 
-[![Build Status](https://travis-ci.org/dthree/wat.svg)](https://travis-ci.org/dthree/wat)
+> Your syntax nightmares are over.
 
 Finally, community-built cheat sheets for every coder, in every language and major framework. At the tip of your fingers.
 
