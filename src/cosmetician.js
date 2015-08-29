@@ -11,8 +11,6 @@
  * Module dependencies.
  */
 
-const _ = require('lodash');
-const chalk = require('chalk');
 const markterm = require('./markterm');
 const highlighter = require('./highlighter');
 
@@ -25,7 +23,7 @@ const cosmetician = {
     markterm.setOptions({
       gfm: true,
       sanitize: true,
-      highlight: function(code, lang) {
+      highlight(code, lang) {
         let results = code;
         try {
           results = highlighter.highlight(code, lang, {});
@@ -35,7 +33,7 @@ const cosmetician = {
           console.log(e.stack);
         }
         return results;
-      }  
+      }
     });
     highlighter.theme('default');
   },
@@ -74,7 +72,7 @@ const cosmetician = {
       }
     }
     function shaveEnd() {
-      if (String(parts[parts.length-1]).trim() === '') {
+      if (String(parts[parts.length - 1]).trim() === '') {
         parts.pop();
         return shaveEnd();
       }
@@ -86,20 +84,20 @@ const cosmetician = {
 
   hr(pad) {
     pad = pad || 2;
-    var width = process.stdout.columns - (pad * 2);
-    var str = '';
-    for (var i = 0; i < width; ++i) {
+    const width = process.stdout.columns - (pad * 2);
+    let str = '';
+    for (let i = 0; i < width; ++i) {
       str += '-';
     }
-    return '' + str + '\n';
+    return `${str}\n`;
   },
 
   pad(str, width, delimiter) {
     width = Math.floor(width);
-    delimiter = delimiter || " ";
-    var len = Math.max(0, width - String(str).length);
+    delimiter = delimiter || ' ';
+    const len = Math.max(0, width - String(str).length);
     return str + Array(len + 1).join(delimiter);
-  },
-}
+  }
+};
 
 module.exports = cosmetician;

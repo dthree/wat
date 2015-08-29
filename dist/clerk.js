@@ -7,11 +7,8 @@
 var _ = require('lodash');
 var mkdirp = require('mkdirp');
 var fs = require('fs');
-var moment = require('moment');
-var request = require('request');
 var chalk = require('chalk');
 var util = require('./util');
-var tmp = require('tmp');
 var os = require('os');
 var path = require('path');
 
@@ -25,7 +22,7 @@ var temp = path.join(os.tmpdir(), '/.wat');
 
 var clerk = {
 
-  lastUserAction: void 0,
+  lastUserAction: undefined,
 
   paths: {
     tempDir: temp,
@@ -86,16 +83,19 @@ var clerk = {
     var index = this.indexer.index() || {};
     var dir = clerk.paths.docs;
     function traverse(idx, path) {
+      function rejectFn(str) {
+        return String(str).indexOf('__') > -1;
+      }
       for (var key in idx) {
-        // Clean out all files with '__...'
-        var content = Object.keys(idx[key]);
-        content = _.reject(content, function (str) {
-          return String(str).indexOf('__') > -1;
-        });
-        if (content.length > 0) {
-          var fullPath = dir + path + key;
-          mkdirp.sync(fullPath);
-          traverse(idx[key], path + key + '/');
+        if (idx.hasOwnProperty(key)) {
+          // Clean out all files with '__...'
+          var content = Object.keys(idx[key]);
+          content = _.reject(content, rejectFn);
+          if (content.length > 0) {
+            var fullPath = dir + path + key;
+            mkdirp.sync(fullPath);
+            traverse(idx[key], '' + path + key + '/');
+          }
         }
       }
     }
@@ -106,29 +106,30 @@ var clerk = {
     var index = this.indexer.index() || {};
     var dir = clerk.paths.docs;
     function traverse(idx, path) {
-      var _loop = function (key) {
-        // Clean out all files with '__...'
-        var content = Object.keys(idx[key]);
-        var special = {};
-        content = _.reject(content, function (str) {
-          var isSpecial = String(str).indexOf('__') > -1;
-          if (isSpecial) {
-            special[str] = idx[key][str];
-          }
-          return isSpecial;
-        });
-        var fullPath = dir + path + key;
-        for (var item in special) {
-          callback(fullPath, item, special[item]);
-        }
-        if (content.length > 0) {
-          //mkdirp.sync(fullPath);
-          traverse(idx[key], path + key + '/');
-        }
-      };
-
       for (var key in idx) {
-        _loop(key);
+        if (idx.hasOwnProperty(key)) {
+          // Clean out all files with '__...'
+          var content = Object.keys(idx[key]);
+          var special = {};
+          var nonSpecial = [];
+          for (var i = 0; i < content.length; ++i) {
+            var isSpecial = String(content[i]).indexOf('__') > -1;
+            if (isSpecial) {
+              special[content[i]] = idx[key][content[i]];
+            } else {
+              nonSpecial.push(content[i]);
+            }
+          }
+          var fullPath = dir + path + key;
+          for (var item in special) {
+            if (special.hasOwnProperty(item)) {
+              callback(fullPath, item, special[item]);
+            }
+          }
+          if (nonSpecial.length > 0) {
+            traverse(idx[key], '' + path + key + '/');
+          }
+        }
       }
     }
     traverse(index, '');
@@ -136,20 +137,16 @@ var clerk = {
 
   search: function search(str) {
     var search = String(str).split(' ');
-
     var matches = [];
-    this.forEachInIndex(function (path, key, value) {
-
+    this.forEachInIndex(function (path, key) {
       if (key !== '__basic') {
         return;
       }
 
       var commands = util.parseCommandsFromPath(path);
-
       var points = 0;
       var dirty = 0;
       for (var i = 0; i < search.length; ++i) {
-
         var word = String(search[i]).toLowerCase().trim();
         var finds = 0;
         for (var j = 0; j < commands.length; ++j) {
@@ -172,21 +169,26 @@ var clerk = {
       if (points > 0) {
         matches.push({
           points: points,
-          command: commands.join(' '),
-          dirty: dirty
+          dirty: dirty,
+          command: commands.join(' ')
         });
       }
     });
 
     matches = matches.sort(function (a, b) {
-      return a.points > b.points ? -1 : a.points < b.points ? 1 : 0;
+      var sort = 0;
+      if (a.points > b.points) {
+        sort = -1;
+      } else if (a.points < b.points) {
+        sort = 1;
+      }
+      return sort;
     });
 
     return matches;
   },
 
   compareDocs: function compareDocs() {
-    var index = this.indexer.index();
     var changes = [];
     var newDocs = [];
     this.forEachInIndex(function (path, key, value) {
@@ -259,20 +261,20 @@ var clerk = {
     });
     if (local !== undefined) {
       var formatted = self.cosmetician.markdownToTerminal(local);
-      cb(void 0, formatted);
+      cb(undefined, formatted);
     } else {
       util.fetchRemote(this.paths.remoteDocUrl + path, function (err, data) {
         if (err) {
           if (String(err).indexOf('Not Found') > -1) {
-            var response = chalk.yellow('\n  ' + 'Wat couldn\'t find the Markdown file for this command.\n  ' + 'This probably means your index needs an update.\n\n') + '  ' + 'File: ' + self.paths.remoteDocUrl + path + '\n';
-            cb(void 0, response);
+            var response = chalk.yellow('\n  Wat couldn\'t find the Markdown file for this command.\n  This probably means your index needs an update.\n\n') + 'File: ' + self.paths.remoteDocUrl + path + '\n';
+            cb(undefined, response);
           } else {
             cb(err);
           }
         } else {
           var formatted = self.cosmetician.markdownToTerminal(data);
           clerk.file(path, data);
-          cb(void 0, formatted);
+          cb(undefined, formatted);
         }
       });
     }
@@ -284,7 +286,7 @@ var clerk = {
       file = fs.readFileSync(clerk.paths.docs + path, { encoding: 'utf-8' });
       return file;
     } catch (e) {
-      return void 0;
+      return undefined;
     }
   },
 
@@ -294,13 +296,12 @@ var clerk = {
     } catch (e) {
       if (retry === undefined) {
         this.scaffold();
-        return this.file(path, data, true);
       } else {
         throw new Error('Unexpected rrror writing to cache: ' + e);
       }
+      return this.file(path, data, true);
     }
   }
-
 };
 
 module.exports = clerk;

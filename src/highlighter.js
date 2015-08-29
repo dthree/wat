@@ -7,15 +7,12 @@
 const _ = require('lodash');
 const chalk = require('chalk');
 const fs = require('fs');
-const path = require('path');
 const hljs = require('highlight.js');
 
 /**
  * Expose a function that passes in a Vantage
  * object and options.
  */
-
-const mapping = {}
 
 const highlighter = {
 
@@ -34,23 +31,27 @@ const highlighter = {
     }
 
     this.mapping = {};
-    this.mapping.fallback = {}
+    this.mapping.fallback = {};
     for (let i = 0; i < this.allClasses.length; ++i) {
-      this.mapping.fallback['reset' + i] = new RegExp('\<span class=\'hljs-' + this.allClasses[i] + '\'\>(.*?)\<\/span\>', 'g');
+      this.mapping.fallback[`reset${i}`] = new RegExp(`\<span class=\'hljs-${this.allClasses[i]}\'\>(.*?)\<\/span\>`, 'g');
     }
 
     for (const lang in config) {
-      this.mapping[lang] = this.mapping[lang] || {}
-      let ctr = 0;
-      for (const item in config[lang]) {
-        ctr++;
-        let styles = config[lang][item];
-        styles = (_.isArray(styles)) ? styles : [styles];
-        for (let j = 0; j < styles.length; ++j) {
-          if (lang === 'markdown') {
-            this.mapping[lang][styles[j] + ctr] = new RegExp('\<md-' + item + '\>(.*?)\<\/md\>', 'g');
-          } else {
-            this.mapping[lang][styles[j] + ctr] = new RegExp('\<span class=\'hljs-' + item + '\'\>(.*?)\<\/span\>', 'g');
+      if (config.hasOwnProperty(lang)) {
+        this.mapping[lang] = this.mapping[lang] || {};
+        let ctr = 0;
+        for (const item in config[lang]) {
+          if (config[lang].hasOwnProperty(item)) {
+            ctr++;
+            let styles = config[lang][item];
+            styles = (_.isArray(styles)) ? styles : [styles];
+            for (let j = 0; j < styles.length; ++j) {
+              if (lang === 'markdown') {
+                this.mapping[lang][styles[j] + ctr] = new RegExp(`\<md-${item}\>(.*?)\<\/md\>`, 'g');
+              } else {
+                this.mapping[lang][styles[j] + ctr] = new RegExp(`\<span class=\'hljs-${item}\'\>(.*?)\<\/span\>`, 'g');
+              }
+            }
           }
         }
       }
@@ -63,7 +64,7 @@ const highlighter = {
     const themes = [];
     fs.readdirSync(highlighter.configPath).forEach(function (name) {
       const parts = String(name).split('.');
-      if (parts[parts.length-1] === 'json') {
+      if (parts[parts.length - 1] === 'json') {
         parts.pop();
         themes.push(parts.join('.'));
       }
@@ -71,8 +72,8 @@ const highlighter = {
     return themes;
   },
 
-  highlight(data, lang, options) {
-    let fallback = (!this.mapping[lang]) ? 'default' : void 0;
+  highlight(data, lang) {
+    let fallback = (!this.mapping[lang]) ? 'default' : undefined;
     let hl = this.unescape(data);
 
     if (lang !== 'markdown') {
@@ -96,22 +97,28 @@ const highlighter = {
 
     // If a custom language is detected, apply its styles.
     for (const color in this.mapping[mappingLang]) {
-      const clr = String(color).replace(/[0-9]/g, '');
-      hl = String(hl).replace(this.mapping[mappingLang][color], chalk[clr]('$1'));
+      if (this.mapping[mappingLang].hasOwnProperty(color)) {
+        const clr = String(color).replace(/[0-9]/g, '');
+        hl = String(hl).replace(this.mapping[mappingLang][color], chalk[clr]('$1'));
+      }
     }
 
     // If the "default" styles weren't applied, apply them now.
     if (mappingLang !== 'default') {
       for (const color in this.mapping.default) {
-        const clr = String(color).replace(/[0-9]/g, '');
-        hl = String(hl).replace(this.mapping.default[color], chalk[clr]('$1'));
+        if (this.mapping.default.hasOwnProperty(color)) {
+          const clr = String(color).replace(/[0-9]/g, '');
+          hl = String(hl).replace(this.mapping.default[color], chalk[clr]('$1'));
+        }
       }
     }
 
     // Catch any highlighting tags not given in
     // that theme file, and reset any color on them.
     for (const style in this.mapping.fallback) {
-      hl = String(hl).replace(this.mapping.fallback[style], chalk['reset']('$1'));
+      if (this.mapping.fallback.hasOwnProperty(style)) {
+        hl = String(hl).replace(this.mapping.fallback[style], chalk.reset('$1'));
+      }
     }
 
     return hl;

@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 /**
  * Module dependencies.
@@ -9,7 +9,7 @@ const fs = require('fs');
 /**
  * History stores records of the most recent commands,
  * which is kept for the user's convenience and reference,
- * as well as so as to optimize remote storage of 
+ * as well as so as to optimize remote storage of
  * the user's most used languages.
  */
 
@@ -34,7 +34,7 @@ const history = {
   push(obj) {
     obj = obj || {
       type: 'unknown'
-    }
+    };
     obj.date = new Date();
     this._hist.push(obj);
     this._adds++;
@@ -42,10 +42,13 @@ const history = {
 
   worker() {
     const self = this;
-    let lastWrite = new Date() - self._lastWrite;
-    let write = (self._adds > 5) ? true 
-      : (self._adds > 0 && lastWrite > 30000) ? true
-      : false;
+    const lastWrite = new Date() - self._lastWrite;
+    let write = false;
+    if (self._adds > 5) {
+      write = true;
+    } else if (self._adds > 0 && lastWrite > 30000) {
+      write = true;
+    }
 
     if (write) {
       self._adds = 0;
@@ -61,7 +64,6 @@ const history = {
     fs.writeFileSync(this.parent.paths.hist, JSON.stringify(this._hist));
     return this;
   }
-}
+};
 
 module.exports = history;
-

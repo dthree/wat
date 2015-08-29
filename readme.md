@@ -38,12 +38,12 @@ Made with :heart: and a little [secret sauce](https://github.com/dthree/vorpal).
 
 - At least 20 complete libraries or languages documented. (4 done)
 - Tour
-- Tests.
-- XO linting.
+- Finish Tests.
 - *Suggestions? Wat is for you, and must be uncomprimisingly amazing.*
 
 ##### Done
 
+- <s>XO linting.</s>
 - <s>Search commands implemented.</s>
 - <s>Preference commands implemented (syntax highlighting flavor, etc.).</s>
 - <s>Finish readme / editing guidelines</s>.

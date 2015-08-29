@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 /**
  * Module dependencies.
@@ -17,7 +17,7 @@ const prefs = {
   get() {
     const self = prefs;
     try {
-      let prefs = fs.readFileSync(self.parent.paths.prefs, { encoding: 'utf-8' });
+      let prefs = fs.readFileSync(self.parent.paths.prefs, {encoding: 'utf-8'});
       prefs = JSON.parse(prefs);
       self._prefs = prefs;
     } catch(e) {}
@@ -31,7 +31,6 @@ const prefs = {
     }
     fs.writeFileSync(self.parent.paths.prefs, JSON.stringify(self._prefs, null, '  '));
   }
-}
+};
 
 module.exports = prefs;
-

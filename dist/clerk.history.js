@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 /**
  * Module dependencies.
@@ -9,7 +9,7 @@ var fs = require('fs');
 /**
  * History stores records of the most recent commands,
  * which is kept for the user's convenience and reference,
- * as well as so as to optimize remote storage of 
+ * as well as so as to optimize remote storage of
  * the user's most used languages.
  */
 
@@ -43,7 +43,12 @@ var history = {
   worker: function worker() {
     var self = this;
     var lastWrite = new Date() - self._lastWrite;
-    var write = self._adds > 5 ? true : self._adds > 0 && lastWrite > 30000 ? true : false;
+    var write = false;
+    if (self._adds > 5) {
+      write = true;
+    } else if (self._adds > 0 && lastWrite > 30000) {
+      write = true;
+    }
 
     if (write) {
       self._adds = 0;

@@ -7,15 +7,12 @@
 var _ = require('lodash');
 var chalk = require('chalk');
 var fs = require('fs');
-var path = require('path');
 var hljs = require('highlight.js');
 
 /**
  * Expose a function that passes in a Vantage
  * object and options.
  */
-
-var mapping = {};
 
 var highlighter = {
 
@@ -36,21 +33,25 @@ var highlighter = {
     this.mapping = {};
     this.mapping.fallback = {};
     for (var i = 0; i < this.allClasses.length; ++i) {
-      this.mapping.fallback['reset' + i] = new RegExp('\<span class=\'hljs-' + this.allClasses[i] + '\'\>(.*?)\<\/span\>', 'g');
+      this.mapping.fallback['reset' + i] = new RegExp('<span class=\'hljs-' + this.allClasses[i] + '\'>(.*?)</span>', 'g');
     }
 
     for (var lang in config) {
-      this.mapping[lang] = this.mapping[lang] || {};
-      var ctr = 0;
-      for (var item in config[lang]) {
-        ctr++;
-        var styles = config[lang][item];
-        styles = _.isArray(styles) ? styles : [styles];
-        for (var j = 0; j < styles.length; ++j) {
-          if (lang === 'markdown') {
-            this.mapping[lang][styles[j] + ctr] = new RegExp('\<md-' + item + '\>(.*?)\<\/md\>', 'g');
-          } else {
-            this.mapping[lang][styles[j] + ctr] = new RegExp('\<span class=\'hljs-' + item + '\'\>(.*?)\<\/span\>', 'g');
+      if (config.hasOwnProperty(lang)) {
+        this.mapping[lang] = this.mapping[lang] || {};
+        var ctr = 0;
+        for (var item in config[lang]) {
+          if (config[lang].hasOwnProperty(item)) {
+            ctr++;
+            var styles = config[lang][item];
+            styles = _.isArray(styles) ? styles : [styles];
+            for (var j = 0; j < styles.length; ++j) {
+              if (lang === 'markdown') {
+                this.mapping[lang][styles[j] + ctr] = new RegExp('<md-' + item + '>(.*?)</md>', 'g');
+              } else {
+                this.mapping[lang][styles[j] + ctr] = new RegExp('<span class=\'hljs-' + item + '\'>(.*?)</span>', 'g');
+              }
+            }
           }
         }
       }
@@ -71,8 +72,8 @@ var highlighter = {
     return themes;
   },
 
-  highlight: function highlight(data, lang, options) {
-    var fallback = !this.mapping[lang] ? 'default' : void 0;
+  highlight: function highlight(data, lang) {
+    var fallback = !this.mapping[lang] ? 'default' : undefined;
     var hl = this.unescape(data);
 
     if (lang !== 'markdown') {
@@ -96,22 +97,28 @@ var highlighter = {
 
     // If a custom language is detected, apply its styles.
     for (var color in this.mapping[mappingLang]) {
-      var clr = String(color).replace(/[0-9]/g, '');
-      hl = String(hl).replace(this.mapping[mappingLang][color], chalk[clr]('$1'));
+      if (this.mapping[mappingLang].hasOwnProperty(color)) {
+        var clr = String(color).replace(/[0-9]/g, '');
+        hl = String(hl).replace(this.mapping[mappingLang][color], chalk[clr]('$1'));
+      }
     }
 
     // If the "default" styles weren't applied, apply them now.
     if (mappingLang !== 'default') {
       for (var color in this.mapping['default']) {
-        var clr = String(color).replace(/[0-9]/g, '');
-        hl = String(hl).replace(this.mapping['default'][color], chalk[clr]('$1'));
+        if (this.mapping['default'].hasOwnProperty(color)) {
+          var clr = String(color).replace(/[0-9]/g, '');
+          hl = String(hl).replace(this.mapping['default'][color], chalk[clr]('$1'));
+        }
       }
     }
 
     // Catch any highlighting tags not given in
     // that theme file, and reset any color on them.
     for (var style in this.mapping.fallback) {
-      hl = String(hl).replace(this.mapping.fallback[style], chalk['reset']('$1'));
+      if (this.mapping.fallback.hasOwnProperty(style)) {
+        hl = String(hl).replace(this.mapping.fallback[style], chalk.reset('$1'));
+      }
     }
 
     return hl;

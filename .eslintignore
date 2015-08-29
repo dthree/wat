@@ -1,3 +1,4 @@
 gulpfile.js
-./markterm.js
+./src/markterm.js
 ./dist
+./bin

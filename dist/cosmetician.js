@@ -11,8 +11,6 @@
  * Module dependencies.
  */
 
-var _ = require('lodash');
-var chalk = require('chalk');
 var markterm = require('./markterm');
 var highlighter = require('./highlighter');
 
@@ -105,12 +103,12 @@ var cosmetician = {
     for (var i = 0; i < width; ++i) {
       str += '-';
     }
-    return '' + str + '\n';
+    return str + '\n';
   },
 
   pad: function pad(str, width, delimiter) {
     width = Math.floor(width);
-    delimiter = delimiter || " ";
+    delimiter = delimiter || ' ';
     var len = Math.max(0, width - String(str).length);
     return str + Array(len + 1).join(delimiter);
   }

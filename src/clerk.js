@@ -7,11 +7,8 @@
 const _ = require('lodash');
 const mkdirp = require('mkdirp');
 const fs = require('fs');
-const moment = require('moment');
-const request = require('request');
 const chalk = require('chalk');
 const util = require('./util');
-const tmp = require('tmp');
 const os = require('os');
 const path = require('path');
 
@@ -25,29 +22,29 @@ const temp = path.join(os.tmpdir(), '/.wat');
 
 const clerk = {
 
-  lastUserAction: void 0,
+  lastUserAction: undefined,
 
   paths: {
     tempDir: temp,
-    prefs: temp + '/.local/prefs.json',
-    cache: temp + '/.local/cache.json',
-    hist: temp + '/.local/hist.json',
-    docs: temp + '/.local/docs/',
+    prefs: `${temp}/.local/prefs.json`,
+    cache: `${temp}/.local/cache.json`,
+    hist: `${temp}/.local/hist.json`,
+    docs: `${temp}/.local/docs/`,
     config: './config/config.json',
     remoteDocUrl: '',
     remoteConfigUrl: '',
     remoteArchiveUrl: ''
   },
 
-  indexer: indexer,
+  indexer,
 
-  history: history,
+  history,
 
-  updater: updater,
+  updater,
 
-  config: config,
+  config,
 
-  prefs: prefs,
+  prefs,
 
   init(parent) {
     this.parent = parent || {};
@@ -60,11 +57,11 @@ const clerk = {
   },
 
   start(options) {
-    options = options || {}
+    options = options || {};
     this.scaffold();
     this.load();
     this.indexer.start({
-      clerk: this, 
+      clerk: this,
       updateRemotely: options.updateRemotely
     });
     setInterval(this.history.worker, 5000);
@@ -73,8 +70,8 @@ const clerk = {
 
   scaffold() {
     mkdirp.sync(path.join(os.tmpdir(), '/.wat'));
-    mkdirp.sync(this.paths.tempDir + '/.local');
-    mkdirp.sync(this.paths.tempDir + '/.local/docs');
+    mkdirp.sync(`${this.paths.tempDir}/.local`);
+    mkdirp.sync(`${this.paths.tempDir}/.local/docs`);
     this.scaffoldDocs();
     fs.appendFileSync(this.paths.prefs, '');
     fs.appendFileSync(this.paths.cache, '');
@@ -83,19 +80,22 @@ const clerk = {
   },
 
   scaffoldDocs() {
-    let index = this.indexer.index() || {};
-    let dir = clerk.paths.docs;
+    const index = this.indexer.index() || {};
+    const dir = clerk.paths.docs;
     function traverse(idx, path) {
-      for (let key in idx) {
-        // Clean out all files with '__...'
-        let content = Object.keys(idx[key]);
-        content = _.reject(content, function(str){
-          return (String(str).indexOf('__') > -1);
-        })
-        if (content.length > 0) {
-          let fullPath = dir + path + key;
-          mkdirp.sync(fullPath);
-          traverse(idx[key], path + key + '/');
+      function rejectFn(str) {
+        return (String(str).indexOf('__') > -1);
+      }
+      for (const key in idx) {
+        if (idx.hasOwnProperty(key)) {
+          // Clean out all files with '__...'
+          let content = Object.keys(idx[key]);
+          content = _.reject(content, rejectFn);
+          if (content.length > 0) {
+            const fullPath = dir + path + key;
+            mkdirp.sync(fullPath);
+            traverse(idx[key], `${path}${key}/`);
+          }
         }
       }
     }
@@ -103,27 +103,32 @@ const clerk = {
   },
 
   forEachInIndex(callback) {
-    let index = this.indexer.index() || {};
-    let dir = clerk.paths.docs;
+    const index = this.indexer.index() || {};
+    const dir = clerk.paths.docs;
     function traverse(idx, path) {
-      for (let key in idx) {
-        // Clean out all files with '__...'
-        let content = Object.keys(idx[key]);
-        let special = {};
-        content = _.reject(content, function(str){
-          let isSpecial = (String(str).indexOf('__') > -1);
-          if (isSpecial) {
-            special[str] = idx[key][str];
+      for (const key in idx) {
+        if (idx.hasOwnProperty(key)) {
+          // Clean out all files with '__...'
+          const content = Object.keys(idx[key]);
+          const special = {};
+          const nonSpecial = [];
+          for (let i = 0; i < content.length; ++i) {
+            const isSpecial = (String(content[i]).indexOf('__') > -1);
+            if (isSpecial) {
+              special[content[i]] = idx[key][content[i]];
+            } else {
+              nonSpecial.push(content[i]);
+            }
           }
-          return isSpecial;
-        });
-        let fullPath = dir + path + key;
-        for (let item in special) {
-          callback(fullPath, item, special[item]);
-        }
-        if (content.length > 0) {
-          //mkdirp.sync(fullPath);
-          traverse(idx[key], path + key + '/');
+          const fullPath = dir + path + key;
+          for (const item in special) {
+            if (special.hasOwnProperty(item)) {
+              callback(fullPath, item, special[item]);
+            }
+          }
+          if (nonSpecial.length > 0) {
+            traverse(idx[key], `${path}${key}/`);
+          }
         }
       }
     }
@@ -131,25 +136,21 @@ const clerk = {
   },
 
   search(str) {
-    let search = String(str).split(' ');
-
+    const search = String(str).split(' ');
     let matches = [];
-    this.forEachInIndex(function(path, key, value){
-
+    this.forEachInIndex(function (path, key) {
       if (key !== '__basic') {
         return;
       }
 
-      let commands = util.parseCommandsFromPath(path);
-
+      const commands = util.parseCommandsFromPath(path);
       let points = 0;
       let dirty = 0;
       for (let i = 0; i < search.length; ++i) {
-
-        let word = String(search[i]).toLowerCase().trim();
+        const word = String(search[i]).toLowerCase().trim();
         let finds = 0;
         for (let j = 0; j < commands.length; ++j) {
-          let cmd = String(commands[j]).toLowerCase().trim();
+          const cmd = String(commands[j]).toLowerCase().trim();
           if (word === cmd) {
             finds++;
             if (i === j) {
@@ -167,32 +168,33 @@ const clerk = {
 
       if (points > 0) {
         matches.push({
-          points: points,
-          command: commands.join(' '),
-          dirty: dirty
+          points,
+          dirty,
+          command: commands.join(' ')
         });
       }
-
     });
 
-    matches = matches.sort(function(a, b){
-      return (
-        (a.points > b.points) ? -1 : 
-        (a.points < b.points) ? 1 : 0
-      );
+    matches = matches.sort(function (a, b) {
+      let sort = 0;
+      if (a.points > b.points) {
+        sort = -1;
+      } else if (a.points < b.points) {
+        sort = 1;
+      }
+      return sort;
     });
 
     return matches;
   },
 
   compareDocs() {
-    let index = this.indexer.index();
-    let changes = [];
-    let newDocs = [];
-    this.forEachInIndex(function(path, key, value){
-      let exten = util.extensions[key] || key;
+    const changes = [];
+    const newDocs = [];
+    this.forEachInIndex(function (path, key, value) {
+      const exten = util.extensions[key] || key;
       try {
-        let stat = fs.statSync(path + exten);
+        const stat = fs.statSync(path + exten);
         if (parseFloat(stat.size) !== parseFloat(value)) {
           changes.push(path + exten);
         }
@@ -206,11 +208,13 @@ const clerk = {
     const usage = {};
     let ctr = 0;
     for (let i = 0; i < this.history._hist.length; ++i) {
-      if (ctr > 200) { break; }
-      let item = this.history._hist[i] || {}
+      if (ctr > 200) {
+        break;
+      }
+      const item = this.history._hist[i] || {};
       if (item.type === 'command') {
         ctr++;
-        let lang = String(item.value).split('/')[0];
+        const lang = String(item.value).split('/')[0];
         usage[lang] = usage[lang] || 0;
         usage[lang]++;
       }
@@ -225,9 +229,9 @@ const clerk = {
     // the person used this lib 3 or more times
     // recently, download all docs.
     for (let i = 0; i < newDocs.length; ++i) {
-      let parts = String(newDocs[i]).split('docs/');
+      const parts = String(newDocs[i]).split('docs/');
       if (parts[1]) {
-        let lang = String(parts[1]).split('/')[0];
+        const lang = String(parts[1]).split('/')[0];
         if (usage[lang] && usage[lang] > 2) {
           clerk.updater.push(newDocs[i]);
         }
@@ -236,7 +240,7 @@ const clerk = {
   },
 
   load() {
-    let hist = fs.readFileSync(clerk.paths.hist, { encoding: 'utf-8' });
+    let hist = fs.readFileSync(clerk.paths.hist, {encoding: 'utf-8'});
     try {
       hist = JSON.parse(hist);
       this.history._hist = hist;
@@ -247,7 +251,7 @@ const clerk = {
   },
 
   fetch(path, cb) {
-    cb = cb || function() {}
+    cb = cb || function () {};
     clerk.lastUserAction = new Date();
     const self = clerk;
     const local = clerk.fetchLocal(path);
@@ -257,24 +261,20 @@ const clerk = {
     });
     if (local !== undefined) {
       const formatted = self.cosmetician.markdownToTerminal(local);
-      cb(void 0, formatted);
+      cb(undefined, formatted);
     } else {
-      util.fetchRemote(this.paths.remoteDocUrl + path, function(err, data) {
+      util.fetchRemote(this.paths.remoteDocUrl + path, function (err, data) {
         if (err) {
           if (String(err).indexOf('Not Found') > -1) {
-            const response = 
-              chalk.yellow('\n  ' + 
-              'Wat couldn\'t find the Markdown file for this command.\n  ' + 
-              'This probably means your index needs an update.\n\n') + '  ' + 
-              'File: ' + self.paths.remoteDocUrl + path + '\n';
-            cb(void 0, response);
+            const response = `${chalk.yellow(`\n  Wat couldn\'t find the Markdown file for this command.\n  This probably means your index needs an update.\n\n`)}File: ${self.paths.remoteDocUrl}${path}\n`;
+            cb(undefined, response);
           } else {
             cb(err);
           }
         } else {
           const formatted = self.cosmetician.markdownToTerminal(data);
           clerk.file(path, data);
-          cb(void 0, formatted);
+          cb(undefined, formatted);
         }
       });
     }
@@ -283,27 +283,25 @@ const clerk = {
   fetchLocal(path) {
     let file;
     try {
-      file = fs.readFileSync(clerk.paths.docs + path, { encoding: 'utf-8'});
+      file = fs.readFileSync(clerk.paths.docs + path, {encoding: 'utf-8'});
       return file;
     } catch(e) {
-      return void 0;
+      return undefined;
     }
   },
 
   file(path, data, retry) {
     try {
-      fs.appendFileSync(clerk.paths.docs + path, data, { flag: 'w' });
+      fs.appendFileSync(clerk.paths.docs + path, data, {flag: 'w'});
     } catch(e) {
       if (retry === undefined) {
         this.scaffold();
-        return this.file(path, data, true);
       } else {
-        throw new Error('Unexpected rrror writing to cache: ' + e);
+        throw new Error(`Unexpected rrror writing to cache: ${e}`);
       }
+      return this.file(path, data, true);
     }
   }
-
-}
-
+};
 
 module.exports = clerk;

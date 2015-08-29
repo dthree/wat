@@ -1,22 +1,23 @@
-"use strict";
+'use strict';
 
 /**
  * Module dependencies.
  */
 
-var util = require('./util');
 var fs = require('fs');
+var path = require('path');
 var chalk = require('chalk');
+var util = require('./util');
 
 /**
- * The config object sets and gets the ./config/config.json 
- * file locally and remotely. This file is used to ensure 
- * we always know the URL for the remote docs, in case it 
+ * The config object sets and gets the ./config/config.json
+ * file locally and remotely. This file is used to ensure
+ * we always know the URL for the remote docs, in case it
  * changes in the future.
  *
- * It also syncs the last update of the index.json file, 
- * which in turn knows when all docs were last updated, 
- * and so keeps the remote repo's docs and local docs 
+ * It also syncs the last update of the index.json file,
+ * which in turn knows when all docs were last updated,
+ * and so keeps the remote repo's docs and local docs
  * in sync.
  */
 
@@ -31,12 +32,11 @@ var config = {
   getLocal: function getLocal() {
     var self = this;
     try {
-      //console.log(__dirname + '/../' + self.parent.paths.config);
-      var _config = fs.readFileSync(__dirname + '/../' + self.parent.paths.config, { encoding: 'utf-8' });
+      var _config = fs.readFileSync(path.join(__dirname, '/../', self.parent.paths.config), { encoding: 'utf-8' });
       _config = JSON.parse(_config);
       this._config = _config;
     } catch (e) {
-      var error = chalk.yellow('\n\nHouston, we have a problem.\n' + 'Wat can\'t read its local config file, which should be at `./config/config.json`. ' + 'Without this, Wat can\'t do much. Try re-installing Wat from scratch.\n\nIf that doesn\'t work, please file an issue.\n');
+      var error = chalk.yellow('\n\nHouston, we have a problem.\nWat can\'t read its local config file, which should be at `./config/config.json`. Without this, Wat can\'t do much. Try re-installing Wat from scratch.\n\nIf that doesn\'t work, please file an issue.\n');
       console.log(error);
       throw new Error(e);
     }
@@ -56,9 +56,9 @@ var config = {
       if (!err) {
         try {
           var json = JSON.parse(data);
-          callback(void 0, json);
+          callback(undefined, json);
         } catch (e) {
-          callback("Error parsing json: " + data + ", Error: " + e + ", url: " + url);
+          callback('Error parsing json: ' + data + ', Error: ' + e + ', url: ' + url);
         }
       } else {
         callback(err);
@@ -71,7 +71,7 @@ var config = {
     if (key && value) {
       this._config[key] = value;
     }
-    fs.writeFileSync(__dirname + '/../' + self.parent.paths.config, JSON.stringify(this._config, null, '  '));
+    fs.writeFileSync(path.join(__dirname, '/../', self.parent.paths.config), JSON.stringify(this._config, null, '  '));
   }
 };
 

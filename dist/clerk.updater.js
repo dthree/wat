@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 /**
  * Module dependencies.
@@ -43,7 +43,6 @@ var updater = {
       })();
     }
   }
-
 };
 
 module.exports = updater;

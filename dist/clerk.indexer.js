@@ -1,5 +1,4 @@
-
-"use strict";
+'use strict';
 
 /**
  * Module dependencies.
@@ -9,18 +8,17 @@ var _ = require('lodash');
 var walk = require('walk');
 var fs = require('fs');
 var path = require('path');
-var moment = require('moment');
 var util = require('./util');
 var chalk = require('chalk');
 
 var indexer = {
 
   // The JSON of the index.
-  _index: void 0,
+  _index: undefined,
 
   // Last time the index was
   // pulled from online.
-  _indexLastUpdate: void 0,
+  _indexLastUpdate: undefined,
 
   // Always wait at least an hour since
   // the last index.json was pulled
@@ -105,7 +103,6 @@ var indexer = {
             split.pop();
           }
           var type = special ? last : 'basic';
-
           var filename = split.join('.');
           idx[filename] = idx[filename] || {};
           idx[filename]['__' + type] = fileStats.size;
@@ -121,7 +118,7 @@ var indexer = {
       next();
     });
 
-    walker.on('errors', function (root, nodeStatsArray, next) {
+    walker.on('errors', function (root, nodeStatsArray) {
       console.log(root, nodeStatsArray);
       throw new Error(root);
     });
@@ -142,13 +139,13 @@ var indexer = {
     var index = JSON.stringify(json, null, '');
     var result = fs.writeFileSync(__dirname + '/../config/index.json', JSON.stringify(json, null, ''));
     this._index = json;
-    indexer.clerk.config.setLocal("docIndexLastWrite", new Date());
-    indexer.clerk.config.setLocal("docIndexSize", String(index).length);
+    indexer.clerk.config.setLocal('docIndexLastWrite', new Date());
+    indexer.clerk.config.setLocal('docIndexSize', String(index).length);
     return result;
   },
 
   /**
-  * Retrieves the index.json as it 
+  * Retrieves the index.json as it
   * sees fit.
   *
   * @return {Object} json
@@ -162,8 +159,8 @@ var indexer = {
         var json = JSON.parse(index);
         this._index = json;
       } catch (e) {
-        return void 0;
-        this._index = void 0;
+        this._index = undefined;
+        return undefined;
       }
     }
     return this._index;
@@ -187,10 +184,10 @@ var indexer = {
           json = JSON.parse(data);
         } catch (e) {
           err2 = true;
-          callback("Error parsing remote index json: " + data + ", Error: " + e + ", url: " + self.clerk.paths.remoteConfigUrl + 'index.json');
+          callback('Error parsing remote index json: ' + data + ', Error: ' + e + ', url: ' + self.clerk.paths.remoteConfigUrl + 'index.json');
         }
         if (!err2) {
-          callback(void 0, json);
+          callback(undefined, json);
         }
       } else {
         callback(err);
@@ -204,7 +201,7 @@ var indexer = {
   * index.json has changed. We go through
   * this hoop as the index.json will eventually
   * be huge, and that would be really messed up
-  * to have every wat client on earth 
+  * to have every wat client on earth
   * pulling that regardless of updates or
   * not. And github might sue me.
   *
@@ -226,12 +223,9 @@ var indexer = {
     // If we can't read the file,
     // assume we just download it newly.
     try {
-      var stats = fs.statSync(__dirname + '/../config/index.json');
+      var stats = fs.statSync(path.join(__dirname, '/../config/index.json'));
       sinceUpdate = Math.floor(new Date() - stats.mtime);
-    } catch (e) {
-      var error = chalk.yellow('\nHmmm. Wat can\'t find any sort of index.\nChecking online. Please wait.\n');
-      //console.log(error);
-    }
+    } catch (e) {}
 
     if (sinceUpdate > self._updateInterval || !sinceUpdate || options.force === true) {
       self.clerk.config.getRemote(function (err, remote) {
@@ -246,33 +240,29 @@ var indexer = {
               } else {
                 self.write(index);
                 self.clerk.compareDocs();
-                callback(void 0, 'Successfully updated index.');
+                callback(undefined, 'Successfully updated index.');
               }
             });
           }
+        } else if (String(err).indexOf('Not Found') > -1) {
+          var lellow = chalk.yellow('\nWat could not locate the remote config directory and so does not know where to pull docs from.\nRe-installing your instance of Wat through NPM should solve this problem.');
+          var error = lellow + '\n\nUrl Attempted: ' + self.clerk.paths.remoteConfigUrl + 'config.json';
+          console.log(error);
+          throw new Error(err);
+        } else if (err.code === 'EAI_AGAIN') {
+          var error = chalk.yellow('\n\nEr, Wat\'s having DNS resolution errors. Are you sure you\'re connected to the internet?');
+          console.log(error);
+          throw new Error(err);
+        } else if (err.code === 'ETIMEDOUT') {
+          var error = chalk.yellow('\n\nHmm.. Wat had a connection timeout when trying to fetch its index. \nHow\'s that internet connection looking?');
+          console.log(error);
         } else {
-          if (String(err).indexOf('Not Found') > -1) {
-            var error = chalk.yellow('\nWat could not locate ' + 'the remote config directory and so does not ' + 'know where to pull docs from.\nRe-installing ' + 'your instance of Wat through NPM should ' + 'solve this problem.\n\n') + 'Url Attempted: ' + self.clerk.paths.remoteConfigUrl + 'config.json';
-            console.log(error);
-            throw new Error(err);
-          } else {
-            if (err.code === 'EAI_AGAIN') {
-              var error = chalk.yellow('\n\nEr, Wat\'s having DNS ' + 'resolution errors. Are you sure you\'re connected to the internet?');
-              console.log(error);
-              throw new Error(err);
-            } else if (err.code === 'ETIMEDOUT') {
-              var error = chalk.yellow('\n\nHmm.. Wat had a connection timeout when trying to ' + 'fetch its index. \nHow\'s that internet connection looking?');
-              console.log(error);
-            } else {
-              console.log(chalk.yellow('\nWat had an unexpected error while requesting the remote index:\n'));
-              console.log(err);
-            }
-          }
+          console.log(chalk.yellow('\nWat had an unexpected error while requesting the remote index:\n'));
+          console.log(err);
         }
       });
     }
   }
-
 };
 
 module.exports = indexer;

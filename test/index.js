@@ -1,43 +1,36 @@
-const assert = require("assert");
+'use strict';
+
+require('assert');
 const should = require('should');
 const wat = require('../');
 
-
-describe('wat', function() {
-
-  before(function(done) {
+describe('wat', function () {
+  before(function (done) {
     wat.init();
     done();
   });
 
-  after(function(done) {
+  after(function (done) {
     done();
   });
 
-  it('should exist and be a function', function() {
+  it('should exist and be a function', function () {
     should.exist(wat);
     wat.should.be.type('object');
   });
 
-  it('should have a clerk', function() {
+  it('should have a clerk', function () {
     should.exist(wat.clerk);
     wat.clerk.should.be.type('object');
   });
 
-  it('should have a cosmetician', function() {
+  it('should have a cosmetician', function () {
     should.exist(wat.cosmetician);
     wat.cosmetician.should.be.type('object');
   });
 
-  it('should have vorpal', function() {
+  it('should have vorpal', function () {
     should.exist(wat.vorpal);
     wat.vorpal.should.be.type('object');
   });
-
-  describe('vorpal', function() {
-
-    
-
-  });
-
 });

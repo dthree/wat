@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 /**
  * Module dependencies.
@@ -22,12 +22,12 @@ const updater = {
 
   nextQueueItem() {
     const self = updater;
-    let item = self.queue.shift();
-    let lastAction = (!self.parent.lastUserAction) ? 10000000 : (new Date() - self.parent.lastUserAction);
+    const item = self.queue.shift();
+    const lastAction = (!self.parent.lastUserAction) ? 10000000 : (new Date() - self.parent.lastUserAction);
     if (item && lastAction > 10000) {
-      let partial = String(item).split('docs/');
-      let url  = (partial.length > 1) ? partial[1] : partial[0];
-      util.fetchRemote(self.parent.paths.remoteDocUrl + url, function(err, data) {
+      const partial = String(item).split('docs/');
+      const url = (partial.length > 1) ? partial[1] : partial[0];
+      util.fetchRemote(self.parent.paths.remoteDocUrl + url, function (err, data) {
         if (err) {
           console.log('PROBLEM...');
           console.log(err);
@@ -41,8 +41,6 @@ const updater = {
       });
     }
   }
-
-}
+};
 
 module.exports = updater;
-
