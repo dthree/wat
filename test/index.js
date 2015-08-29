@@ -1,8 +1,8 @@
 'use strict';
 
 require('assert');
-const should = require('should');
-const wat = require('../');
+var should = require('should');
+var wat = require('../');
 
 describe('wat', function () {
   before(function (done) {
