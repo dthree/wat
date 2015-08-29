@@ -20,7 +20,7 @@ var mapping = {};
 
 var highlighter = {
 
-  configPath: __dirname + '/../config/highlight',
+  configPath: __dirname + '/../config/themes',
 
   allClasses: ["class", "comment", "constant", "function", "keyword", "number", "regexp", "string", "subst", "symbol", "title", "variable", "addition", "annotaion", "annotation", "argument", "array", "aspect", "at_rule", "atom", "attr_selector", "attribute", "begin", "blockquote", "body", "built_in", "bullet", "cbracket", "cdata", "cell", "change", "char", "characteristic", "chunk", "code", "collection", "command", "commands", "component", "container", "data", "date", "decorator", "default", "deletion", "doctag", "doctype", "emphasis", "end", "envvar", "expression", "facet", "filename", "filter", "flow", "foreign", "formula", "func", "function_name", "generics", "header", "hexcolor", "horizontal_rule", "id", "import", "important", "infix", "inheritance", "input", "instance", "instruction", "io", "keywords", "kind", "label", "link_label", "link_reference", "link_url", "list", "literal", "localvars", "long_brackets", "matrix", "misc_keyword", "module", "operator", "output", "package", "param", "parameter", "params", "parent", "pi", "pod", "pp", "pragma", "preprocessor", "prompt", "property", "pseudo", "quoted", "record_name", "regex", "request", "reserved", "rest_arg", "rule", "rules", "section", "shader", "shading", "shebang", "special", "sqbracket", "status", "stream", "strong", "sub", "summary", "tag", "template_tag", "type", "typedef", "typename", "units", "value", "var_expand", "verb", "winutils", "xmlDocTag"],
 
@@ -36,8 +36,9 @@ var highlighter = {
 
     this.mapping = {};
 
+    this.mapping['fallback'] = {};
     for (var i = 0; i < this.allClasses.length; ++i) {
-      this.mapping['fallback'] = new RegExp("\<span class=\"hljs-" + this.allClasses[i] + "\"\>(.*?)\<\/span\>", "g");
+      this.mapping['fallback']['reset' + i] = new RegExp("\<span class=\"hljs-" + this.allClasses[i] + "\"\>(.*?)\<\/span\>", "g");
     }
 
     for (var lang in config) {

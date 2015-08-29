@@ -1,6 +1,7 @@
 "use strict";
 
 var spider = require('./spider');
+var chalk = require('chalk');
 
 module.exports = function (vorpal, options) {
 
