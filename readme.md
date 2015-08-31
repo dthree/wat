@@ -105,7 +105,7 @@ Love Wat? Help spread the word. Every contribution helps the community even more
 
 ##### Node.js Frameworks
 
-> [Chalk](https://github.com/sindresorhus/chalk), [Robot JS](https://github.com/octalmage/robotjs), [Vantage](https://github.com/dthree/vantage), [Vorpal](https://github.com/dthree/vorpal)
+> [Chalk](https://github.com/sindresorhus/chalk), [RobotJS](https://github.com/octalmage/robotjs), [Vantage](https://github.com/dthree/vantage), [Vorpal](https://github.com/dthree/vorpal)
 
 ## FAQ
 
