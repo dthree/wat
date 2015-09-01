@@ -37,7 +37,7 @@ var util = {
     var response = undefined;
     if (match && levels !== otherWords.length + 1) {
       var space = possibilities.indexOf(String(match).trim()) > -1 ? ' ' : '';
-      response = '' + String(otherWords.join(' ') + '  match').trim() + space;
+      response = '' + String(otherWords.join(' ') + ' ' + match).trim() + space;
     } else {
       var space = levels === otherWords.length + 1 ? ' ' : '';
       var original = '' + commands.join(' ') + space;
@@ -48,8 +48,8 @@ var util = {
       } else {
         response = original;
       }
-      return response;
     }
+    return response;
   },
 
   /**
