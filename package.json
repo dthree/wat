@@ -1,6 +1,6 @@
 {
   "name": "wat",
-  "version": "0.0.37",
+  "version": "0.1.0",
   "description": "Community-controlled cheat sheets for every coder.",
   "main": "./dist/index.js",
   "scripts": {
@@ -23,7 +23,7 @@
     "url": "https://github.com/dthree/wat/issues"
   },
   "homepage": "https://github.com/dthree/wat#readme",
-  "bin": {  
+  "bin": {
     "wat": "./bin/index.js"
   },
   "devDependencies": {
