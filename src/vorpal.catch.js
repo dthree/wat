@@ -14,9 +14,9 @@ module.exports = function (vorpal, options) {
     .autocompletion(function (text, iteration, cb) {
       const self = this;
       const index = parent.clerk.indexer.index();
-      const result = util.autocomplete(text, iteration, index, function (word, options) {
-        const result = self.match(word, options);
-        return result;
+      let result = util.autocomplete(text, iteration, index, function (word, options) {
+        const res = self.match(word, options);
+        return res;
       });
       if (_.isArray(result)) {
         result.sort();

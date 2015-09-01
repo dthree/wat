@@ -33,7 +33,7 @@ const highlighter = {
     this.mapping = {};
     this.mapping.fallback = {};
     for (let i = 0; i < this.allClasses.length; ++i) {
-      this.mapping.fallback[`reset${i}`] = new RegExp(`\<span class=\'hljs-${this.allClasses[i]}\'\>(.*?)\<\/span\>`, 'g');
+      this.mapping.fallback[`reset${i}`] = new RegExp(`\<span class=\"hljs-${this.allClasses[i]}\"\>(.*?)\<\/span\>`, 'g');
     }
 
     for (const lang in config) {
@@ -49,7 +49,7 @@ const highlighter = {
               if (lang === 'markdown') {
                 this.mapping[lang][styles[j] + ctr] = new RegExp(`\<md-${item}\>(.*?)\<\/md\>`, 'g');
               } else {
-                this.mapping[lang][styles[j] + ctr] = new RegExp(`\<span class=\'hljs-${item}\'\>(.*?)\<\/span\>`, 'g');
+                this.mapping[lang][styles[j] + ctr] = new RegExp(`\<span class=\"hljs-${item}\"\>(.*?)\<\/span\>`, 'g');
               }
             }
           }

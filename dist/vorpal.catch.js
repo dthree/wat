@@ -11,8 +11,8 @@ module.exports = function (vorpal, options) {
     var self = this;
     var index = parent.clerk.indexer.index();
     var result = util.autocomplete(text, iteration, index, function (word, options) {
-      var result = self.match(word, options);
-      return result;
+      var res = self.match(word, options);
+      return res;
     });
     if (_.isArray(result)) {
       result.sort();

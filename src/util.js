@@ -37,7 +37,7 @@ const util = {
     let response;
     if (match && levels !== otherWords.length + 1) {
       const space = (possibilities.indexOf(String(match).trim()) > -1) ? ' ' : '';
-      response = `${String(`${otherWords.join(` `)}  match`).trim()}${space}`;
+      response = `${String(`${otherWords.join(` `)} ${match}`).trim()}${space}`;
     } else {
       const space = (levels === otherWords.length + 1) ? ' ' : '';
       const original = `${commands.join(' ')}${space}`;
@@ -48,8 +48,8 @@ const util = {
       } else {
         response = original;
       }
-      return response;
     }
+    return response;
   },
 
   /**
