@@ -12,10 +12,6 @@ var chalk = require('chalk');
 
 var stackoverflow = {
 
-  init: function init(parent) {
-    this.parent = parent;
-  },
-
   getPage: function getPage(searchResult, callback) {
     callback = callback || {};
     var self = this;
@@ -29,11 +25,6 @@ var stackoverflow = {
 
       var question = page.question;
       var answers = page.answers;
-
-      if (answers.length < 1) {
-        callback('NO_ANSWERS');
-        return;
-      }
 
       var margin = String(_.max(answers, function (answ) {
         return String(answ.score).length;

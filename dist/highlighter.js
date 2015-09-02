@@ -92,6 +92,8 @@ var highlighter = {
       hl = hl.value;
     }
 
+    hl = this.format(hl);
+
     var mappingLang = fallback || lang;
     mappingLang = !this.mapping[mappingLang] ? 'default' : mappingLang;
 
@@ -122,6 +124,11 @@ var highlighter = {
     }
 
     return hl;
+  },
+
+  format: function format(str) {
+    //str = str.replace(/\<s\>(.*?)\<\/s\>/g, '<md-s>$1</md>');
+    return str;
   },
 
   unescape: function unescape(data) {

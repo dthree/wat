@@ -1,5 +1,7 @@
 {
   "markdown": {
+    "blockquote": ["white", "italic", "bold"],
+    "s": ["strikethrough"],
     "h1": "white",
     "h2": "white",
     "h3": "white",

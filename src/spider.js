@@ -7,6 +7,7 @@
 const _ = require('lodash');
 const google = require('google');
 const stackoverflow = require('./spider.stackoverflow');
+const github = require('./spider.github');
 
 const spider = {
 
@@ -14,8 +15,17 @@ const spider = {
 
   stackoverflow,
 
+  github,
+
   sites: {
-    'stackoverflow': 'stackoverflow'
+    'stackoverflow': '//stackoverflow.com/',
+    'github': '//github.com/',
+  },
+
+  init(parent) {
+    this.parent = parent;
+    this.stackoverflow.init(parent);
+    this.github.init(parent);
   },
 
   filterGoogle(links, sites) {

@@ -48,7 +48,7 @@ block.blockquote = replace(block.blockquote)
   ();
 
 block._tag = '(?!(?:'
-  + 'a|em|strong|small|s|cite|q|dfn|abbr|data|time|code'
+  + 'a|em|strong|small|s|cite|q|s|dfn|abbr|data|time|code'
   + '|var|samp|kbd|sub|sup|i|b|u|mark|ruby|rt|rp|bdi|bdo'
   + '|span|br|wbr|ins|del|img)\\b)\\w+(?!:/|[^\\w\\s@]*@)\\b';
 
@@ -571,6 +571,7 @@ InlineLexer.prototype.output = function(src) {
     , cap;
 
   while (src) {
+
     // escape
     if (cap = this.rules.escape.exec(src)) {
       src = src.substring(cap[0].length);
@@ -786,10 +787,16 @@ Renderer.prototype.code = function(code, lang, escaped) {
 };
 
 Renderer.prototype.blockquote = function(quote) {
-  return '<blockquote>\n' + quote + '</blockquote>\n';
+  if (quote[quote.length-1] === '\n') {
+    quote = quote.slice(0, quote.length-1);
+  }
+  return '|  <md-blockquote>' + quote + '</md>\n';
 };
 
 Renderer.prototype.html = function(html) {
+  console.log('-------------------------');
+  console.log(html)
+  console.log('-------------------------');
   return html;
 };
 
@@ -881,7 +888,8 @@ Renderer.prototype.link = function(href, title, text) {
 };
 
 Renderer.prototype.image = function(href, title, text) {
-  return '[image: ' + title + ']';
+  return '';
+  //return '[image: ' + title + ']';
 };
 
 Renderer.prototype.text = function(text) {
