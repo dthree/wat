@@ -36,7 +36,9 @@ Made with :heart: and a little [secret sauce](https://github.com/dthree/vorpal).
 
 ##### To do
 
-- At least 20 complete libraries or languages documented. (4 done)
+- At least 20 complete libraries or languages documented. (5 done)
+- Automatic doc scaffolding
+- Finish Github and Stack Overflow web searches.
 - Tour
 - Finish Tests.
 - *Suggestions? Wat is for you, and must be uncomprimisingly amazing.*
