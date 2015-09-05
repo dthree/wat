@@ -10,7 +10,7 @@ Wat is an interactive app built to drastically reduce time spent searching for s
 
 Wat was designed for ease. It takes you:
 
-- [60 seconds to install](#install)
+- [20 seconds to install](#install)
 - [5 minutes to master](#learn)
 - [15 minutes to contribute](#contribute)
 
@@ -36,9 +36,11 @@ Made with :heart: and a little [secret sauce](https://github.com/dthree/vorpal).
 
 ##### To do
 
-- At least 20 complete libraries or languages documented. (5 done)
+- Manual-generated libraries completed: JS, HTML, CSS, Node
 - Automatic doc scaffolding
+- Auto-doc config and refactor.
 - Finish Github and Stack Overflow web searches.
+- Spiffy GIF
 - Tour
 - Finish Tests.
 - *Suggestions? Wat is for you, and must be uncomprimisingly amazing.*
