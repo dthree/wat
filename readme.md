@@ -2,11 +2,11 @@
 
 [![Build Status](https://travis-ci.org/dthree/wat.svg)](https://travis-ci.org/dthree/wat) [![Build Status](https://img.shields.io/badge/gitter-join%20chat-brightgreen.svg)](https://gitter.im/dthree/wat?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge) [![Build Status](https://img.shields.io/npm/v/wat.svg)](https://www.npmjs.com/package/wat)
 
-> Your syntax nightmares are over.
+> Mad Science meets Real World Practicality meets Documentation. Wat.
 
-Finally, community-built cheat sheets for every coder, in every language and major framework. At the tip of your fingers.
+Finally, community-built cheat sheets for every coder, targeting any framework, in any language. At the tip of your fingers.
 
-Wat is an interactive app built to drastically reduce time spent searching for syntax and code usage questions. If you forgot how to write a CSS transition, simply type `css transition`. Wat finds what you want, providing exactly and only what you need: a basic description and usage samples.
+Wat is an interactive app built to drastically reduce time spent searching for syntax and code usage questions. Wat aggregates project APIs, readmes, code snippits, usage samples and practical documentation across any language or libary, and makes this data ridiculously accessible from a single, instant source.
 
 Wat was designed for ease. It takes you:
 

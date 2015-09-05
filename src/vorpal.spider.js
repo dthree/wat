@@ -1,12 +1,27 @@
 'use strict';
 
 const spider = require('./spider');
+const parser = require('./parser');
 const chalk = require('chalk');
 
 module.exports = function (vorpal, options) {
   const parent = options.parent;
 
   spider.init(options.parent);
+
+  vorpal
+    .command('test [command...]', 'Searches for a command.')
+    .action(function (args, cb) {
+      try {
+        parser.scaffold(args.command.join(' '), {
+          files: [`/.././test/docs/${args.command.join(' ')}.md`]
+        });
+      } catch(e) {
+        console.log(e.stack);
+      }
+      cb();
+    });
+
 
   vorpal
     .command('search [command...]', 'Searches for a command.')

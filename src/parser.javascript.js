@@ -12,30 +12,35 @@ const js = {
     links: /(\[(.*?)\]\()(.+?)(\))'/g,
     startHash: /^#+/g,
     startHashWithSpace: /^#+ /g,
-    methodHashes: /([a-z])(#)([a-z])/g,
+    methodHashes: /([a-zA-Z])(#)([a-zA-Z])/g,
+    startWordDotWord: /^[a-zA-Z]+\.[a-zA-Z]+/,
     parameters: /\((.*)\)/,
+    parametersWithParens: /\(.*\)/g,
     optionalParameters: /(\[(?![^\[\]]*\[)[^\]]+\])/g,
     brackets: /\[|\]/g,
+    orderedBrackets: /\[.+\]/g,
+    multipleWords: /[a-zA-Z]+ [a-zA-Z]+ /g,
     commasAndBrackets: /\[|\]|,/g,
     bracketCommaBracket: /(\],.\[?)/g,
     bracketBracketComma: /(\]\[,.?)/g,
     trailingSemicolon: /;$/,
-    leftParam: /\(/,
-    rightParam: /\)/,
+    leftParen: /\(/,
+    rightParen: /\)/,
     questionMark: /\?/g,
-    startPeriod: /^\./
+    startPeriod: /^\./,
+    startsWithWords: /^[a-zA-Z]+ +/
   },
 
   parseCommandSyntax(str) {
 
-    console.log(chalk.yellow(str))
+    //console.log(chalk.yellow(str))
 
     const self = this;
     const result = {}
     let syn = String(str).trim();
     let errors = [];
 
-    const missingRightParam = (syn.match(self.rules.leftParam) && !(syn.match(self.rules.rightParam)));
+    const missingRightParam = (syn.match(self.rules.leftParen) && !(syn.match(self.rules.rightParen)));
 
     if (missingRightParam) {
       errors.push('method-missing-right-param');
@@ -135,6 +140,7 @@ const js = {
 
     }
 
+    
     let isImplicitChild;
     if (syn.match(self.rules.startPeriod)) {
       isImplicitChild = true;
@@ -144,6 +150,12 @@ const js = {
     let nameParts = String(syn).split('.');
     let name = nameParts.pop();
     let parents = nameParts;
+    
+    parents = parents.map(function (item) {
+      return String(item).trim();
+    }).filter(function (item) {
+      return item !== '';
+    });
 
     result.params = orderedParams;
     result.type = (isMethod) ? 'method' : 'property';
@@ -152,12 +164,12 @@ const js = {
     result.errors = errors;
     result.isImplicitChild = isImplicitChild;
 
-    console.log(result);
+    //console.log(result);
 
     let stringer = this.stringifyCommandSyntax(result);
-    console.log(chalk.magenta(stringer));
+    //console.log(chalk.magenta(stringer));
 
-    console.log('\n------------------\n')
+    //console.log('\n------------------\n')
 
     return result;
   },
@@ -197,7 +209,52 @@ const js = {
     }
   
     return result;
-  }
+  },
+
+  isCommandSyntax(str) {
+
+
+    const self = this;
+
+    let cmd = String(str).trim();
+    cmd = cmd.replace(self.rules.startHash, '');
+    cmd = cmd.replace(self.rules.startHashWithSpace, '').trim();
+    let cmdWithoutParens = cmd.replace(self.rules.parametersWithParens, '');
+
+    let startsWithWords = cmd.match(self.rules.startsWithWords);
+    let startDot = cmd.match(self.rules.startPeriod);
+    let startWordDotWord = cmd.match(self.rules.startWordDotWord);
+    let hasParens = (cmd.match(self.rules.leftParen) && cmd.match(self.rules.rightParen));
+    let hasLeftParen = (cmd.match(self.rules.leftParen));
+    let hasBrackets = (cmd.match(self.rules.orderedBrackets));
+    let hasMultipleWords = cmdWithoutParens.match(self.rules.multipleWords);
+
+    //console.log(chalk.blue(cmd));
+
+    //console.log('Starts with words: ', startsWithWords);
+    //console.log('Starts with dot: ', startDot);
+    //console.log('Starts with word.word: ', startWordDotWord);
+    //console.log('Has parentheses: ', hasParens);
+    //console.log('Has left paren: ', hasLeftParen);
+    //console.log('Has brackets: ', hasBrackets);
+    //console.log('Has multiple words: ', hasMultipleWords);
+
+    let isSyntax = false;
+    if (hasParens && !startsWithWords) {
+      isSyntax = true;
+    } else if (startDot && !hasMultipleWords) {
+      isSyntax = true;
+    } else if (startWordDotWord && !hasMultipleWords) {
+      isSyntax = true;
+    } else if (hasBrackets && hasLeftParen) {
+      isSyntax = true;
+    }
+
+    //console.log(chalk.magenta(isSyntax));
+    //console.log('-----------')
+
+    return isSyntax;
+  },
 
 };
 

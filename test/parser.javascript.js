@@ -4,20 +4,6 @@ require('assert');
 var should = require('should');
 var parser = require('../dist/parser.javascript');
 
-var fixtures = [
-  'foo.bar',
-  'foo#bar:goats',
-  'foo#bar():goats',
-  '.bar(a, b, c):goats',
-  'foo.bar(command, [optionA], [ optionB... ]);',
-  'foo.bar(command[, optionA][, optionB]);',
-  'foo.bar(command[, optionA[, optionB]]);',
-  'bar(a[, b...?]);',
-  'foo.bar(a[, b[, c...]]);',
-  'foo.bar([a[, b]];',
-  'Commander.foo.bar(a?, b, c?[, d:string[, e:goat[, f:blah]]]);'
-];
-
 describe.only('parser.javascript', function () {
 
   after(function (done) {
@@ -92,6 +78,109 @@ describe.only('parser.javascript', function () {
       (res.errors.indexOf('no-optional-params-before-required-params') > -1).should.equal(true);
     });
 
+    it('should gracefully handle funky styles', function () {
+      var res = parser.parseCommandSyntax('chalk.<style>[.<style>...](string, [string...])');
+      // to do...
+      console.log(res)
+    });
+
+  });
+
+  describe('.stringifyCommandSyntax', function () {
+
+    it('should exist and be a function', function () {
+      should.exist(parser.stringifyCommandSyntax);
+      parser.stringifyCommandSyntax.should.be.type('function');
+    });
+
+    it('should properly stringify properties', function () {
+      var node = parser.parseCommandSyntax('foo.bar');
+      var str = parser.stringifyCommandSyntax(node);
+      str.should.equal('.bar');
+    });
+
+    it('should eliminate header tags', function () {
+      var node = parser.parseCommandSyntax('##foo.bar');
+      var str = parser.stringifyCommandSyntax(node);
+      str.should.equal('.bar');
+    });
+
+    it('should handle methods', function () {
+      var node = parser.parseCommandSyntax('.bar()');
+      var str = parser.stringifyCommandSyntax(node);
+      str.should.equal('.bar()');
+    });
+
+    it('should eliminate semicolons', function () {
+      var node = parser.parseCommandSyntax('.bar();');
+      var str = parser.stringifyCommandSyntax(node);
+      str.should.equal('.bar()');
+    });
+
+    it('should handle parameters', function () {
+      var node = parser.parseCommandSyntax('foo.bar(a, e3, ca4f:string);');
+      var str = parser.stringifyCommandSyntax(node);
+      str.should.equal('.bar(a, e3, ca4f:string)');
+    });
+
+    it('should correct missing right-parens', function () {
+      var node = parser.parseCommandSyntax('.bar(a, b, c;');
+      var str = parser.stringifyCommandSyntax(node);
+      str.should.equal('.bar(a, b, c)');
+    });
+
+    it('should draw optional parameters', function () {
+      var node = parser.parseCommandSyntax('.bar(a[, b[, c]])');
+      var str = parser.stringifyCommandSyntax(node);
+      str.should.equal('.bar(a[, b[, c]])');
+    });
+
+    it('should correct improper optional parameters', function () {
+      var node = parser.parseCommandSyntax('foo.bar(command, [optionA], [ optionB... ]);');
+      var str = parser.stringifyCommandSyntax(node);
+      str.should.equal('.bar(command[, optionA[, optionB...]])');
+    });
+
+    it('should correct another type of improper optional parameters', function () {
+      var node = parser.parseCommandSyntax('foo.bar(command[, optionA][, optionB])');
+      var str = parser.stringifyCommandSyntax(node);
+      str.should.equal('.bar(command[, optionA[, optionB]])');
+    });
+
+    it('should correct optional parameters before required parameters', function () {
+      var node = parser.parseCommandSyntax('Commander.foo.bar(a?, b, c?[, d:string[, e:goat[, f:blah]]])');
+      var str = parser.stringifyCommandSyntax(node);
+      str.should.equal('.bar(a, b[, c[, d:string[, e:goat[, f:blah]]]])');
+    });
+
+  });
+
+  describe('.isCommandSyntax', function () {
+
+    it('should exist and be a function', function () {
+      should.exist(parser.isCommandSyntax);
+      parser.isCommandSyntax.should.be.type('function');
+    });
+
+    it('should determine whether headers are syntax', function () {
+      var fixtures = {
+        'Install': false,
+        'foo.bar' : true,
+        'this is a header': false,
+        'foo.bar(a, b, c)': true,
+        ';I like unicor:ns.great': false,
+        '.foo is bar': false,
+        '.foo': true,
+        '[({,%@623462wgxvl42': false,
+        'FOO([a], [b]': true
+      }
+      for (var item in fixtures) {
+        var result = parser.isCommandSyntax(item);
+        result.should.equal(fixtures[item]);
+      }
+    });
+
   });
 
 });
+
