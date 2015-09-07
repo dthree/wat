@@ -22,7 +22,6 @@ module.exports = function (vorpal, options) {
       cb();
     });
 
-
   vorpal
     .command('search [command...]', 'Searches for a command.')
     .action(function (args, cb) {

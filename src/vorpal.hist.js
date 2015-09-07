@@ -12,7 +12,7 @@ module.exports = function (vorpal, options) {
   };
 
   vorpal
-    .command('show hist', 'Shows recent command history.')
+    .command('get hist', 'Shows recent command history.')
     .option('-m, --max', 'Maximum history items to show.')
     .action(function (args, cb) {
       const hist = parent.clerk.history.get();

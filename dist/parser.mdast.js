@@ -15,6 +15,8 @@ var _exports = {
 
   parse: mdast.parse,
 
+  stringify: mdast.stringify,
+
   language: function language(lang) {
     parser = require('./parser.' + lang);
   },
@@ -182,7 +184,13 @@ var _exports = {
       console.log(api[i].syntax);
       //console.log(api[i].parents);
 
-      var _parent = mdast.stringify(api[i].parent);
+      var _parent = undefined;
+      try {
+        _parent = mdast.stringify(api[i].parent);
+      } catch (e) {
+        console.log('Error parsing parent.', api[i].parent);
+        console.log(e);
+      }
       var children = api[i].children;
       //console.log(api[i])
       //console.log('||' + parent);
@@ -192,7 +200,7 @@ var _exports = {
       var parentPath = (api[i].syntax.parents || []).join('/');
       parentPath = parentPath !== '' ? '/' + parentPath : parentPath;
 
-      var dir = __dirname + '/docs/auto.' + repoName;
+      var dir = __dirname + '/../autodocs/' + repoName;
       var path = dir + parentPath + '/' + api[i].syntax.name;
 
       api[i].path = path;

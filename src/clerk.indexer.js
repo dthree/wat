@@ -74,9 +74,36 @@ const indexer = {
   */
 
   build(callback) {
+    const self = this;
+    let auto;
+    let normal;
+    let dones = 0;
+    function checker() {
+      dones++;
+      if (dones === 2) {
+        console.log(normal);
+        console.log('----------')
+        console.log(auto);
+        console.log('----------')
+        let result = self.merge(normal, auto);
+        console.log(result);
+        callback(result);
+      }
+    }
+    this.buildDir(path.normalize(`${__dirname}/../autodocs/`), 'auto', function (data) {
+      auto = data;
+      checker();
+    });
+    this.buildDir(path.normalize(`${__dirname}/../docs/`), 'static', function (data) {
+      normal = data;
+      checker();
+    });
+  },
+
+  buildDir(dir, dirType, callback) {
     callback = callback || {};
     let index = {};
-    const walker = walk.walk(path.normalize(`${__dirname}/../docs/`), {});
+    const walker = walk.walk(dir, {});
     walker.on('file', function (root, fileStats, next) {
       const parts = String(path.normalize(root)).split('docs/');
       if (parts[1] === undefined) {
@@ -106,6 +133,7 @@ const indexer = {
           const filename = split.join('.');
           idx[filename] = idx[filename] || {};
           idx[filename][`__${type}`] = fileStats.size;
+          idx[filename][`__type`] = dirType;
         } else {
           idx[item] = idx[item] || {};
         }
@@ -126,6 +154,17 @@ const indexer = {
     walker.on('end', function () {
       callback(index);
     });
+  },
+
+  merge(a, b) {
+    for (const item in b) {
+      if (b.hasOwnProperty(item)) {
+        if (a[item] === undefined) {
+          a[item] = b[item];
+        }
+      }
+    }
+    return a;
   },
 
   /**

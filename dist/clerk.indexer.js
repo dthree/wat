@@ -74,9 +74,36 @@ var indexer = {
   */
 
   build: function build(callback) {
+    var self = this;
+    var auto = undefined;
+    var normal = undefined;
+    var dones = 0;
+    function checker() {
+      dones++;
+      if (dones === 2) {
+        console.log(normal);
+        console.log('----------');
+        console.log(auto);
+        console.log('----------');
+        var result = self.merge(normal, auto);
+        console.log(result);
+        callback(result);
+      }
+    }
+    this.buildDir(path.normalize(__dirname + '/../autodocs/'), 'auto', function (data) {
+      auto = data;
+      checker();
+    });
+    this.buildDir(path.normalize(__dirname + '/../docs/'), 'static', function (data) {
+      normal = data;
+      checker();
+    });
+  },
+
+  buildDir: function buildDir(dir, dirType, callback) {
     callback = callback || {};
     var index = {};
-    var walker = walk.walk(path.normalize(__dirname + '/../docs/'), {});
+    var walker = walk.walk(dir, {});
     walker.on('file', function (root, fileStats, next) {
       var parts = String(path.normalize(root)).split('docs/');
       if (parts[1] === undefined) {
@@ -106,6 +133,7 @@ var indexer = {
           var filename = split.join('.');
           idx[filename] = idx[filename] || {};
           idx[filename]['__' + type] = fileStats.size;
+          idx[filename]['__type'] = dirType;
         } else {
           idx[item] = idx[item] || {};
         }
@@ -126,6 +154,17 @@ var indexer = {
     walker.on('end', function () {
       callback(index);
     });
+  },
+
+  merge: function merge(a, b) {
+    for (var item in b) {
+      if (b.hasOwnProperty(item)) {
+        if (a[item] === undefined) {
+          a[item] = b[item];
+        }
+      }
+    }
+    return a;
   },
 
   /**

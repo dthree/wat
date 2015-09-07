@@ -206,6 +206,44 @@ const util = {
     return str + Array(len + 1).join(delimiter);
   },
 
+  /** 
+   * Kind of like mkdirp, but without another depedency.
+   *
+   * @param {String} dir
+   * @return {Util}
+   * @api public
+   */
+
+  mkdirSafe(dir, levels) {
+    levels = levels || 0;
+    let dirExists;
+    try {
+      dirExists = fs.statSync(dir);
+    } catch(e) {
+      if (levels > 20) {
+        throw new Error(e);
+      }
+      dirExists = false;
+    }
+    if (!dirExists) {
+      let success = true;
+      try {
+        fs.mkdirSync(dir);
+      } catch(e) {
+        success = false;
+      }
+
+      if (!success) {
+        const parts = dir.split('/');
+        parts.pop();
+        const parentDir = parts.join('/');
+        this.mkdirSafe(parentDir, levels++);
+        this.mkdirSafe(dir, levels++);
+      }
+    }
+    return this;
+  },
+
   extensions: {
     '__basic': '.md',
     '__detail': '.detail.md',
@@ -340,7 +378,7 @@ const util = {
         result = `${path}.md`;
       }
       return result;
-    }
+    },
   }
 };
 

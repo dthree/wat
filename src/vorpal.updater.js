@@ -1,12 +1,46 @@
 'use strict';
 
 const chalk = require('chalk');
+const parser = require('./parser');
 
 module.exports = function (vorpal, options) {
   const parent = options.parent;
 
   vorpal
-    .command('update', 'Forces an update of the document index.')
+    .command('update <lib>', 'Automatically rebuilds a given library.')
+    .action(function (args, cb) {
+      const self = this;
+      let lib = String(args.lib).trim();
+      let config = parent.clerk.updater.config();
+      if (!config) {
+        this.log(`${chalk.yellow(`\n  Wat had trouble reading "./config/config.auto.json". \n`)}`);
+        cb();
+        return;
+      }
+      
+      if (!config[lib]) {
+        this.log(`${chalk.yellow(`\n  ${lib} is not on Wat's list of auto-updating libraries.\n  To include it, add it to ./config/config.auto.json and submit a PR.\n`)}`);
+        cb();
+        return;
+      }
+
+      let data = config[lib];
+      data.urls = data.urls || [];
+      data.language = data.language || 'javascript';
+      const options = {
+        urls: data.urls,
+        language: data.language,
+        crawl: false
+      };
+
+      let result = parser.scaffold(lib, options, function (err, data) {
+        cb();
+      });
+
+    });
+
+  vorpal
+    .command('update index', 'Forces an update of the document index.')
     .action(function (args, cb) {
       const self = this;
       parent.clerk.indexer.update({force: true}, function (err) {
@@ -23,7 +57,23 @@ module.exports = function (vorpal, options) {
     });
 
   vorpal
-    .command('show updates', 'Shows what docs are mid being updated.')
+    .command('get updatable', 'Lists libraries able to be be auto-rebuilt.')
+    .option('-m, --max', 'Maximum history items to show.')
+    .alias('get updateable')
+    .action(function (args, cb) {
+      const self = this;
+      const max = args.options.max || 30;
+      const config = parent.clerk.updater.config();
+
+      let items = `\n  ${Object.keys(config).join('\n  ')}\n`;
+
+      this.log(items);
+
+      cb();
+    });
+
+  vorpal
+    .command('get updates', 'Shows what docs are mid being updated.')
     .option('-m, --max', 'Maximum history items to show.')
     .action(function (args, cb) {
       const queue = parent.clerk.updater.queue;

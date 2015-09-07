@@ -5,6 +5,7 @@
  */
 
 var util = require('./util');
+var fs = require('fs');
 
 var updater = {
 
@@ -18,6 +19,18 @@ var updater = {
     if (this.queue.indexOf(obj) === -1) {
       this.queue.push(obj);
     }
+  },
+
+  config: function config() {
+    var self = updater;
+    try {
+      var config = fs.readFileSync(self.parent.paths.autoConfig, { encoding: 'utf-8' });
+      config = JSON.parse(config);
+      self._config = config;
+    } catch (e) {
+      console.log('WTF', e);
+    }
+    return self._config;
   },
 
   nextQueueItem: function nextQueueItem() {

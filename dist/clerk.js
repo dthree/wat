@@ -31,6 +31,7 @@ var clerk = {
     hist: temp + '/.local/hist.json',
     docs: temp + '/.local/docs/',
     config: './config/config.json',
+    autoConfig: './config/config.auto.json',
     remoteDocUrl: '',
     remoteConfigUrl: '',
     remoteArchiveUrl: ''
@@ -69,9 +70,10 @@ var clerk = {
   },
 
   scaffold: function scaffold() {
-    mkdirp.sync(path.join(os.tmpdir(), '/.wat'));
+    mkdirp.sync(this.paths.tempDir);
     mkdirp.sync(this.paths.tempDir + '/.local');
     mkdirp.sync(this.paths.tempDir + '/.local/docs');
+    mkdirp.sync(this.paths.tempDir + '/.local/autodocs');
     this.scaffoldDocs();
     fs.appendFileSync(this.paths.prefs, '');
     fs.appendFileSync(this.paths.cache, '');
@@ -87,14 +89,16 @@ var clerk = {
         return String(str).indexOf('__') > -1;
       }
       for (var key in idx) {
-        if (idx.hasOwnProperty(key)) {
+        if (idx.hasOwnProperty(key) && String(key).indexOf('__') === -1) {
           // Clean out all files with '__...'
           var content = Object.keys(idx[key]);
           content = _.reject(content, rejectFn);
           if (content.length > 0) {
             var fullPath = dir + path + key;
             mkdirp.sync(fullPath);
-            traverse(idx[key], '' + path + key + '/');
+            if (_.isObject(idx[key])) {
+              traverse(idx[key], '' + path + key + '/');
+            }
           }
         }
       }
@@ -126,7 +130,7 @@ var clerk = {
               callback(fullPath, item, special[item]);
             }
           }
-          if (nonSpecial.length > 0) {
+          if (nonSpecial.length > 0 && _.isObject(idx[key])) {
             traverse(idx[key], '' + path + key + '/');
           }
         }
@@ -266,7 +270,7 @@ var clerk = {
       util.fetchRemote(this.paths.remoteDocUrl + path, function (err, data) {
         if (err) {
           if (String(err).indexOf('Not Found') > -1) {
-            var response = chalk.yellow('\n  Wat couldn\'t find the Markdown file for this command.\n  This probably means your index needs an update.\n\n') + 'File: ' + self.paths.remoteDocUrl + path + '\n';
+            var response = chalk.yellow('\n  Wat couldn\'t find the Markdown file for this command.\n  This probably means your index needs an update.\n\n') + '  File: ' + self.paths.remoteDocUrl + path + '\n';
             cb(undefined, response);
           } else {
             cb(err);
