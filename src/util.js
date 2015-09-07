@@ -7,6 +7,7 @@
 const _ = require('lodash');
 const lev = require('leven');
 const request = require('request');
+const fs = require('fs');
 
 const util = {
 
@@ -215,11 +216,19 @@ const util = {
    */
 
   mkdirSafe(dir, levels) {
+    console.log('mkdirsafe', dir, levels);
+
+    dir = String(dir).trim();
+    if (dir === '') {
+      return;
+    }
+
     levels = levels || 0;
     let dirExists;
     try {
       dirExists = fs.statSync(dir);
     } catch(e) {
+      console.log(e.stack)
       if (levels > 20) {
         throw new Error(e);
       }

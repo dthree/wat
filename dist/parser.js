@@ -10,6 +10,7 @@ var mdast = require('./parser.mdast');
 var util = require('./util');
 var chalk = require('chalk');
 var fs = require('fs');
+var _ = require('lodash');
 
 var parser = {
 
@@ -22,6 +23,10 @@ var parser = {
     var self = this;
     var urls = options.urls;
     var lang = options.language || 'javascript';
+    var repoName = name;
+
+    var results = {};
+    var errors = [];
 
     // If crawl is set to true, the parser
     // will crawl the given readme files for additional
@@ -31,23 +36,40 @@ var parser = {
     // Set appropriate parsing language.
     this.mdast.language(lang);
 
-    var repoName = name;
+    var tree = {};
+    var final = {};
+    var finalAPI = [];
 
-    var results = {};
-    var errors = [];
+    function traverse(node, path) {
+      path = path || '';
+      for (var item in node) {
+        var fullPath = path !== '' ? path + '/' + item : String(item);
+        if (_.isObject(node[item])) {
+          traverse(node[item], fullPath);
+        } else {
+          tree[fullPath] = node[item];
+        }
+      }
+    }
+    traverse(urls);
+
+    console.log(tree);
 
     var done = 0;
+    var total = Object.keys(tree).length;
     function doneHandler() {
       done++;
-      if (done >= urls.length) {
+      console.log(done, total);
+      if (done >= total) {
         parse();
       }
     }
 
-    function fetchOne(url) {
-      util.fetchRemote(url, function (err, data) {
+    function fetchOne(key, value) {
+      console.log('Fetching', value);
+      util.fetchRemote(value, function (err, data) {
         if (!err) {
-          results[url] = data;
+          results[key] = data;
         } else {
           errors.push(err);
         }
@@ -55,14 +77,44 @@ var parser = {
       });
     }
 
-    for (var i = 0; i < urls.length; ++i) {
-      fetchOne(urls[i]);
+    for (var url in tree) {
+      fetchOne(url, tree[url]);
     }
+
+    var autoDocPath = __dirname + '/../autodocs/' + repoName;
+    try {
+      fs.rmdirSync(autoDocPath);
+    } catch (e) {}
+
+    return;
 
     function parse() {
       for (var result in results) {
         console.log('res', result);
+
+        var md = results[result];
+
+        var ast = self.mdast.parse(md);
+        var _urls = self.mdast.getUrlsFromAst(ast);
+        var repoUrls = self.mdast.filterUrlsByGithubRepo(_urls, undefined, repoName);
+        var headers = self.mdast.groupByHeaders(ast);
+
+        var api = self.mdast.filterAPINodes(headers, repoName);
+        api = self.mdast.buildAPIPaths(api, repoName);
+
+        finalAPI = finalAPI.concat(api);
+
+        final[result] = {
+          api: api,
+          headers: headers,
+          urls: _urls
+        };
       }
+
+      self.writeAPI(finalAPI);
+
+      //console.log(finalAPI);
+
       callback();
     }
 
@@ -76,15 +128,6 @@ var parser = {
     }
     */
     /*
-        const ast = this.mdast.parse(md);
-        const urls = this.mdast.getUrlsFromAst(ast);
-        const repoUrls = this.mdast.filterUrlsByGithubRepo(urls, repoOwner, repoName);
-        const headers = this.mdast.groupByHeaders(ast);
-        
-        let api = this.mdast.filterAPINodes(headers, repoName);
-        api = this.mdast.buildAPIPaths(api, repoName);
-    
-        this.writeAPI(api);
         */
   },
 

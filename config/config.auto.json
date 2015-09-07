@@ -1,0 +1,18 @@
+{
+  "wat": {
+    "language": "javascript",
+    "urls": {
+      "readme": "https://raw.githubusercontent.com/dthree/wat/master/readme.md"
+    }
+  },
+  "robotjs": {
+    "language": "javascript",
+    "urls": {
+      "readme": "https://raw.githubusercontent.com/octalmage/robotjs/master/README.md",
+      "wiki": {
+        "syntax": "https://raw.githubusercontent.com/wiki/octalmage/robotjs/Syntax.md",
+        "building-robot-js": "https://raw.githubusercontent.com/wiki/octalmage/robotjs/Building.md"
+      }
+    }
+  }
+}

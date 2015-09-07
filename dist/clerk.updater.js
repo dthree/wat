@@ -24,11 +24,11 @@ var updater = {
   config: function config() {
     var self = updater;
     try {
-      var config = fs.readFileSync(self.parent.paths.autoConfig, { encoding: 'utf-8' });
+      var config = fs.readFileSync(__dirname + '/../' + self.parent.paths.autoConfig, { encoding: 'utf-8' });
       config = JSON.parse(config);
       self._config = config;
     } catch (e) {
-      console.log('WTF', e);
+      console.log(e.stack);
     }
     return self._config;
   },

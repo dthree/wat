@@ -30,6 +30,7 @@ var clerk = {
     cache: temp + '/.local/cache.json',
     hist: temp + '/.local/hist.json',
     docs: temp + '/.local/docs/',
+    autodocs: temp + '/.local/autodocs/',
     config: './config/config.json',
     autoConfig: './config/config.auto.json',
     remoteDocUrl: '',
@@ -74,22 +75,28 @@ var clerk = {
     mkdirp.sync(this.paths.tempDir + '/.local');
     mkdirp.sync(this.paths.tempDir + '/.local/docs');
     mkdirp.sync(this.paths.tempDir + '/.local/autodocs');
-    this.scaffoldDocs();
+    this.scaffoldDir('' + this.paths.docs, 'static');
+    this.scaffoldDir('' + this.paths.autodocs, 'auto');
     fs.appendFileSync(this.paths.prefs, '');
     fs.appendFileSync(this.paths.cache, '');
     fs.appendFileSync(this.paths.hist, '');
     return this;
   },
 
-  scaffoldDocs: function scaffoldDocs() {
+  scaffoldDir: function scaffoldDir(dir, dirType) {
     var index = this.indexer.index() || {};
-    var dir = clerk.paths.docs;
     function traverse(idx, path) {
       function rejectFn(str) {
         return String(str).indexOf('__') > -1;
       }
+      if (idx['__type'] && idx['__type'] !== dirType) {
+        return;
+      }
       for (var key in idx) {
         if (idx.hasOwnProperty(key) && String(key).indexOf('__') === -1) {
+          if (idx[key]['__type'] && idx[key]['__type'] !== dirType) {
+            return;
+          }
           // Clean out all files with '__...'
           var content = Object.keys(idx[key]);
           content = _.reject(content, rejectFn);

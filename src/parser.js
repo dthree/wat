@@ -10,6 +10,7 @@ const mdast = require('./parser.mdast');
 const util = require('./util');
 const chalk = require('chalk');
 const fs = require('fs');
+const _ = require('lodash');
 
 const parser = {
 
@@ -22,6 +23,10 @@ const parser = {
     const self = this;
     const urls = options.urls;
     const lang = options.language || 'javascript';
+    const repoName = name;
+
+    const results = {}
+    const errors = [];
 
     // If crawl is set to true, the parser
     // will crawl the given readme files for additional
@@ -31,23 +36,40 @@ const parser = {
     // Set appropriate parsing language.
     this.mdast.language(lang);
 
-    const repoName = name;
+    const tree = {}
+    const final = {}
+    let finalAPI = [];
 
-    const results = {}
-    const errors = [];
+    function traverse(node, path) {
+      path = path || '';
+      for (const item in node) {
+        let fullPath = (path !== '') ? path + '/' + item : String(item);
+        if (_.isObject(node[item])) {
+          traverse(node[item], fullPath);
+        } else {
+          tree[fullPath] = node[item];
+        }
+      }
+    }
+    traverse(urls);
+
+    console.log(tree);
 
     let done = 0;
+    let total = Object.keys(tree).length;
     function doneHandler() {
       done++;
-      if (done >= urls.length) {
+      console.log(done, total)
+      if (done >= total) {
         parse();
       }
     }
 
-    function fetchOne(url) {
-      util.fetchRemote(url, function (err, data) {
+    function fetchOne(key, value) {
+      console.log('Fetching', value);
+      util.fetchRemote(value, function (err, data) {
         if (!err) {
-          results[url] = data;
+          results[key] = data;
         } else {
           errors.push(err);
         }
@@ -55,17 +77,47 @@ const parser = {
       })
     }
 
-    for (let i = 0; i < urls.length; ++i) {
-      fetchOne(urls[i]);
+    for (const url in tree) {
+      fetchOne(url, tree[url]);
     }
+
+    let autoDocPath = __dirname + '/../autodocs/' + repoName;
+    try {
+      fs.rmdirSync(autoDocPath);
+    } catch(e) {}
+
+    return;
+
 
     function parse() {
       for (const result in results) {
         console.log('res', result);
+
+        const md = results[result];
+
+        const ast = self.mdast.parse(md);
+        const urls = self.mdast.getUrlsFromAst(ast);
+        const repoUrls = self.mdast.filterUrlsByGithubRepo(urls, undefined, repoName);
+        const headers = self.mdast.groupByHeaders(ast);
+        
+        let api = self.mdast.filterAPINodes(headers, repoName);
+        api = self.mdast.buildAPIPaths(api, repoName);
+
+        finalAPI = finalAPI.concat(api);
+
+        final[result] = {
+          api: api,
+          headers: headers,
+          urls: urls
+        }
       }
+
+      self.writeAPI(finalAPI);
+
+      //console.log(finalAPI);
+
       callback();
     }
-
 
     /*
     const path = __dirname + file;
@@ -77,15 +129,6 @@ const parser = {
     }
     */
 /*
-    const ast = this.mdast.parse(md);
-    const urls = this.mdast.getUrlsFromAst(ast);
-    const repoUrls = this.mdast.filterUrlsByGithubRepo(urls, repoOwner, repoName);
-    const headers = this.mdast.groupByHeaders(ast);
-    
-    let api = this.mdast.filterAPINodes(headers, repoName);
-    api = this.mdast.buildAPIPaths(api, repoName);
-
-    this.writeAPI(api);
     */
   },
 

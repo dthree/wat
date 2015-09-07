@@ -17,6 +17,7 @@ var js = {
     parameters: /\((.*)\)/,
     parametersWithParens: /\(.*\)/g,
     optionalParameters: /(\[(?![^\[\]]*\[)[^\]]+\])/g,
+    quotesAndTicks: /\`|\"|\'/g,
     brackets: /\[|\]/g,
     orderedBrackets: /\[.+\]/g,
     multipleWords: /[a-zA-Z]+ [a-zA-Z]+ /g,
@@ -51,6 +52,9 @@ var js = {
 
     // Remove starting header #s with spaces.
     syn = syn.replace(self.rules.startHash, '');
+
+    // Remove quotes and tick marks.
+    syn = syn.replace(self.rules.quotesAndTicks, '');
 
     // Remove starting header #s without spaces.
     syn = syn.replace(self.rules.startHashWithSpace, '');

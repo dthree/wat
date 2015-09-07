@@ -24,11 +24,11 @@ const updater = {
   config() {
     const self = updater;
     try {
-      let config = fs.readFileSync(self.parent.paths.autoConfig, {encoding: 'utf-8'});
+      let config = fs.readFileSync(__dirname + '/../' + self.parent.paths.autoConfig, {encoding: 'utf-8'});
       config = JSON.parse(config);
       self._config = config;
     } catch(e) {
-      console.log('WTF', e)
+      console.log(e.stack)
     }
     return self._config;
   },
