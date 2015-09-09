@@ -113,12 +113,7 @@ var _exports = {
           if (curr[lastDepth]) {
             curr[lastDepth].fold.push(item);
           } else {
-            //console.log(chalk.cyan(mdast.stringify(items[i])));
-            //console.log(chalk.magenta('WTF'));
-            //console.log(depth, lastDepth);
-            //console.log(item);
-            //console.log(curr[1])
-            console.log('Wtf');
+            console.log('WTF');
           }
         }
       } else {
@@ -173,29 +168,34 @@ var _exports = {
     return api;
   },
 
-  buildAPIPaths: function buildAPIPaths(api, repoName) {
-    //console.log(api);
+  stripHTML: function stripHTML(md) {
+    var anchors = /<a\b[^>]*>(.*?)<\/a>/ig;
+    var bolds = /<b>(.*?)<\/b>/ig;
+    var italics = /<i>(.*?)<\/i>/ig;
+    md = md.replace(anchors, '$1');
+    md = md.replace(bolds, '**$1**');
+    md = md.replace(italics, '*$1*');
+    return md;
+  },
 
+  buildAPIPaths: function buildAPIPaths(api, repoName) {
     var tree = {};
 
     for (var i = 0; i < api.length; ++i) {
-      console.log(chalk.cyan(api[i].original));
-      console.log(api[i].formatted);
-      console.log(api[i].syntax);
+      //console.log(chalk.cyan(api[i].original));
+      //console.log(api[i].formatted);
+      //console.log(api[i].syntax);
       //console.log(api[i].parents);
-
       var _parent = undefined;
-      try {
-        _parent = mdast.stringify(api[i].parent);
-      } catch (e) {
-        console.log('Error parsing parent.', api[i].parent);
-        console.log(e);
+      if (api[i].parent) {
+        try {
+          _parent = mdast.stringify(api[i].parent);
+        } catch (e) {
+          console.log('Error parsing parent.', api[i].parent);
+          console.log(e);
+        }
       }
       var children = api[i].children;
-      //console.log(api[i])
-      //console.log('||' + parent);
-      //console.log('##' + child);
-      //console.log(api[i]);
 
       var parentPath = (api[i].syntax.parents || []).join('/');
       parentPath = parentPath !== '' ? '/' + parentPath : parentPath;
@@ -210,13 +210,8 @@ var _exports = {
 
       for (var j = 0; j < api[i].junk.length; ++j) {
         var it = mdast.stringify(api[i].junk[j]);
-        //console.log(chalk.yellow(it) + '\n');
       }
-      console.log(' ');
     }
-
-    console.log(tree);
-
     return api;
   }
 

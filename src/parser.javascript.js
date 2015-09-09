@@ -21,6 +21,7 @@ const js = {
     brackets: /\[|\]/g,
     orderedBrackets: /\[.+\]/g,
     multipleWords: /[a-zA-Z]+ [a-zA-Z]+ /g,
+    nonAlphaNumerical: /\W+/g,
     commasAndBrackets: /\[|\]|,/g,
     bracketCommaBracket: /(\],.\[?)/g,
     bracketBracketComma: /(\]\[,.?)/g,
@@ -33,8 +34,6 @@ const js = {
   },
 
   parseCommandSyntax(str) {
-
-    //console.log(chalk.yellow(str))
 
     const self = this;
     const result = {}
@@ -49,6 +48,9 @@ const js = {
 
     // Get rid of links.
     syn = syn.replace(self.rules.links, '$2');
+
+    // Get rid of *s.
+    syn = syn.replace(/\*/g, '');
 
     // Remove starting header #s with spaces.
     syn = syn.replace(self.rules.startHash, '');
@@ -90,9 +92,7 @@ const js = {
 
     if (params) {
       params = params[1];
-
       orderedParams = String(params).replace(self.rules.brackets, '').replace(self.rules.questionMark, '').replace(/ +/g, '').split(',');
-
       function iterate() {
         let brackets = params.match(self.rules.optionalParameters);
         if (brackets) {
@@ -141,9 +141,7 @@ const js = {
           requiredParamEncountered = true;
         }
       }
-
     }
-
     
     let isImplicitChild;
     if (syn.match(self.rules.startPeriod)) {
@@ -152,9 +150,13 @@ const js = {
     }
 
     let nameParts = String(syn).split('.');
-    let name = nameParts.pop();
+    let name = String(nameParts.pop()).trim();
     let parents = nameParts;
     
+    if (name.match(self.rules.nonAlphaNumerical)) {
+      errors.push('invalid-signature-chars');
+    }
+
     parents = parents.map(function (item) {
       return String(item).trim();
     }).filter(function (item) {
@@ -168,13 +170,7 @@ const js = {
     result.errors = errors;
     result.isImplicitChild = isImplicitChild;
 
-    //console.log(result);
-
     let stringer = this.stringifyCommandSyntax(result);
-    //console.log(chalk.magenta(stringer));
-
-    //console.log('\n------------------\n')
-
     return result;
   },
 
@@ -217,7 +213,6 @@ const js = {
 
   isCommandSyntax(str) {
 
-
     const self = this;
 
     let cmd = String(str).trim();
@@ -233,16 +228,6 @@ const js = {
     let hasBrackets = (cmd.match(self.rules.orderedBrackets));
     let hasMultipleWords = cmdWithoutParens.match(self.rules.multipleWords);
 
-    //console.log(chalk.blue(cmd));
-
-    //console.log('Starts with words: ', startsWithWords);
-    //console.log('Starts with dot: ', startDot);
-    //console.log('Starts with word.word: ', startWordDotWord);
-    //console.log('Has parentheses: ', hasParens);
-    //console.log('Has left paren: ', hasLeftParen);
-    //console.log('Has brackets: ', hasBrackets);
-    //console.log('Has multiple words: ', hasMultipleWords);
-
     let isSyntax = false;
     if (hasParens && !startsWithWords) {
       isSyntax = true;
@@ -253,9 +238,6 @@ const js = {
     } else if (hasBrackets && hasLeftParen) {
       isSyntax = true;
     }
-
-    //console.log(chalk.magenta(isSyntax));
-    //console.log('-----------')
 
     return isSyntax;
   },

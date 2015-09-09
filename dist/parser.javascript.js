@@ -21,6 +21,7 @@ var js = {
     brackets: /\[|\]/g,
     orderedBrackets: /\[.+\]/g,
     multipleWords: /[a-zA-Z]+ [a-zA-Z]+ /g,
+    nonAlphaNumerical: /\W+/g,
     commasAndBrackets: /\[|\]|,/g,
     bracketCommaBracket: /(\],.\[?)/g,
     bracketBracketComma: /(\]\[,.?)/g,
@@ -33,8 +34,6 @@ var js = {
   },
 
   parseCommandSyntax: function parseCommandSyntax(str) {
-
-    //console.log(chalk.yellow(str))
 
     var self = this;
     var result = {};
@@ -49,6 +48,9 @@ var js = {
 
     // Get rid of links.
     syn = syn.replace(self.rules.links, '$2');
+
+    // Get rid of *s.
+    syn = syn.replace(/\*/g, '');
 
     // Remove starting header #s with spaces.
     syn = syn.replace(self.rules.startHash, '');
@@ -110,7 +112,6 @@ var js = {
         };
 
         params = params[1];
-
         orderedParams = String(params).replace(self.rules.brackets, '').replace(self.rules.questionMark, '').replace(/ +/g, '').split(',');
 
         iterate();
@@ -153,8 +154,12 @@ var js = {
     }
 
     var nameParts = String(syn).split('.');
-    var name = nameParts.pop();
+    var name = String(nameParts.pop()).trim();
     var parents = nameParts;
+
+    if (name.match(self.rules.nonAlphaNumerical)) {
+      errors.push('invalid-signature-chars');
+    }
 
     parents = parents.map(function (item) {
       return String(item).trim();
@@ -169,13 +174,7 @@ var js = {
     result.errors = errors;
     result.isImplicitChild = isImplicitChild;
 
-    //console.log(result);
-
     var stringer = this.stringifyCommandSyntax(result);
-    //console.log(chalk.magenta(stringer));
-
-    //console.log('\n------------------\n')
-
     return result;
   },
 
@@ -233,16 +232,6 @@ var js = {
     var hasBrackets = cmd.match(self.rules.orderedBrackets);
     var hasMultipleWords = cmdWithoutParens.match(self.rules.multipleWords);
 
-    //console.log(chalk.blue(cmd));
-
-    //console.log('Starts with words: ', startsWithWords);
-    //console.log('Starts with dot: ', startDot);
-    //console.log('Starts with word.word: ', startWordDotWord);
-    //console.log('Has parentheses: ', hasParens);
-    //console.log('Has left paren: ', hasLeftParen);
-    //console.log('Has brackets: ', hasBrackets);
-    //console.log('Has multiple words: ', hasMultipleWords);
-
     var isSyntax = false;
     if (hasParens && !startsWithWords) {
       isSyntax = true;
@@ -253,9 +242,6 @@ var js = {
     } else if (hasBrackets && hasLeftParen) {
       isSyntax = true;
     }
-
-    //console.log(chalk.magenta(isSyntax));
-    //console.log('-----------')
 
     return isSyntax;
   }

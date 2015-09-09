@@ -11,6 +11,7 @@ var util = require('./util');
 var chalk = require('chalk');
 var fs = require('fs');
 var _ = require('lodash');
+var rimraf = require('rimraf');
 
 var parser = {
 
@@ -20,13 +21,19 @@ var parser = {
 
   scaffold: function scaffold(name, options, callback) {
     callback = callback || {};
+    options = options || {};
     var self = this;
     var urls = options.urls;
     var lang = options.language || 'javascript';
-    var repoName = name;
+    var repoName = String(name).trim();
 
     var results = {};
     var errors = [];
+
+    if (!repoName) {
+      callback();
+      return;
+    }
 
     // If crawl is set to true, the parser
     // will crawl the given readme files for additional
@@ -53,20 +60,24 @@ var parser = {
     }
     traverse(urls);
 
-    console.log(tree);
-
     var done = 0;
     var total = Object.keys(tree).length;
     function doneHandler() {
       done++;
-      console.log(done, total);
+      //console.log(done, total)
+      if (options.onFile) {
+        options.onFile.call(undefined, {
+          total: total,
+          downloaded: done
+        });
+      }
       if (done >= total) {
         parse();
       }
     }
 
     function fetchOne(key, value) {
-      console.log('Fetching', value);
+      //console.log('Fetching', value);
       util.fetchRemote(value, function (err, data) {
         if (!err) {
           results[key] = data;
@@ -83,16 +94,16 @@ var parser = {
 
     var autoDocPath = __dirname + '/../autodocs/' + repoName;
     try {
-      fs.rmdirSync(autoDocPath);
+      rimraf.sync(autoDocPath);
     } catch (e) {}
 
     return;
 
     function parse() {
       for (var result in results) {
-        console.log('res', result);
 
         var md = results[result];
+        md = self.mdast.stripHTML(md);
 
         var ast = self.mdast.parse(md);
         var _urls = self.mdast.getUrlsFromAst(ast);
@@ -112,8 +123,6 @@ var parser = {
       }
 
       self.writeAPI(finalAPI);
-
-      //console.log(finalAPI);
 
       callback();
     }
@@ -146,19 +155,13 @@ var parser = {
       util.mkdirSafe(dir);
 
       var codeSampleFound = false;
-      var basicText = '';
-      var detailText = '';
-      var lineX = 0;
-      var lineXBasic = 0;
+      var basicText = '## ' + api[i].formatted + '\n\n';
+      var detailText = basicText;
+      var lineX = 2;
+      var lineXBasic = 2;
 
       for (var j = 0; j < api[i].junk.length; ++j) {
-
         var item = api[i].junk[j];
-
-        //console.log(item)
-        //for (let bing in item.position) {
-        //console.log(bing, item.position[bing]);
-        //}
         var lines = item.position.end.line - item.position.start.line + 1;
         var content = mdast.stringify(item) + '\n\n';
         var isCode = item.type === 'code';
@@ -195,8 +198,8 @@ var parser = {
         detailText = '';
       }
 
-      console.log(chalk.magenta(basicText));
-      console.log(chalk.yellow(detailText));
+      //console.log(chalk.magenta(basicText));
+      //console.log(chalk.yellow(detailText));
 
       try {
         fs.writeFileSync(dir + '/' + file + '.md', basicText, 'utf-8');
@@ -207,8 +210,7 @@ var parser = {
         throw new Error(e);
       }
 
-      console.log(dir, file);
-      //console.log(dirExists);
+      //console.log(dir, file);
     }
   }
 

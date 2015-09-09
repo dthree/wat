@@ -8,6 +8,7 @@ module.exports = function (vorpal, options) {
 
   vorpal
     .command('update <lib>', 'Automatically rebuilds a given library.')
+    .option('-r, --rebuild', 'Rebuild index after complete.')
     .action(function (args, cb) {
       const self = this;
       let lib = String(args.lib).trim();
@@ -24,17 +25,34 @@ module.exports = function (vorpal, options) {
         return;
       }
 
+      let origDelimiter = self.delimiter();
+
       let data = config[lib];
       data.urls = data.urls || [];
       data.language = data.language || 'javascript';
       const options = {
         urls: data.urls,
         language: data.language,
-        crawl: false
+        crawl: false,
+        onFile: function(data) {
+          let total = data.total;
+          let downloaded = data.downloaded;
+          self.delimiter(`Downloading: ${chalk.cyan(`${downloaded}`)} of ${chalk.cyan(`${total}`)} done.`);
+        },
       };
 
       let result = parser.scaffold(lib, options, function (err, data) {
-        cb();
+        self.delimiter(origDelimiter);
+        if (args.options.rebuild) {
+          parent.clerk.indexer.build(function(index){
+            parent.clerk.indexer.write(index);
+            self.log('Rebuilt index.');
+            cb();
+          });
+        } else {
+          cb();
+        }
+
       });
 
     });

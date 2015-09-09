@@ -8,6 +8,7 @@ const _ = require('lodash');
 const lev = require('leven');
 const request = require('request');
 const fs = require('fs');
+const mkdirp = require('mkdirp');
 
 const util = {
 
@@ -216,6 +217,8 @@ const util = {
    */
 
   mkdirSafe(dir, levels) {
+    return mkdirp.sync(dir);
+    
     console.log('mkdirsafe', dir, levels);
 
     dir = String(dir).trim();

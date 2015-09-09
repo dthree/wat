@@ -6,7 +6,7 @@ var parser = require('./parser');
 module.exports = function (vorpal, options) {
   var parent = options.parent;
 
-  vorpal.command('update <lib>', 'Automatically rebuilds a given library.').action(function (args, cb) {
+  vorpal.command('update <lib>', 'Automatically rebuilds a given library.').option('-r, --rebuild', 'Rebuild index after complete.').action(function (args, cb) {
     var self = this;
     var lib = String(args.lib).trim();
     var config = parent.clerk.updater.config();
@@ -22,17 +22,33 @@ module.exports = function (vorpal, options) {
       return;
     }
 
+    var origDelimiter = self.delimiter();
+
     var data = config[lib];
     data.urls = data.urls || [];
     data.language = data.language || 'javascript';
     var options = {
       urls: data.urls,
       language: data.language,
-      crawl: false
+      crawl: false,
+      onFile: function onFile(data) {
+        var total = data.total;
+        var downloaded = data.downloaded;
+        self.delimiter('Downloading: ' + chalk.cyan('' + downloaded) + ' of ' + chalk.cyan('' + total) + ' done.');
+      }
     };
 
     var result = parser.scaffold(lib, options, function (err, data) {
-      cb();
+      self.delimiter(origDelimiter);
+      if (args.options.rebuild) {
+        parent.clerk.indexer.build(function (index) {
+          parent.clerk.indexer.write(index);
+          self.log('Rebuilt index.');
+          cb();
+        });
+      } else {
+        cb();
+      }
     });
   });
 

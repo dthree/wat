@@ -11,6 +11,7 @@ const util = require('./util');
 const chalk = require('chalk');
 const fs = require('fs');
 const _ = require('lodash');
+const rimraf = require('rimraf');
 
 const parser = {
 
@@ -20,13 +21,19 @@ const parser = {
 
   scaffold(name, options, callback) {
     callback = callback || {};
+    options = options || {}
     const self = this;
     const urls = options.urls;
     const lang = options.language || 'javascript';
-    const repoName = name;
+    const repoName = String(name).trim();
 
     const results = {}
     const errors = [];
+
+    if (!repoName) {
+      callback();
+      return;
+    }
 
     // If crawl is set to true, the parser
     // will crawl the given readme files for additional
@@ -53,20 +60,24 @@ const parser = {
     }
     traverse(urls);
 
-    console.log(tree);
-
     let done = 0;
     let total = Object.keys(tree).length;
     function doneHandler() {
       done++;
-      console.log(done, total)
+      //console.log(done, total)
+      if (options.onFile) {
+        options.onFile.call(undefined, {
+          total: total,
+          downloaded: done
+        });
+      }
       if (done >= total) {
         parse();
       }
     }
 
     function fetchOne(key, value) {
-      console.log('Fetching', value);
+      //console.log('Fetching', value);
       util.fetchRemote(value, function (err, data) {
         if (!err) {
           results[key] = data;
@@ -81,9 +92,9 @@ const parser = {
       fetchOne(url, tree[url]);
     }
 
-    let autoDocPath = __dirname + '/../autodocs/' + repoName;
+    let autoDocPath = `${__dirname}/../autodocs/${repoName}`;
     try {
-      fs.rmdirSync(autoDocPath);
+      rimraf.sync(autoDocPath);
     } catch(e) {}
 
     return;
@@ -91,9 +102,9 @@ const parser = {
 
     function parse() {
       for (const result in results) {
-        console.log('res', result);
 
-        const md = results[result];
+        let md = results[result];
+        md = self.mdast.stripHTML(md);
 
         const ast = self.mdast.parse(md);
         const urls = self.mdast.getUrlsFromAst(ast);
@@ -113,8 +124,6 @@ const parser = {
       }
 
       self.writeAPI(finalAPI);
-
-      //console.log(finalAPI);
 
       callback();
     }
@@ -147,19 +156,14 @@ const parser = {
       util.mkdirSafe(dir);
 
       let codeSampleFound = false;
-      let basicText = '';
-      let detailText = '';
-      let lineX = 0;
-      let lineXBasic = 0;
+      let basicText = `## ${api[i].formatted}\n\n`;
+      let detailText = basicText;
+      let lineX = 2;
+      let lineXBasic = 2;
+
 
       for (let j = 0; j < api[i].junk.length; ++j) {
-
         let item = api[i].junk[j];
-
-        //console.log(item)
-        //for (let bing in item.position) {
-          //console.log(bing, item.position[bing]);
-        //}
         let lines = item.position.end.line - item.position.start.line + 1;
         let content = mdast.stringify(item) + '\n\n';
         let isCode = (item.type === 'code');
@@ -196,8 +200,8 @@ const parser = {
         detailText = '';
       }
 
-      console.log(chalk.magenta(basicText));
-      console.log(chalk.yellow(detailText));
+      //console.log(chalk.magenta(basicText));
+      //console.log(chalk.yellow(detailText));
 
       try {
         fs.writeFileSync(dir + '/' + file + '.md', basicText, 'utf-8');
@@ -208,8 +212,7 @@ const parser = {
         throw new Error(e);
       }
 
-      console.log(dir, file);
-      //console.log(dirExists);
+      //console.log(dir, file);
 
     }
 
