@@ -42,11 +42,11 @@ var util = {
       response = '' + String(otherWords.join(' ') + ' ' + match).trim() + space;
     } else {
       var space = levels === otherWords.length + 1 ? ' ' : '';
-      var original = '' + commands.join(' ') + space;
+      var original = '' + String(commands.join(' ')).trim() + space;
       if (iteration > 1 && possibilities.length > 1) {
         response = possibilities;
       } else if (iteration > 1 && possibilities.length === 1 && otherWords.length !== levels) {
-        response = '' + original + possibilities[0] + '  ';
+        response = String('' + original + possibilities[0]).trim() + ' ';
       } else {
         response = original;
       }
@@ -219,8 +219,6 @@ var util = {
   mkdirSafe: function mkdirSafe(dir, levels) {
     return mkdirp.sync(dir);
 
-    console.log('mkdirsafe', dir, levels);
-
     dir = String(dir).trim();
     if (dir === '') {
       return;
@@ -231,7 +229,6 @@ var util = {
     try {
       dirExists = fs.statSync(dir);
     } catch (e) {
-      console.log(e.stack);
       if (levels > 20) {
         throw new Error(e);
       }

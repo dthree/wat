@@ -48,6 +48,7 @@ var parser = {
     var tree = {};
     var final = {};
     var finalAPI = [];
+    var finalDocs = [];
 
     function traverse(node, path) {
       path = path || '';
@@ -113,15 +114,20 @@ var parser = {
         var api = self.mdast.filterAPINodes(headers, repoName);
         api = self.mdast.buildAPIPaths(api, repoName);
 
+        var docs = self.mdast.buildDocPaths(headers, '/autodocs/' + repoName + '/' + result);
+
         finalAPI = finalAPI.concat(api);
+        finalDocs = finalDocs.concat(docs);
 
         final[result] = {
           api: api,
+          docs: docs,
           headers: headers,
           urls: _urls
         };
       }
 
+      self.writeDocs(finalDocs);
       self.writeAPI(finalAPI);
 
       callback();
@@ -140,6 +146,48 @@ var parser = {
         */
   },
 
+  writeDocs: function writeDocs(docs) {
+
+    for (var i = 0; i < docs.length; ++i) {
+      if (!docs[i].path) {
+        continue;
+      }
+
+      var temp = pathx.join(os.tmpdir(), '/.wat/.local');
+      var path = String(docs[i].path);
+      var parts = path.split('/');
+      var file = parts.pop();
+      var directory = parts.join('/');
+      var fileAddon = docs[i].fold.length > 0 ? '/' + file : '';
+      var dir = __dirname + '/..' + directory;
+      var tempDir = temp + directory;
+
+      console.log(dir + fileAddon);
+      console.log(tempDir + fileAddon);
+
+      util.mkdirSafe(dir + fileAddon);
+      util.mkdirSafe(tempDir + fileAddon);
+
+      console.log('Making Dir: ', dir + fileAddon);
+
+      docs[i].junk = docs[i].junk || [];
+      var content = mdast.stringify(docs[i]);
+      var fullPath = docs[i].fold.length > 0 ? '/' + file + '/' + 'index.md' : '/' + file + '.md';
+      console.log('writing', fullPath);
+      fs.writeFileSync(dir + fullPath, content);
+      fs.writeFileSync(tempDir + fullPath, content);
+      for (var j = 0; j < docs[i].junk.length; ++j) {
+        var ch = docs[i].junk[j];
+        var str = mdast.stringify(ch);
+        //console.log(str);
+      }
+
+      if (docs[i].fold.length > 0) {
+        this.writeDocs(docs[i].fold);
+      }
+    }
+  },
+
   writeAPI: function writeAPI(api) {
 
     for (var i = 0; i < api.length; ++i) {
@@ -153,15 +201,14 @@ var parser = {
       var parts = path.split('/');
       var file = parts.pop();
       var directory = parts.join('/');
-
       var dir = __dirname + '/..' + directory;
       var tempDir = temp + directory;
 
       util.mkdirSafe(dir);
       util.mkdirSafe(tempDir);
 
-      console.log(dir);
-      console.log(tempDir);
+      //console.log(dir);
+      //console.log(tempDir);
 
       var codeSampleFound = false;
       var basicText = '## ' + api[i].formatted + '\n\n';

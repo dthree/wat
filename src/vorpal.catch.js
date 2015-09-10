@@ -21,6 +21,7 @@ module.exports = function (vorpal, options) {
       if (_.isArray(result)) {
         result.sort();
       }
+      //self.log(iteration, '|' + result + '|');
       cb(undefined, result);
     })
     .action(function (args, cb) {
@@ -34,12 +35,15 @@ module.exports = function (vorpal, options) {
         args.commands.shift();
       }
 
+      
       const path = util.command.buildPath(args.commands.join(' '), args.options, parent.clerk.indexer.index());
+
+      //console.log(path)
 
       function execPath(pathObj) {
         const fullPath = util.command.buildExtension(pathObj.path, pathObj.index, args.options);
         const type = pathObj.index.__type || 'static';
-        console.log(fullPath, pathObj.index.__type)
+        //console.log(fullPath, pathObj.index.__type)
         const noDetail = (args.options.detail && !pathObj.index.__detail);
         const noInstall = (args.options.install && !pathObj.index.__install);
 
@@ -69,6 +73,7 @@ module.exports = function (vorpal, options) {
           self.log(' ');
         } else {
           const results = parent.clerk.search(args.commands.join(' '));
+          //console.log(results);
           if (results.length === 1 && results[0].points > 0) {
             self.log(chalk.yellow(`\n  Showing results for '${results[0].command}':`));
             const path = util.command.buildPath(results[0].command, args.options, parent.clerk.indexer.index());

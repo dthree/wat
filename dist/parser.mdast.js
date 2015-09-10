@@ -8,6 +8,7 @@ var _ = require('lodash');
 var mdast = require('mdast');
 var stripBadges = require('mdast-strip-badges');
 var chalk = require('chalk');
+var slug = require('sluggin').Sluggin;
 
 var parser = require('./parser.javascript');
 
@@ -31,7 +32,7 @@ var _exports = {
           if (href === '') {
             continue;
           }
-          urls.push(href);
+          //urls.push(href);
         }
         if (nodes[i].children && nodes[i].children.length > 0) {
           getURLs(nodes[i].children);
@@ -178,14 +179,28 @@ var _exports = {
     return md;
   },
 
+  buildDocPaths: function buildDocPaths(nodes, rootName) {
+
+    //return;
+
+    var tree = {};
+    for (var i = 0; i < nodes.length; ++i) {
+      var fold = nodes[i].fold;
+      var dir = '' + rootName;
+      var _name = String(slug(mdast.stringify(nodes[i]))).trim();
+      var path = dir + '/' + _name;
+      console.log(path);
+      nodes[i].path = path;
+      if (nodes[i].fold.length > 0) {
+        nodes[i].fold = this.buildDocPaths(nodes[i].fold, path);
+      }
+    }
+    return nodes;
+  },
+
   buildAPIPaths: function buildAPIPaths(api, repoName) {
     var tree = {};
-
     for (var i = 0; i < api.length; ++i) {
-      //console.log(chalk.cyan(api[i].original));
-      //console.log(api[i].formatted);
-      //console.log(api[i].syntax);
-      //console.log(api[i].parents);
       var _parent = undefined;
       if (api[i].parent) {
         try {
@@ -225,9 +240,9 @@ var util = {
     if (res) {
       var parts = String(res).split('/') || [];
       var owner = parts[0];
-      var _name = parts[1];
-      if (owner && _name) {
-        result = { owner: owner, name: _name };
+      var _name2 = parts[1];
+      if (owner && _name2) {
+        result = { owner: owner, name: _name2 };
       }
     }
     return result;

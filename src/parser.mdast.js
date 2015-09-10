@@ -8,6 +8,8 @@ const _ = require('lodash');
 const mdast = require('mdast');
 const stripBadges = require('mdast-strip-badges');
 const chalk = require('chalk');
+const slug = require('sluggin').Sluggin;
+
 
 let parser = require('./parser.javascript');
 
@@ -31,7 +33,7 @@ const exports = {
           if (href === '') { 
             continue;
           }
-          urls.push(href);
+          //urls.push(href);
         }
         if (nodes[i].children && nodes[i].children.length > 0) {
           getURLs(nodes[i].children);
@@ -179,14 +181,28 @@ const exports = {
     return md;
   },
 
+  buildDocPaths(nodes, rootName) {
+
+    //return;
+
+    const tree = {}
+    for (let i = 0; i < nodes.length; ++i) {
+      let fold = nodes[i].fold;
+      let dir = `${rootName}`;
+      let name = String(slug(mdast.stringify(nodes[i]))).trim();
+      let path = `${dir}/${name}`;
+      console.log(path);
+      nodes[i].path = path;
+      if (nodes[i].fold.length > 0) {
+        nodes[i].fold = this.buildDocPaths(nodes[i].fold, path);
+      }
+    }
+    return nodes;
+  },
+
   buildAPIPaths(api, repoName) {
     const tree = {}
-
-    for (var i = 0; i < api.length; ++i) {
-      //console.log(chalk.cyan(api[i].original));
-      //console.log(api[i].formatted);
-      //console.log(api[i].syntax);
-      //console.log(api[i].parents);
+    for (let i = 0; i < api.length; ++i) {
       let parent;
       if (api[i].parent) {
         try {
@@ -214,7 +230,6 @@ const exports = {
       }
     }
     return api;
-
   },
 
 };

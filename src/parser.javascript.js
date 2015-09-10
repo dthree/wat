@@ -20,7 +20,7 @@ const js = {
     quotesAndTicks: /\`|\"|\'/g,
     brackets: /\[|\]/g,
     orderedBrackets: /\[.+\]/g,
-    multipleWords: /[a-zA-Z]+ [a-zA-Z]+ /g,
+    multipleWords: /[a-zA-Z]+ [a-zA-Z]+/g,
     nonAlphaNumerical: /\W+/g,
     commasAndBrackets: /\[|\]|,/g,
     bracketCommaBracket: /(\],.\[?)/g,
@@ -238,6 +238,20 @@ const js = {
     } else if (hasBrackets && hasLeftParen) {
       isSyntax = true;
     }
+
+    /*
+    if (isSyntax) {
+      console.log('|' + str);
+      console.log('||' + cmdWithoutParens);
+      console.log('Has Parens: ' + hasParens);
+      console.log('Starts with Words: ' + startsWithWords);
+      console.log('startDot: ' + startDot);
+      console.log('Has Multiple Words: ' + hasMultipleWords, cmdWithoutParens, self.rules.multipleWords, cmdWithoutParens.match(self.rules.multipleWords));
+      console.log('Start Word Dot Word: ' + startWordDotWord);
+      console.log('Has Brackets: ' + hasBrackets);
+      console.log('Has left paren: ' + hasLeftParen);
+    }
+    */
 
     return isSyntax;
   },

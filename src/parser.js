@@ -48,6 +48,7 @@ const parser = {
     const tree = {}
     const final = {}
     let finalAPI = [];
+    let finalDocs = [];
 
     function traverse(node, path) {
       path = path || '';
@@ -113,15 +114,20 @@ const parser = {
         let api = self.mdast.filterAPINodes(headers, repoName);
         api = self.mdast.buildAPIPaths(api, repoName);
 
+        let docs = self.mdast.buildDocPaths(headers, `/autodocs/${repoName}/${result}`);
+
         finalAPI = finalAPI.concat(api);
+        finalDocs = finalDocs.concat(docs);
 
         final[result] = {
           api: api,
+          docs: docs,
           headers: headers,
           urls: urls
         }
       }
 
+      self.writeDocs(finalDocs);
       self.writeAPI(finalAPI);
 
       callback();
@@ -140,6 +146,53 @@ const parser = {
     */
   },
 
+  writeDocs(docs) {
+
+    for (let i = 0; i < docs.length; ++i) {
+      if (!docs[i].path) {
+        continue;
+      }
+
+      const temp = pathx.join(os.tmpdir(), '/.wat/.local');
+      let path = String(docs[i].path);
+      let parts = path.split('/');
+      let file = parts.pop();
+      let directory = parts.join('/');
+      let fileAddon = (docs[i].fold.length > 0) ? '/' + file : '';
+      let dir = __dirname + '/..' + directory;
+      let tempDir = temp + directory;
+
+      console.log(dir + fileAddon);
+      console.log(tempDir + fileAddon);
+
+
+      util.mkdirSafe(dir + fileAddon);
+      util.mkdirSafe(tempDir + fileAddon);
+
+      console.log('Making Dir: ', dir + fileAddon);
+
+      docs[i].junk = docs[i].junk || [];
+      let content = mdast.stringify(docs[i]);
+      let fullPath = (docs[i].fold.length > 0)
+        ? '/' + file + '/' + 'index.md'
+        : '/' + file + '.md';
+      console.log('writing', fullPath);
+      fs.writeFileSync(dir + fullPath, content);
+      fs.writeFileSync(tempDir + fullPath, content);
+      for (let j = 0; j < docs[i].junk.length; ++j) {
+        let ch = docs[i].junk[j];
+        let str = mdast.stringify(ch);
+        //console.log(str);
+      }
+
+      if (docs[i].fold.length > 0) {
+        this.writeDocs(docs[i].fold);
+      }
+
+    }
+
+  },
+
   writeAPI(api) {
 
     for (var i = 0; i < api.length; ++i) {
@@ -153,15 +206,14 @@ const parser = {
       let parts = path.split('/');
       let file = parts.pop();
       let directory = parts.join('/');
-      
       let dir = __dirname + '/..' + directory;
       let tempDir = temp + directory;
 
       util.mkdirSafe(dir);
       util.mkdirSafe(tempDir);
 
-      console.log(dir);
-      console.log(tempDir);
+      //console.log(dir);
+      //console.log(tempDir);
 
       let codeSampleFound = false;
       let basicText = `## ${api[i].formatted}\n\n`;
