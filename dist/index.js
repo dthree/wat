@@ -32,26 +32,10 @@ var app = {
 
     var dir = __dirname + '/.';
 
-    vorpal.use(dir + '/vorpal.sigint.js', { parent: app }).use(dir + '/vorpal.theme.js', { parent: app }).use(dir + '/vorpal.updater.js', { parent: app }).use(dir + '/vorpal.spider.js', { parent: app }).use(dir + '/vorpal.catch.js', { parent: app }).use(dir + '/vorpal.hist.js', { parent: app }).delimiter('?').show();
-
-    var xlt = {
-      'd': 'detail',
-      'i': 'install'
-    };
-
-    var args = { options: {} };
-    for (var item in argv) {
-      if (item === '_') {
-        args.commands = argv[item];
-      } else if (xlt[item]) {
-        args.options[xlt[item]] = argv[item];
-      } else {
-        args.options[item] = argv[item];
-      }
-    }
+    vorpal.use(dir + '/vorpal.sigint.js', { parent: app }).use(dir + '/vorpal.theme.js', { parent: app }).use(dir + '/vorpal.indexer.js', { parent: app }).use(dir + '/vorpal.updater.js', { parent: app }).use(dir + '/vorpal.spider.js', { parent: app }).use(dir + '/vorpal.catch.js', { parent: app }).use(dir + '/vorpal.hist.js', { parent: app }).delimiter('?').show();
 
     if (process.argv.length > 2) {
-      vorpal.exec(args.commands.join(' '), args);
+      vorpal.parse(process.argv);
     }
   }
 };

@@ -261,11 +261,11 @@ const clerk = {
     this.config.getLocal();
   },
 
-  fetch(path, cb) {
+  fetch(path, type, cb) {
     cb = cb || function () {};
     clerk.lastUserAction = new Date();
     const self = clerk;
-    const local = clerk.fetchLocal(path);
+    const local = clerk.fetchLocal(path, type);
     this.history.push({
       type: 'command',
       value: path
@@ -274,6 +274,9 @@ const clerk = {
       const formatted = self.cosmetician.markdownToTerminal(local);
       cb(undefined, formatted);
     } else {
+      const remoteDir = (type === 'auto') 
+        ? clerk.paths.remoteAutodocUrl
+        : clerk.paths.remoteDocUrl;
       util.fetchRemote(this.paths.remoteDocUrl + path, function (err, data) {
         if (err) {
           if (String(err).indexOf('Not Found') > -1) {
@@ -284,31 +287,37 @@ const clerk = {
           }
         } else {
           const formatted = self.cosmetician.markdownToTerminal(data);
-          clerk.file(path, data);
+          clerk.file(path, type, data);
           cb(undefined, formatted);
         }
       });
     }
   },
 
-  fetchLocal(path) {
+  fetchLocal(path, type) {
+    const directory = (type === 'auto') 
+      ? clerk.paths.autodocs
+      : clerk.paths.docs;
     let file;
     try {
-      file = fs.readFileSync(clerk.paths.docs + path, {encoding: 'utf-8'});
+      file = fs.readFileSync(directory + path, {encoding: 'utf-8'});
       return file;
     } catch(e) {
       return undefined;
     }
   },
 
-  file(path, data, retry) {
+  file(path, type, data, retry) {
+    const directory = (type === 'auto')
+      ? clerk.paths.autodocs
+      : clerk.paths.docs;
     try {
-      fs.appendFileSync(clerk.paths.docs + path, data, {flag: 'w'});
+      fs.appendFileSync(directory + path, data, {flag: 'w'});
     } catch(e) {
       if (retry === undefined) {
         this.scaffold();
       } else {
-        throw new Error(`Unexpected rrror writing to cache: ${e}`);
+        throw new Error(`Unexpected error writing to cache: ${e}`);
       }
       return this.file(path, data, true);
     }

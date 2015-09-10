@@ -37,7 +37,7 @@ module.exports = function (vorpal, options) {
         onFile: function(data) {
           let total = data.total;
           let downloaded = data.downloaded;
-          self.delimiter(`Downloading: ${chalk.cyan(`${downloaded}`)} of ${chalk.cyan(`${total}`)} done.`);
+          //self.delimiter(`Downloading: ${chalk.cyan(`${downloaded}`)} of ${chalk.cyan(`${total}`)} done.`);
         },
       };
 

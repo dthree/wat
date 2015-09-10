@@ -201,8 +201,8 @@ const exports = {
       let parentPath = (api[i].syntax.parents || []).join('/');
       parentPath = (parentPath !== '') ? '/' + parentPath  : parentPath;
 
-      let dir = __dirname + '/../autodocs/' + repoName;
-      let path = dir + parentPath + '/' + api[i].syntax.name;
+      let dir = `/autodocs/${repoName}`;
+      let path = `${dir}${parentPath}/${api[i].syntax.name}`;
 
       api[i].path = path;
 

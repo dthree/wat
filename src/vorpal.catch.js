@@ -38,6 +38,8 @@ module.exports = function (vorpal, options) {
 
       function execPath(pathObj) {
         const fullPath = util.command.buildExtension(pathObj.path, pathObj.index, args.options);
+        const type = pathObj.index.__type || 'static';
+        console.log(fullPath, pathObj.index.__type)
         const noDetail = (args.options.detail && !pathObj.index.__detail);
         const noInstall = (args.options.install && !pathObj.index.__install);
 
@@ -47,7 +49,7 @@ module.exports = function (vorpal, options) {
           self.log(chalk.yellow(`\n  Sorry, there's no installation write-up for this command. Showing the basic one instead.`));
         }
 
-        parent.clerk.fetch(fullPath, function (err, data) {
+        parent.clerk.fetch(fullPath, type, function (err, data) {
           if (err) {
             self.log('Unexpected Error: ', err);
           } else {

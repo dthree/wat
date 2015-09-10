@@ -200,8 +200,8 @@ var _exports = {
       var parentPath = (api[i].syntax.parents || []).join('/');
       parentPath = parentPath !== '' ? '/' + parentPath : parentPath;
 
-      var dir = __dirname + '/../autodocs/' + repoName;
-      var path = dir + parentPath + '/' + api[i].syntax.name;
+      var dir = '/autodocs/' + repoName;
+      var path = '' + dir + parentPath + '/' + api[i].syntax.name;
 
       api[i].path = path;
 

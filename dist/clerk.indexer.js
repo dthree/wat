@@ -81,12 +81,12 @@ var indexer = {
     function checker() {
       dones++;
       if (dones === 2) {
-        console.log(normal);
-        console.log('----------');
-        console.log(auto);
-        console.log('----------');
+        //console.log(normal);
+        //console.log('----------')
+        //console.log(auto);
+        //console.log('----------')
         var result = self.merge(normal, auto);
-        console.log(result);
+        //console.log(result);
         callback(result);
       }
     }

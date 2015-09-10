@@ -10,6 +10,8 @@ const mdast = require('./parser.mdast');
 const util = require('./util');
 const chalk = require('chalk');
 const fs = require('fs');
+const pathx = require('path');
+const os = require('os');
 const _ = require('lodash');
 const rimraf = require('rimraf');
 
@@ -97,9 +99,6 @@ const parser = {
       rimraf.sync(autoDocPath);
     } catch(e) {}
 
-    return;
-
-
     function parse() {
       for (const result in results) {
 
@@ -148,12 +147,21 @@ const parser = {
         continue;
       }
 
-      var path = String(api[i].path);
-      var parts = path.split('/');
-      var file = parts.pop();
-      var dir = parts.join('/');
+      const temp = pathx.join(os.tmpdir(), '/.wat/.local');
+
+      let path = String(api[i].path);
+      let parts = path.split('/');
+      let file = parts.pop();
+      let directory = parts.join('/');
+      
+      let dir = __dirname + '/..' + directory;
+      let tempDir = temp + directory;
 
       util.mkdirSafe(dir);
+      util.mkdirSafe(tempDir);
+
+      console.log(dir);
+      console.log(tempDir);
 
       let codeSampleFound = false;
       let basicText = `## ${api[i].formatted}\n\n`;
@@ -189,9 +197,6 @@ const parser = {
           codeSampleFound = true;
         }
 
-        //console.log(chalk.blue('Lines: ', lines));
-        //console.log(item.type)
-        //console.log(content);
       }
 
       // If detail has no more content than
@@ -200,12 +205,11 @@ const parser = {
         detailText = '';
       }
 
-      //console.log(chalk.magenta(basicText));
-      //console.log(chalk.yellow(detailText));
-
       try {
+        fs.writeFileSync(tempDir + '/' + file + '.md', basicText, 'utf-8');
         fs.writeFileSync(dir + '/' + file + '.md', basicText, 'utf-8');
         if (detailText !== '') {
+          fs.writeFileSync(tempDir + '/' + file + '.detail.md', detailText, 'utf-8');
           fs.writeFileSync(dir + '/' + file + '.detail.md', detailText, 'utf-8');
         }
       } catch(e) {

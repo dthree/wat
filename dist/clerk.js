@@ -261,11 +261,11 @@ var clerk = {
     this.config.getLocal();
   },
 
-  fetch: function fetch(path, cb) {
+  fetch: function fetch(path, type, cb) {
     cb = cb || function () {};
     clerk.lastUserAction = new Date();
     var self = clerk;
-    var local = clerk.fetchLocal(path);
+    var local = clerk.fetchLocal(path, type);
     this.history.push({
       type: 'command',
       value: path
@@ -274,6 +274,7 @@ var clerk = {
       var formatted = self.cosmetician.markdownToTerminal(local);
       cb(undefined, formatted);
     } else {
+      var remoteDir = type === 'auto' ? clerk.paths.remoteAutodocUrl : clerk.paths.remoteDocUrl;
       util.fetchRemote(this.paths.remoteDocUrl + path, function (err, data) {
         if (err) {
           if (String(err).indexOf('Not Found') > -1) {
@@ -284,31 +285,33 @@ var clerk = {
           }
         } else {
           var formatted = self.cosmetician.markdownToTerminal(data);
-          clerk.file(path, data);
+          clerk.file(path, type, data);
           cb(undefined, formatted);
         }
       });
     }
   },
 
-  fetchLocal: function fetchLocal(path) {
+  fetchLocal: function fetchLocal(path, type) {
+    var directory = type === 'auto' ? clerk.paths.autodocs : clerk.paths.docs;
     var file = undefined;
     try {
-      file = fs.readFileSync(clerk.paths.docs + path, { encoding: 'utf-8' });
+      file = fs.readFileSync(directory + path, { encoding: 'utf-8' });
       return file;
     } catch (e) {
       return undefined;
     }
   },
 
-  file: function file(path, data, retry) {
+  file: function file(path, type, data, retry) {
+    var directory = type === 'auto' ? clerk.paths.autodocs : clerk.paths.docs;
     try {
-      fs.appendFileSync(clerk.paths.docs + path, data, { flag: 'w' });
+      fs.appendFileSync(directory + path, data, { flag: 'w' });
     } catch (e) {
       if (retry === undefined) {
         this.scaffold();
       } else {
-        throw new Error('Unexpected rrror writing to cache: ' + e);
+        throw new Error('Unexpected error writing to cache: ' + e);
       }
       return this.file(path, data, true);
     }
