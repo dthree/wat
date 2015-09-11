@@ -111,13 +111,35 @@ var parser = {
         var repoUrls = self.mdast.filterUrlsByGithubRepo(_urls, undefined, repoName);
         var headers = self.mdast.groupByHeaders(ast);
 
+        var pathParts = String(result).split('/');
+        var last = pathParts.pop();
+        var resultRoot = pathParts.length > 0 ? pathParts.join('/') : '';
+
         var api = self.mdast.filterAPINodes(headers, repoName);
         api = self.mdast.buildAPIPaths(api, repoName);
 
-        var docs = self.mdast.buildDocPaths(headers, '/autodocs/' + repoName + '/' + result);
+        //console.log('API', api);
+
+        // Make an index for that doc set.
+        if (headers.length === 1) {
+          headers[0].children = [{ type: 'text', value: last, position: {} }];
+        } else if (headers.length > 1) {
+          headers = [{
+            type: 'heading',
+            depth: 1,
+            children: [{ type: 'text', value: last, position: {} }],
+            position: {},
+            fold: headers,
+            junk: []
+          }];
+        }
+
+        var docs = self.mdast.buildDocPaths(headers, '/autodocs/' + repoName + '/' + resultRoot);
 
         finalAPI = finalAPI.concat(api);
         finalDocs = finalDocs.concat(docs);
+
+        //console.log(docs)
 
         final[result] = {
           api: api,
@@ -127,7 +149,16 @@ var parser = {
         };
       }
 
-      self.writeDocs(finalDocs);
+      //self.writeDocSet(finalDocs);
+      for (var doc in final) {
+        if (final.hasOwnProperty(doc)) {
+          //console.log('Writing doc set', doc);
+          self.writeDocSet(final[doc].docs);
+        }
+      }
+
+      //console.log(finalAPI)
+
       self.writeAPI(finalAPI);
 
       callback();
@@ -146,15 +177,20 @@ var parser = {
         */
   },
 
-  writeDocs: function writeDocs(docs) {
+  writeDocSet: function writeDocSet(docs) {
+
+    var result = '';
 
     for (var i = 0; i < docs.length; ++i) {
-      if (!docs[i].path) {
+
+      var local = '';
+
+      if (!docs[i].docPath) {
         continue;
       }
 
       var temp = pathx.join(os.tmpdir(), '/.wat/.local');
-      var path = String(docs[i].path);
+      var path = String(docs[i].docPath);
       var parts = path.split('/');
       var file = parts.pop();
       var directory = parts.join('/');
@@ -162,42 +198,46 @@ var parser = {
       var dir = __dirname + '/..' + directory;
       var tempDir = temp + directory;
 
-      console.log(dir + fileAddon);
-      console.log(tempDir + fileAddon);
-
       util.mkdirSafe(dir + fileAddon);
       util.mkdirSafe(tempDir + fileAddon);
 
-      console.log('Making Dir: ', dir + fileAddon);
-
       docs[i].junk = docs[i].junk || [];
-      var content = mdast.stringify(docs[i]);
+
       var fullPath = docs[i].fold.length > 0 ? '/' + file + '/' + 'index.md' : '/' + file + '.md';
-      console.log('writing', fullPath);
-      fs.writeFileSync(dir + fullPath, content);
-      fs.writeFileSync(tempDir + fullPath, content);
+
+      var header = mdast.stringify(docs[i]);
+      var allJunk = header + '\n\n';
       for (var j = 0; j < docs[i].junk.length; ++j) {
-        var ch = docs[i].junk[j];
-        var str = mdast.stringify(ch);
-        //console.log(str);
+        allJunk += mdast.stringify(docs[i].junk[j]) + '\n\n';
       }
+
+      local += allJunk;
+
+      //console.log('Writing ' + dir + fullPath, allJunk.length);
 
       if (docs[i].fold.length > 0) {
-        this.writeDocs(docs[i].fold);
+        local += this.writeDocSet(docs[i].fold);
       }
+
+      fs.writeFileSync(dir + fullPath, local);
+      fs.writeFileSync(tempDir + fullPath, local);
+
+      result += local;
     }
+
+    return result;
   },
 
   writeAPI: function writeAPI(api) {
 
     for (var i = 0; i < api.length; ++i) {
-      if (!api[i].path) {
+      if (!api[i].apiPath) {
         continue;
       }
 
       var temp = pathx.join(os.tmpdir(), '/.wat/.local');
 
-      var path = String(api[i].path);
+      var path = String(api[i].apiPath);
       var parts = path.split('/');
       var file = parts.pop();
       var directory = parts.join('/');

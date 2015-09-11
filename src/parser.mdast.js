@@ -30,7 +30,7 @@ const exports = {
       for (let i = 0; i < nodes.length; ++i) {
         if (nodes[i].type === 'link') {
           const href = util.cleanLink(nodes[i].href);
-          if (href === '') { 
+          if (href === '') {
             continue;
           }
           //urls.push(href);
@@ -65,14 +65,16 @@ const exports = {
   },
 
   groupByHeaders(node) {
+    //console.log('##########################')
     const curr = {}
     const res = [];
     let items = node.children;
     let depth = 100;
     let last;
 
-    function getParentI(dpth) {
-      for (var i = dpth - 1; i > -1; --i) {
+    function getParentI(dpth) { // 1 (needs 0)
+      for (var i = dpth - 1; i > -1; i--) {
+        //console.log(chalk.cyan('GPI: ' + i), curr[i]);
         if (curr[i]) {
           return i;
         }
@@ -87,9 +89,12 @@ const exports = {
         last = item;
         var lastDepth = depth;
         depth = item.depth - 1;
+        //console.log(chalk.magenta(mdast.stringify(item), 'Depth: ' + depth, 'LastDepth: ' + lastDepth));
+        ////console.log(curr);
         if (depth < lastDepth) {
           var parentI = getParentI(depth);
-          if (parentI) {
+          if (parentI !== undefined) {
+            //console.log('A: Parent');
             curr[parentI].fold.push(item);
             curr[depth] = item;
             for (var j = depth + 1; j < 6; ++j) {
@@ -97,6 +102,7 @@ const exports = {
             }
           } else {
             // If no parent, push to top.
+            //console.log('A: No Parent');
             res.push(item);
             for (var j = 0; j < 6; ++j) {
               delete curr[j];
@@ -106,16 +112,25 @@ const exports = {
         } else if (depth === lastDepth) {
           curr[depth] = item;
           var parentI = getParentI(depth);
-          if (parentI) {
+          if (parentI !== undefined) {
+            //console.log('B: Parent');
             curr[parentI].fold.push(item);
           } else {
+            //console.log('B: No Parent');
+            //console.log((curr[0]) ? '0: ' + mdast.stringify(curr[0]) : '' );
+            //console.log((curr[1]) ? '1: ' + mdast.stringify(curr[1]) : '' );
+            ////console.log('Appending to Current: ' + mdast.stringify(curr[parentI]));
+            ////console.log('Current')
             res.push(item);
           }
         } else if (depth > lastDepth) {
-          if (curr[lastDepth]) {
-            curr[lastDepth].fold.push(item);
+          var parentI = getParentI(depth);
+          curr[depth] = item;
+          if (curr[parentI]) {
+            //console.log('C: Appending to ' + parentI);
+            curr[parentI].fold.push(item);
           } else {
-            console.log('WTF');
+            //console.log('WTF');
           }
         }
       } else {
@@ -191,8 +206,8 @@ const exports = {
       let dir = `${rootName}`;
       let name = String(slug(mdast.stringify(nodes[i]))).trim();
       let path = `${dir}/${name}`;
-      console.log(path);
-      nodes[i].path = path;
+      //console.log(path);
+      nodes[i].docPath = path;
       if (nodes[i].fold.length > 0) {
         nodes[i].fold = this.buildDocPaths(nodes[i].fold, path);
       }
@@ -220,7 +235,7 @@ const exports = {
       let dir = `/autodocs/${repoName}`;
       let path = `${dir}${parentPath}/${api[i].syntax.name}`;
 
-      api[i].path = path;
+      api[i].apiPath = path;
 
       tree[parentPath] = tree[parentPath] || 0;
       tree[parentPath]++;

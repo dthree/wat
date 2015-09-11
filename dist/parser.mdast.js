@@ -64,6 +64,7 @@ var _exports = {
   },
 
   groupByHeaders: function groupByHeaders(node) {
+    //console.log('##########################')
     var curr = {};
     var res = [];
     var items = node.children;
@@ -71,7 +72,9 @@ var _exports = {
     var last = undefined;
 
     function getParentI(dpth) {
-      for (var i = dpth - 1; i > -1; --i) {
+      // 1 (needs 0)
+      for (var i = dpth - 1; i > -1; i--) {
+        //console.log(chalk.cyan('GPI: ' + i), curr[i]);
         if (curr[i]) {
           return i;
         }
@@ -86,9 +89,12 @@ var _exports = {
         last = item;
         var lastDepth = depth;
         depth = item.depth - 1;
+        //console.log(chalk.magenta(mdast.stringify(item), 'Depth: ' + depth, 'LastDepth: ' + lastDepth));
+        ////console.log(curr);
         if (depth < lastDepth) {
           var parentI = getParentI(depth);
-          if (parentI) {
+          if (parentI !== undefined) {
+            //console.log('A: Parent');
             curr[parentI].fold.push(item);
             curr[depth] = item;
             for (var j = depth + 1; j < 6; ++j) {
@@ -96,6 +102,7 @@ var _exports = {
             }
           } else {
             // If no parent, push to top.
+            //console.log('A: No Parent');
             res.push(item);
             for (var j = 0; j < 6; ++j) {
               delete curr[j];
@@ -105,25 +112,34 @@ var _exports = {
         } else if (depth === lastDepth) {
           curr[depth] = item;
           var parentI = getParentI(depth);
-          if (parentI) {
+          if (parentI !== undefined) {
+            //console.log('B: Parent');
             curr[parentI].fold.push(item);
           } else {
+            //console.log('B: No Parent');
+            //console.log((curr[0]) ? '0: ' + mdast.stringify(curr[0]) : '' );
+            //console.log((curr[1]) ? '1: ' + mdast.stringify(curr[1]) : '' );
+            ////console.log('Appending to Current: ' + mdast.stringify(curr[parentI]));
+            ////console.log('Current')
             res.push(item);
           }
         } else if (depth > lastDepth) {
-          if (curr[lastDepth]) {
-            curr[lastDepth].fold.push(item);
+          var parentI = getParentI(depth);
+          curr[depth] = item;
+          if (curr[parentI]) {
+            //console.log('C: Appending to ' + parentI);
+            curr[parentI].fold.push(item);
           } else {
-            console.log('WTF');
+            //console.log('WTF');
           }
         }
       } else {
-        // Warning: if an item isn't under a
-        // header, we're just throwing it away...
-        if (last) {
-          last.junk.push(item);
+          // Warning: if an item isn't under a
+          // header, we're just throwing it away...
+          if (last) {
+            last.junk.push(item);
+          }
         }
-      }
     }
     return res;
   },
@@ -189,8 +205,8 @@ var _exports = {
       var dir = '' + rootName;
       var _name = String(slug(mdast.stringify(nodes[i]))).trim();
       var path = dir + '/' + _name;
-      console.log(path);
-      nodes[i].path = path;
+      //console.log(path);
+      nodes[i].docPath = path;
       if (nodes[i].fold.length > 0) {
         nodes[i].fold = this.buildDocPaths(nodes[i].fold, path);
       }
@@ -218,7 +234,7 @@ var _exports = {
       var dir = '/autodocs/' + repoName;
       var path = '' + dir + parentPath + '/' + api[i].syntax.name;
 
-      api[i].path = path;
+      api[i].apiPath = path;
 
       tree[parentPath] = tree[parentPath] || 0;
       tree[parentPath]++;

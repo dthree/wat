@@ -109,15 +109,38 @@ const parser = {
         const ast = self.mdast.parse(md);
         const urls = self.mdast.getUrlsFromAst(ast);
         const repoUrls = self.mdast.filterUrlsByGithubRepo(urls, undefined, repoName);
-        const headers = self.mdast.groupByHeaders(ast);
-        
+        let headers = self.mdast.groupByHeaders(ast);
+
+        let pathParts = String(result).split('/');
+        let last = pathParts.pop();
+        let resultRoot = (pathParts.length > 0) ? pathParts.join('/') : '';
+
         let api = self.mdast.filterAPINodes(headers, repoName);
         api = self.mdast.buildAPIPaths(api, repoName);
 
-        let docs = self.mdast.buildDocPaths(headers, `/autodocs/${repoName}/${result}`);
+        //console.log('API', api);
+
+        // Make an index for that doc set.
+        if (headers.length === 1) {
+          headers[0].children = [{ type: 'text', value: last, position: {} }];
+        } else if (headers.length > 1) {
+          headers = [{
+            type: 'heading',
+            depth: 1,
+            children: [{ type: 'text', value: last, position: {} }],
+            position: {},
+            fold: headers,
+            junk: [],
+          }];
+        }
+
+        let docs = self.mdast.buildDocPaths(headers, `/autodocs/${repoName}/${resultRoot}`);
 
         finalAPI = finalAPI.concat(api);
         finalDocs = finalDocs.concat(docs);
+
+        //console.log(docs)
+
 
         final[result] = {
           api: api,
@@ -127,7 +150,16 @@ const parser = {
         }
       }
 
-      self.writeDocs(finalDocs);
+      //self.writeDocSet(finalDocs);
+      for (const doc in final) {
+        if (final.hasOwnProperty(doc)) {
+          //console.log('Writing doc set', doc);
+          self.writeDocSet(final[doc].docs);
+        }
+      }
+
+      //console.log(finalAPI)
+
       self.writeAPI(finalAPI);
 
       callback();
@@ -146,15 +178,20 @@ const parser = {
     */
   },
 
-  writeDocs(docs) {
+  writeDocSet(docs) {
+
+    let result = '';
 
     for (let i = 0; i < docs.length; ++i) {
-      if (!docs[i].path) {
+
+      let local = '';
+
+      if (!docs[i].docPath) {
         continue;
       }
 
       const temp = pathx.join(os.tmpdir(), '/.wat/.local');
-      let path = String(docs[i].path);
+      let path = String(docs[i].docPath);
       let parts = path.split('/');
       let file = parts.pop();
       let directory = parts.join('/');
@@ -162,47 +199,50 @@ const parser = {
       let dir = __dirname + '/..' + directory;
       let tempDir = temp + directory;
 
-      console.log(dir + fileAddon);
-      console.log(tempDir + fileAddon);
-
-
       util.mkdirSafe(dir + fileAddon);
       util.mkdirSafe(tempDir + fileAddon);
 
-      console.log('Making Dir: ', dir + fileAddon);
-
       docs[i].junk = docs[i].junk || [];
-      let content = mdast.stringify(docs[i]);
+
       let fullPath = (docs[i].fold.length > 0)
         ? '/' + file + '/' + 'index.md'
         : '/' + file + '.md';
-      console.log('writing', fullPath);
-      fs.writeFileSync(dir + fullPath, content);
-      fs.writeFileSync(tempDir + fullPath, content);
+      
+      let header = mdast.stringify(docs[i]);
+      let allJunk = header + '\n\n';
       for (let j = 0; j < docs[i].junk.length; ++j) {
-        let ch = docs[i].junk[j];
-        let str = mdast.stringify(ch);
-        //console.log(str);
+        allJunk += mdast.stringify(docs[i].junk[j]) + '\n\n';
       }
+
+
+      local += allJunk;
+
+      //console.log('Writing ' + dir + fullPath, allJunk.length);
 
       if (docs[i].fold.length > 0) {
-        this.writeDocs(docs[i].fold);
+        local += this.writeDocSet(docs[i].fold);
       }
 
+      fs.writeFileSync(dir + fullPath, local);
+      fs.writeFileSync(tempDir + fullPath, local);
+
+      result += local;
     }
+
+    return result;
 
   },
 
   writeAPI(api) {
 
     for (var i = 0; i < api.length; ++i) {
-      if (!api[i].path) {
+      if (!api[i].apiPath) {
         continue;
       }
 
       const temp = pathx.join(os.tmpdir(), '/.wat/.local');
 
-      let path = String(api[i].path);
+      let path = String(api[i].apiPath);
       let parts = path.split('/');
       let file = parts.pop();
       let directory = parts.join('/');

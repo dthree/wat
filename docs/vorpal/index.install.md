@@ -1,3 +1,0 @@
-```text
-npm install vorpal
-```

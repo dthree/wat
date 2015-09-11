@@ -1,8 +1,64 @@
 {
-  "wat": {
+  "d3": {
     "language": "javascript",
     "urls": {
-      "readme": "https://raw.githubusercontent.com/dthree/wat/master/readme.md"
+      "readme": "https://raw.githubusercontent.com/mbostock/d3/master/README.md",
+      "wiki": {
+        "index": "https://raw.githubusercontent.com/wiki/mbostock/d3/index.md",
+        "selections": "https://raw.githubusercontent.com/wiki/mbostock/d3/Selections.md",
+        "transitions": "https://raw.githubusercontent.com/wiki/mbostock/d3/Transitions.md",
+        "arrays": "https://raw.githubusercontent.com/wiki/mbostock/d3/Arrays.md",
+        "math": "https://raw.githubusercontent.com/wiki/mbostock/d3/Math.md",
+        "requests": "https://raw.githubusercontent.com/wiki/mbostock/d3/Requests.md",
+        "formatting": "https://raw.githubusercontent.com/wiki/mbostock/d3/Formatting.md",
+        "csv": "https://raw.githubusercontent.com/wiki/mbostock/d3/CSV.md",
+        "localization": "https://raw.githubusercontent.com/wiki/mbostock/d3/Localization.md",
+        "colors": "https://raw.githubusercontent.com/wiki/mbostock/d3/Colors.md",
+        "namespaces": "https://raw.githubusercontent.com/wiki/mbostock/d3/Namespaces.md",
+        "internals": "https://raw.githubusercontent.com/wiki/mbostock/d3/Internals.md",
+        "scales": "https://raw.githubusercontent.com/wiki/mbostock/d3/Scales.md",
+        "quantitative-scales": "https://raw.githubusercontent.com/wiki/mbostock/d3/Quantitative-Scales.md",
+        "ordinal-scales": "https://raw.githubusercontent.com/wiki/mbostock/d3/Ordinal-Scales.md",
+        "svg": "https://raw.githubusercontent.com/wiki/mbostock/d3/SVG.md",
+        "svg-shapes": "https://raw.githubusercontent.com/wiki/mbostock/d3/SVG-Shapes.md",
+        "svg-axes": "https://raw.githubusercontent.com/wiki/mbostock/d3/SVG-Axes.md",
+        "svg-controls": "https://raw.githubusercontent.com/wiki/mbostock/d3/SVG-Controls.md",
+        "time": "https://raw.githubusercontent.com/wiki/mbostock/d3/Time.md",
+        "time-formatting": "https://raw.githubusercontent.com/wiki/mbostock/d3/Time-Formatting.md",
+        "time-scales": "https://raw.githubusercontent.com/wiki/mbostock/d3/Time-Scales.md",
+        "time-intervals": "https://raw.githubusercontent.com/wiki/mbostock/d3/Time-Intervals.md",
+        "Layouts": "https://raw.githubusercontent.com/wiki/mbostock/d3/Layouts.md",
+        "bundle-layout": "https://raw.githubusercontent.com/wiki/mbostock/d3/bundle-Layout.md",
+        "chord-layout": "https://raw.githubusercontent.com/wiki/mbostock/d3/Chord-Layout.md",
+        "cluster-layout": "https://raw.githubusercontent.com/wiki/mbostock/d3/Cluster-Layout.md",
+        "force-layout": "https://raw.githubusercontent.com/wiki/mbostock/d3/Force-Layout.md",
+        "hierarchy-layout": "https://raw.githubusercontent.com/wiki/mbostock/d3/Hierarchy-Layout.md",
+        "histogram-layout": "https://raw.githubusercontent.com/wiki/mbostock/d3/Histogram-Layout.md",
+        "pack-layout": "https://raw.githubusercontent.com/wiki/mbostock/d3/Pack-Layout.md",
+        "partition-layout": "https://raw.githubusercontent.com/wiki/mbostock/d3/Partition-Layout.md",
+        "pie-layout": "https://raw.githubusercontent.com/wiki/mbostock/d3/Pie-Layout.md",
+        "stack-layout": "https://raw.githubusercontent.com/wiki/mbostock/d3/Stack-Layout.md",
+        "tree-layout": "https://raw.githubusercontent.com/wiki/mbostock/d3/Tree-Layout.md",
+        "treemap-layout": "https://raw.githubusercontent.com/wiki/mbostock/d3/Treemap-Layout.md",
+        "geo": "https://raw.githubusercontent.com/wiki/mbostock/d3/Geo.md",
+        "geo-paths": "https://raw.githubusercontent.com/wiki/mbostock/d3/Geo-Paths.md",
+        "geo-projections": "https://raw.githubusercontent.com/wiki/mbostock/d3/Geo-Projections.md",
+        "geo-streams": "https://raw.githubusercontent.com/wiki/mbostock/d3/Geo-Streams.md",
+        "geom": "https://raw.githubusercontent.com/wiki/mbostock/d3/Geometry.md",
+        "voronoi-geom": "https://raw.githubusercontent.com/wiki/mbostock/d3/Voronoi-Geom.md",
+        "quadtree-geom": "https://raw.githubusercontent.com/wiki/mbostock/d3/Quadtree-Geom.md",
+        "hull-geom": "https://raw.githubusercontent.com/wiki/mbostock/d3/Hull-Geom.md",
+        "polygon-geom": "https://raw.githubusercontent.com/wiki/mbostock/d3/Polygon-Geom.md",
+        "behaviors": "https://raw.githubusercontent.com/wiki/mbostock/d3/Behaviors.md",
+        "drag-behavior": "https://raw.githubusercontent.com/wiki/mbostock/d3/Drag-Behavior.md",
+        "zoom-behavior": "https://raw.githubusercontent.com/wiki/mbostock/d3/Zoom-Behavior.md"
+      }
+    }
+  },
+  "npm-mkdirp": {
+    "language": "javascript",
+    "urls": {
+      "readme": "https://raw.githubusercontent.com/substack/node-mkdirp/master/readme.markdown"
     }
   },
   "robotjs": {
@@ -11,8 +67,14 @@
       "readme": "https://raw.githubusercontent.com/octalmage/robotjs/master/README.md",
       "wiki": {
         "syntax": "https://raw.githubusercontent.com/wiki/octalmage/robotjs/Syntax.md",
-        "building-robot-js": "https://raw.githubusercontent.com/wiki/octalmage/robotjs/Building.md"
+        "building": "https://raw.githubusercontent.com/wiki/octalmage/robotjs/Building.md"
       }
+    }
+  },
+  "wat": {
+    "language": "javascript",
+    "urls": {
+      "readme": "https://raw.githubusercontent.com/dthree/wat/master/readme.md"
     }
   }
 }
