@@ -188,24 +188,27 @@ var _exports = {
   stripHTML: function stripHTML(md) {
     var anchors = /<a\b[^>]*>(.*?)<\/a>/ig;
     var bolds = /<b>(.*?)<\/b>/ig;
+    var breaks = /<br>/ig;
     var italics = /<i>(.*?)<\/i>/ig;
     md = md.replace(anchors, '$1');
     md = md.replace(bolds, '**$1**');
+    md = md.replace(breaks, '');
     md = md.replace(italics, '*$1*');
     return md;
   },
 
   buildDocPaths: function buildDocPaths(nodes, rootName) {
-
-    //return;
-
     var tree = {};
     for (var i = 0; i < nodes.length; ++i) {
       var fold = nodes[i].fold;
       var dir = '' + rootName;
-      var _name = String(slug(mdast.stringify(nodes[i]))).trim();
+      var _name = undefined;
+      if (nodes[i].syntax) {
+        _name = nodes[i].syntax.name;
+      } else {
+        _name = String(slug(mdast.stringify(nodes[i]))).trim();
+      }
       var path = dir + '/' + _name;
-      //console.log(path);
       nodes[i].docPath = path;
       if (nodes[i].fold.length > 0) {
         nodes[i].fold = this.buildDocPaths(nodes[i].fold, path);
@@ -244,6 +247,37 @@ var _exports = {
       }
     }
     return api;
+  },
+
+  /**
+   * Builds a JSON object defining 
+   * properties and methods based on the
+   * API AST nodes.
+   * 
+   * @param {Array} api
+   * @return {Object} config
+   * @api public 
+   */
+
+  buildAPIConfig: function buildAPIConfig(api) {
+    var config = {};
+    var map = {
+      'method': 'methods',
+      'property': 'properties'
+    };
+    for (var i = 0; i < api.length; ++i) {
+      var cmd = api[i];
+      var apiPath = cmd.apiPath;
+      if (apiPath) {
+        var parts = String(apiPath).split('/');
+        parts = parts.slice(3, parts.length);
+        parts = parts.join('/');
+        var type = map[cmd.syntax.type] || 'unknown';
+        config[type] = config[type] || [];
+        config[type].push(parts);
+      }
+    }
+    return config;
   }
 
 };

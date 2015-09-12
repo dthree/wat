@@ -9,6 +9,8 @@ var lev = require('leven');
 var request = require('request');
 var fs = require('fs');
 var mkdirp = require('mkdirp');
+var chalk = require('chalk');
+var strip = require('strip-ansi');
 
 var util = {
 
@@ -28,12 +30,15 @@ var util = {
     var commands = util.command.prepare(text, {}, index);
     var lastWord = String(commands[commands.length - 1]).trim();
     var otherWords = commands.slice(0, commands.length - 1);
+    var poss = [];
 
     var levels = 0;
-    var possibilities = util.traverseIndex(_.clone(commands), index, function () {
+    var possibleObjects = util.matchAgainstIndex(_.clone(commands), index, function () {
       levels++;
     });
 
+    var formatted = this.formatAutocomplete(possibleObjects);
+    var possibilities = Object.keys(possibleObjects);
     var match = matchFn(String(lastWord).trim(), possibilities);
 
     var response = undefined;
@@ -44,7 +49,7 @@ var util = {
       var space = levels === otherWords.length + 1 ? ' ' : '';
       var original = '' + String(commands.join(' ')).trim() + space;
       if (iteration > 1 && possibilities.length > 1) {
-        response = possibilities;
+        response = [formatted];
       } else if (iteration > 1 && possibilities.length === 1 && otherWords.length !== levels) {
         response = String('' + original + possibilities[0]).trim() + ' ';
       } else {
@@ -52,6 +57,253 @@ var util = {
       }
     }
     return response;
+  },
+
+  /**
+  * Takes an array of index items to be displayed
+  * under tabbed autocompletion. Gathers their '__class'
+  * from the index ('method', 'property', 'doc', etc.)
+  * and separates them into groups based on this.
+  * If worthwhile, draws and color-separates classes
+  * into fancy columns so the data is really, really
+  * easy to digest.
+  *
+  * @param {Array} possibilities
+  * @return {String}
+  * @api public
+  */
+
+  formatAutocomplete: function formatAutocomplete(possibilities) {
+    var self = this;
+    var cats = ['method', 'property', 'object', 'doc'];
+    var data = {};
+    var all = Object.keys(possibilities) || [];
+
+    function filter(objs, type) {
+      var results = {};
+      for (var item in objs) {
+        if (objs[item].__class === type) {
+          results[item] = objs[item];
+        }
+      }
+      return Object.keys(results);
+    }
+
+    // If the object has children, add a slash.
+    var newPoss = {};
+    for (var item in possibilities) {
+      var keys = Object.keys(possibilities[item]);
+      keys = keys.filter(function (key) {
+        return String(key).slice(0, 2) !== '__';
+      });
+      if (keys.length > 0) {
+        newPoss[item + '/'] = _.clone(possibilities[item]);
+      } else {
+        newPoss[item] = possibilities[item];
+      }
+    }
+
+    // Build an array of each class ('method', 'doc', etc.),
+    // filed under the `data` object.
+    var matches = [];
+    for (var i = 0; i < cats.length; ++i) {
+      data[cats[i]] = filter(newPoss, cats[i]);
+      matches = matches.concat(data[cats[i]]);
+    }
+
+    // Data.remainer takes care of any items that don't
+    // have a `__class` attribute in the index.
+    data.remainder = all.filter(function (item) {
+      return matches.indexOf(item) > -1 || matches.indexOf(item + '/') > -1 ? false : true;
+    });
+
+    // Get the widest item of them all
+    // (mirror, mirror on the wall).
+    var maxWidth = 0;
+    all.forEach(function (item) {
+      var width = String(item).length;
+      maxWidth = width > maxWidth ? width : maxWidth;
+    });
+    maxWidth = maxWidth + 3;
+
+    // The headers aren't measured for width, and
+    // so if the thinnest property is less than the
+    // "Properties" header, it's goinna look ugly.
+    maxWidth = maxWidth < 12 ? 12 : maxWidth;
+
+    // Determine how many display columns get allocated
+    // per data class ('method', 'property', etc.),
+    // based on how many children each data class has.
+    var numColumns = Math.floor((process.stdout.columns - 2) / maxWidth);
+    var dataColumns = {};
+    var totalAllocated = 0;
+    var maxItem = undefined;
+    var max = 0;
+    for (var item in data) {
+      if (data[item].length > 0) {
+        dataColumns[item] = Math.floor(data[item].length / all.length * numColumns) || 1;
+        totalAllocated += dataColumns[item];
+        max = dataColumns[item] > max ? dataColumns[item] : max;
+        maxItem = dataColumns[item] === max ? item : maxItem;
+      }
+    }
+
+    // Do correction on the above figures to ensure we don't
+    // top over the max column amount.
+    var columnOverflow = totalAllocated - numColumns;
+    if (columnOverflow > 0) {
+      dataColumns[maxItem] = dataColumns[maxItem] - columnOverflow;
+    }
+
+    // Methods and Properties go alphabetical.
+    // Docs go in exact sequences.
+    data.method.sort();
+    data.property.sort();
+
+    // Colors by class.
+    var colors = {
+      'method': 'green',
+      'property': 'blue',
+      'object': 'yellow',
+      'doc': 'white',
+      'remainder': 'gray'
+    };
+
+    // Fancy names by class.
+    var names = {
+      'method': 'Methods',
+      'property': 'Properties',
+      'object': 'Objects',
+      'doc': 'Docs',
+      'remainder': 'Other'
+    };
+
+    // This takes a class, such as `method`,
+    // and draws x number of columns for that
+    // item based on the allocated number of
+    // column (`dataColumns[class]`). Returns
+    // a \n-broken chunk of text.
+    function drawClassBlock(item) {
+      var ctr = 1;
+      var arr = data[item];
+      var columns = dataColumns[item];
+      var width = maxWidth - 2;
+      var color = colors[item];
+      var fullWidth = (width + 2) * columns;
+      var lines = '';
+      var line = '';
+      var longestLine = 0;
+      function endLine() {
+        var lineWidth = strip(line).length;
+        longestLine = lineWidth > longestLine ? lineWidth : longestLine;
+        lines += line + '\n';
+        line = '';
+        ctr = 1;
+      }
+      for (var i = 0; i < arr.length; ++i) {
+        var _item = self.pad(arr[i], width) + '  ';
+        _item = color ? chalk[color](_item) : _item;
+        line += _item;
+        if (ctr >= columns) {
+          endLine();
+        } else {
+          ctr++;
+        }
+      }
+      if (line !== '') {
+        endLine();
+      }
+      lines = lines.split('\n').map(function (ln) {
+        return self.pad(ln, longestLine);
+      }).join('\n');
+      var title = self.pad(names[item], longestLine);
+      var divider = chalk.gray(self.pad('', longestLine - 2, '-') + '  ');
+      lines = chalk.white(chalk.bold(title)) + '\n' + divider + '\n' + lines;
+      return lines;
+    }
+
+    // Throw all blocks into an array, and
+    // note how many rows down the longest block
+    // goes.
+    var combined = [];
+    var longest = 0;
+    for (var item in dataColumns) {
+      var lines = drawClassBlock(item).split('\n');
+      longest = lines.length > longest ? lines.length : longest;
+      combined.push(lines);
+    }
+
+    var maxHeight = process.stdout.rows - 4;
+    maxHeight = maxHeight > 24 ? 24 : maxHeight;
+
+    // Match pad all other blocks with white-space
+    // lines at the bottom to match the length of
+    // the longest block. In other words, make the
+    // blocks... blocks.
+    combined = combined.map(function (lines) {
+      var lineLength = strip(lines[0]).length;
+      for (var i = lines.length; i < longest; ++i) {
+        lines.push(self.pad('', lineLength));
+      }
+
+      var numRealLines = lines.filter(function (line) {
+        return strip(line).trim() !== '';
+      }).length;
+
+      // If we've exceeded the max height and have
+      // content, do a fancy `...` and cut the rest
+      // of the content.
+      if (numRealLines > maxHeight && String(lines[maxHeight - 1]).trim() !== '') {
+        var ellip = numRealLines - maxHeight + ' more ...';
+        ellip = chalk.gray(ellip.length > lineLength ? '...' : ellip);
+        lines = lines.slice(0, maxHeight - 1);
+        lines.push(self.pad(ellip, lineLength));
+      }
+      return lines;
+    });
+
+    longest = maxHeight < longest ? maxHeight + 1 : longest;
+
+    // Now play Tetris. Join the blocks.
+    var fnl = '';
+    for (var i = 0; i < longest; ++i) {
+      for (var j = 0; j < combined.length; ++j) {
+        if (combined[j][i]) {
+          fnl += combined[j][i];
+        }
+      }
+      fnl += '\n';
+    }
+
+    // Interject a two-space pad to the left of
+    // the blocks, and do some cleanup at the end.
+    fnl = fnl.split('\n').map(function (ln) {
+      return '  ' + ln;
+    }).join('\n').replace(/ +$/, '').replace(/\n$/g, '') + '';
+
+    return fnl;
+
+    //console.log(fnl);
+
+    //dataColumns.remainder = Math.floor((data.remainder.length / all.length * numColumns));
+
+    //console.log(dataColumns)
+
+    /*
+    let types = 0;
+    types = (methods.length > 0) ? types + 1 : types;
+    types = (properties.length > 0) ? types + 1 : types;
+    types = (docs.length > 0) ? types + 1 : types;
+    types = (remainder.length > 0) ? types + 1 : types;
+    */
+
+    //console.log(numColumns);
+    //console.log(dataColumns)
+
+    //console.log(chalk.blue(JSON.stringify(data.method, null, '  ')));
+    //console.log(chalk.magenta(JSON.stringify(data.property, null, '  ')));
+    //console.log(chalk.yellow(JSON.stringify(data.doc, null, '  ')));
+    //console.log(chalk.green(JSON.stringify(data.remainder, null, '  ')));
   },
 
   /**
@@ -165,26 +417,39 @@ var util = {
   * @api public
   */
 
-  traverseIndex: function traverseIndex(arr, idx, each) {
+  matchAgainstIndex: function matchAgainstIndex(arr, idx, each) {
     each = each || function () {};
     var word = arr.shift();
     var result = undefined;
     if (idx[word]) {
       each(arr, idx[word]);
-      result = util.traverseIndex(arr, idx[word], each);
+      result = util.matchAgainstIndex(arr, idx[word], each);
     } else {
-      var items = [];
+      var items = {};
       for (var item in idx) {
         if (idx.hasOwnProperty(item) && String(item).slice(0, 2) !== '__' && String(item) !== 'index') {
           var match = String(word || '').toLowerCase() === String(item).slice(0, String(word || '').length).toLowerCase();
           if (match) {
-            items.push(item);
+            items[item] = idx[item];
           }
         }
       }
       result = items;
     }
     return result;
+  },
+
+  each: function each(nodes, fn, parents) {
+    var self = this;
+    parents = parents || [];
+    for (var node in nodes) {
+      fn(node, nodes, parents);
+      if (_.isObject(nodes[node])) {
+        var _parent = _.clone(parents);
+        _parent.push(node);
+        self.each(nodes[node], fn, _parent);
+      }
+    }
   },
 
   fetchRemote: function fetchRemote(path, cb) {
@@ -204,7 +469,7 @@ var util = {
   pad: function pad(str, width, delimiter) {
     width = Math.floor(width);
     delimiter = delimiter || ' ';
-    var len = Math.max(0, width - str.length);
+    var len = Math.max(0, width - strip(str).length);
     return str + Array(len + 1).join(delimiter);
   },
 

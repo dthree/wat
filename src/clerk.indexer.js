@@ -77,17 +77,20 @@ const indexer = {
     const self = this;
     let auto;
     let normal;
+    let autoConfigs = {};
+    let normalConfigs = {};
     let dones = 0;
     function checker() {
       dones++;
-      if (dones === 2) {
+      if (dones === 4) {
         //console.log(normal);
         //console.log('----------')
         //console.log(auto);
         //console.log('----------')
-        let result = self.merge(normal, auto);
-        //console.log(result);
-        callback(result);
+        let idx = self.merge(normal, auto);
+        let configs = self.merge(normalConfigs, autoConfigs);
+        let final = self.applyConfigs(idx, configs);
+        callback(final);
       }
     }
     this.buildDir(path.normalize(`${__dirname}/../autodocs/`), 'auto', function (data) {
@@ -96,6 +99,14 @@ const indexer = {
     });
     this.buildDir(path.normalize(`${__dirname}/../docs/`), 'static', function (data) {
       normal = data;
+      checker();
+    });
+    this.readConfigs(path.normalize(`${__dirname}/../autodocs/`), 'auto', function (data) {
+      autoConfigs = data || {};
+      checker();
+    });
+    this.readConfigs(path.normalize(`${__dirname}/../docs/`), 'auto', function (data) {
+      normalConfigs = data || {};
       checker();
     });
   },
@@ -154,6 +165,90 @@ const indexer = {
     walker.on('end', function () {
       callback(index);
     });
+  },
+
+  readConfigs(dir, dirType, callback) {
+    callback = callback || {};
+    let configs = {};
+    const walker = walk.walk(dir, {});
+    walker.on('file', function (root, fileStats, next) {
+      const parts = String(path.normalize(root)).split('docs/');
+      if (parts[1] === undefined) {
+        console.log(`Invalid path passed into wat.indexer.build: ${root}`);
+        next();
+        return;
+      }
+      if (String(fileStats.name).indexOf('config.json') === -1) {
+        next();
+        return;
+      }
+      let dirParts = String(parts[1]).split('/');
+      let lib = dirParts.pop();
+      let contents;
+      try {
+        contents = fs.readFileSync(root + '/' + fileStats.name, {encoding: 'utf-8'});
+        contents = JSON.parse(contents);
+      } catch(e) {}
+      configs[lib] = contents;
+      next();
+    });
+
+    walker.on('errors', function (root, nodeStatsArray) {
+      console.log(root, nodeStatsArray);
+      throw new Error(root);
+    });
+
+    walker.on('end', function () {
+      callback(configs);
+    });
+  },
+
+  applyConfigs(idx, configs) {
+    for (const lib in configs) {
+      let methods = configs[lib].methods || [];
+      let properties = configs[lib].properties || [];
+      let docs = configs[lib].docs || [];
+      if (idx[lib]) {
+        util.each(idx[lib], function(key, node, tree){
+          let newTree = _.clone(tree);
+          newTree.push(key);
+          let treePath = newTree.join('/');
+          if (_.isObject(node[key])) {
+            if (methods.indexOf(treePath) > -1) {
+              node[key].__class = 'method';
+            } else if (properties.indexOf(treePath) > -1) {
+              node[key].__class = 'property';
+            } else {
+              let found = false;
+              for (let i = 0; i < docs.length; ++i) {
+                if (treePath.slice(0, docs[i].length) === docs[i] || docs[i].slice(0, key.length) === key) {
+                  node[key].__class = 'doc';
+                  found = true;
+                  break;
+                }
+              }
+              if (!found) {
+                // If we still haven't found it, see if its
+                // an object, like `foo` in `foo/bar`.
+                let combined = methods.concat(properties);
+                for (let i = 0; i < combined.length; ++i) {
+                  let parts = combined[i].split('/');
+                  let idx = parts.indexOf(key);
+                  if (idx > -1 && idx != parts.length - 1) {
+                    node[key].__class = 'object';
+                    //console.log(key);
+                  }
+                }
+              }
+            }
+          }
+        });
+      }
+      //console.log(methods);
+      //console.log(properties);
+    }
+
+    return idx;
   },
 
   merge(a, b) {

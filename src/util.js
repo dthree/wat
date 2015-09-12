@@ -9,6 +9,8 @@ const lev = require('leven');
 const request = require('request');
 const fs = require('fs');
 const mkdirp = require('mkdirp');
+const chalk = require('chalk');
+const strip = require('strip-ansi');
 
 const util = {
 
@@ -28,12 +30,15 @@ const util = {
     const commands = util.command.prepare(text, {}, index);
     const lastWord = String(commands[commands.length - 1]).trim();
     const otherWords = commands.slice(0, commands.length - 1);
+    const poss = [];
 
     let levels = 0;
-    const possibilities = util.traverseIndex(_.clone(commands), index, function () {
+    const possibleObjects = util.matchAgainstIndex(_.clone(commands), index, function () {
       levels++;
     });
 
+    const formatted = this.formatAutocomplete(possibleObjects);
+    const possibilities = Object.keys(possibleObjects);
     const match = matchFn(String(lastWord).trim(), possibilities);
 
     let response;
@@ -44,7 +49,7 @@ const util = {
       const space = (levels === otherWords.length + 1) ? ' ' : '';
       const original = `${String(commands.join(' ')).trim()}${space}`;
       if (iteration > 1 && possibilities.length > 1) {
-        response = possibilities;
+        response = [formatted];
       } else if (iteration > 1 && possibilities.length === 1 && (otherWords.length !== levels)) {
         response = `${String(`${original}${possibilities[0]}`).trim()} `;
       } else {
@@ -53,6 +58,258 @@ const util = {
     }
     return response;
   },
+
+  /**
+  * Takes an array of index items to be displayed
+  * under tabbed autocompletion. Gathers their '__class'
+  * from the index ('method', 'property', 'doc', etc.)
+  * and separates them into groups based on this.
+  * If worthwhile, draws and color-separates classes
+  * into fancy columns so the data is really, really
+  * easy to digest.
+  *
+  * @param {Array} possibilities
+  * @return {String}
+  * @api public
+  */
+
+  formatAutocomplete(possibilities) {
+    const self = this;
+    const cats = ['method', 'property', 'object', 'doc'];
+    const data = {};
+    const all = Object.keys(possibilities) || [];
+
+    function filter(objs, type) {
+      let results = {};
+      for (const item in objs) {
+        if (objs[item].__class === type) {
+          results[item] = objs[item];
+        }
+      }
+      return Object.keys(results);
+    }
+    
+    // If the object has children, add a slash.
+    let newPoss = {}
+    for (const item in possibilities) {
+      let keys = Object.keys(possibilities[item]);
+      keys = keys.filter(function(key){
+        return String(key).slice(0, 2) !== '__';
+      });
+      if (keys.length > 0) {
+        newPoss[`${item}/`] = _.clone(possibilities[item]);
+      } else {
+        newPoss[item] = possibilities[item];
+      }
+    }
+
+    // Build an array of each class ('method', 'doc', etc.),
+    // filed under the `data` object.
+    let matches = [];
+    for (let i = 0; i < cats.length; ++i) {
+      data[cats[i]] = filter(newPoss, cats[i]);
+      matches = matches.concat(data[cats[i]]);
+    }
+
+    // Data.remainer takes care of any items that don't
+    // have a `__class` attribute in the index.
+    data.remainder = all.filter(function(item){
+      return (matches.indexOf(item) > -1 || matches.indexOf(item + '/') > -1) ? false : true;
+    });
+
+    // Get the widest item of them all 
+    // (mirror, mirror on the wall).
+    let maxWidth = 0;
+    all.forEach(function(item){
+      let width = String(item).length;
+      maxWidth = (width > maxWidth) ? width : maxWidth;
+    });
+    maxWidth = maxWidth + 3;
+
+    // The headers aren't measured for width, and
+    // so if the thinnest property is less than the 
+    // "Properties" header, it's goinna look ugly.
+    maxWidth = (maxWidth < 12) ? 12 : maxWidth;
+
+    // Determine how many display columns get allocated
+    // per data class ('method', 'property', etc.),
+    // based on how many children each data class has.
+    let numColumns = Math.floor((process.stdout.columns - 2) / maxWidth);
+    let dataColumns = {}
+    let totalAllocated = 0;
+    let maxItem;
+    let max = 0;
+    for (const item in data) {
+      if (data[item].length > 0) {
+        dataColumns[item] = Math.floor((data[item].length / all.length) * numColumns) || 1;
+        totalAllocated += dataColumns[item];
+        max = (dataColumns[item] > max) ? dataColumns[item] : max;
+        maxItem = (dataColumns[item] === max) ? item : maxItem;
+      }
+    }
+
+    // Do correction on the above figures to ensure we don't
+    // top over the max column amount.
+    let columnOverflow = totalAllocated - numColumns;
+    if (columnOverflow > 0) {
+      dataColumns[maxItem] = dataColumns[maxItem] - columnOverflow;
+    }
+
+    // Methods and Properties go alphabetical. 
+    // Docs go in exact sequences.
+    data.method.sort();
+    data.property.sort();
+
+    // Colors by class.
+    const colors = {
+      'method': 'green',
+      'property': 'blue',
+      'object': 'yellow',
+      'doc': 'white',
+      'remainder': 'gray'
+    };
+
+    // Fancy names by class.
+    const names = {
+      'method': 'Methods',
+      'property': 'Properties',
+      'object': 'Objects',
+      'doc': 'Docs',
+      'remainder': 'Other'
+    };
+
+    // This takes a class, such as `method`,
+    // and draws x number of columns for that
+    // item based on the allocated number of 
+    // column (`dataColumns[class]`). Returns
+    // a \n-broken chunk of text.
+    function drawClassBlock(item) {
+      let ctr = 1;
+      let arr = data[item];
+      let columns = dataColumns[item];
+      let width = maxWidth - 2;
+      let color = colors[item];
+      let fullWidth = ((width + 2) * columns);
+      let lines = '';
+      let line = '';
+      let longestLine = 0;
+      function endLine() {
+        let lineWidth = strip(line).length;
+        longestLine = (lineWidth > longestLine) ? lineWidth : longestLine;
+        lines += line + '\n';
+        line = '';
+        ctr = 1;
+      }
+      for (let i = 0; i < arr.length; ++i) {
+        let item = self.pad(arr[i], width) + '  ';
+        item = (color) ? chalk[color](item) : item;
+        line += item;
+        if (ctr >= columns) {
+          endLine();
+        } else {
+          ctr++;
+        }
+      }
+      if (line !== '') {
+        endLine();
+      }
+      lines = lines.split('\n').map(function(ln){
+        return self.pad(ln, longestLine);
+      }).join('\n');
+      let title = self.pad(names[item], longestLine);
+      let divider = chalk.gray(self.pad('', longestLine - 2, '-') + '  ');
+      lines = chalk.white(chalk.bold(title)) + '\n' + divider + '\n' + lines;
+      return lines;
+    }
+
+    // Throw all blocks into an array, and
+    // note how many rows down the longest block
+    // goes.
+    let combined = [];
+    let longest = 0;
+    for (const item in dataColumns) {
+      let lines = drawClassBlock(item).split('\n');
+      longest = (lines.length > longest) ? lines.length : longest;
+      combined.push(lines);
+    }
+
+    let maxHeight = process.stdout.rows - 4;
+    maxHeight = (maxHeight > 24) ? 24 : maxHeight; 
+
+    // Match pad all other blocks with white-space 
+    // lines at the bottom to match the length of 
+    // the longest block. In other words, make the
+    // blocks... blocks.
+    combined = combined.map(function(lines){
+      const lineLength = strip(lines[0]).length;
+      for (let i = lines.length; i < longest; ++i) {
+        lines.push(self.pad('', lineLength));
+      }
+      
+      let numRealLines = lines.filter(function(line){
+        return (strip(line).trim() !== '');
+      }).length;
+
+      // If we've exceeded the max height and have
+      // content, do a fancy `...` and cut the rest
+      // of the content.
+      if (numRealLines > maxHeight && String(lines[maxHeight - 1]).trim() !== '') {
+        let ellip = (numRealLines - maxHeight) + ' more ...';
+        ellip = chalk.gray((ellip.length > lineLength) ? '...' : ellip);
+        lines = lines.slice(0, maxHeight - 1);
+        lines.push(self.pad(ellip, lineLength));
+      }
+      return lines;
+    });
+
+    longest = (maxHeight < longest) ? maxHeight + 1 : longest;
+
+    // Now play Tetris. Join the blocks.
+    let fnl = '';
+    for (let i = 0; i < longest; ++i) {
+      for (let j = 0; j < combined.length; ++j) {
+        if (combined[j][i]) {
+          fnl += combined[j][i];
+        }
+      }
+      fnl += '\n';
+    }
+
+    // Interject a two-space pad to the left of
+    // the blocks, and do some cleanup at the end.
+    fnl = fnl.split('\n').map(function(ln){
+      return '  ' + ln;
+    }).join('\n').replace(/ +$/, '').replace(/\n$/g, '') + '';
+
+    return fnl;
+
+    //console.log(fnl);
+
+
+    //dataColumns.remainder = Math.floor((data.remainder.length / all.length * numColumns));
+
+    //console.log(dataColumns)
+
+    /*
+    let types = 0;
+    types = (methods.length > 0) ? types + 1 : types;
+    types = (properties.length > 0) ? types + 1 : types;
+    types = (docs.length > 0) ? types + 1 : types;
+    types = (remainder.length > 0) ? types + 1 : types;
+
+*/
+
+    //console.log(numColumns);
+    //console.log(dataColumns)
+
+    //console.log(chalk.blue(JSON.stringify(data.method, null, '  ')));
+    //console.log(chalk.magenta(JSON.stringify(data.property, null, '  ')));
+    //console.log(chalk.yellow(JSON.stringify(data.doc, null, '  ')));
+    //console.log(chalk.green(JSON.stringify(data.remainder, null, '  ')));
+
+
+
+  }, 
 
   /**
   * Takes an existing array of words
@@ -165,26 +422,39 @@ const util = {
   * @api public
   */
 
-  traverseIndex(arr, idx, each) {
+  matchAgainstIndex(arr, idx, each) {
     each = each || function () {};
     const word = arr.shift();
     let result;
     if (idx[word]) {
       each(arr, idx[word]);
-      result = util.traverseIndex(arr, idx[word], each);
+      result = util.matchAgainstIndex(arr, idx[word], each);
     } else {
-      const items = [];
+      const items = {};
       for (const item in idx) {
         if (idx.hasOwnProperty(item) && String(item).slice(0, 2) !== '__' && String(item) !== 'index') {
           const match = (String(word || '').toLowerCase() === String(item).slice(0, String(word || '').length).toLowerCase());
           if (match) {
-            items.push(item);
+            items[item] = idx[item];
           }
         }
       }
       result = items;
     }
     return result;
+  },
+
+  each(nodes, fn, parents) {
+    const self = this;
+    parents = parents || [];
+    for (const node in nodes) {
+      fn(node, nodes, parents);
+      if (_.isObject(nodes[node])) {
+        let parent = _.clone(parents);
+        parent.push(node);
+        self.each(nodes[node], fn, parent);
+      }
+    }
   },
 
   fetchRemote(path, cb) {
@@ -204,7 +474,7 @@ const util = {
   pad(str, width, delimiter) {
     width = Math.floor(width);
     delimiter = delimiter || ' ';
-    const len = Math.max(0, width - str.length);
+    const len = Math.max(0, width - strip(str).length);
     return str + Array(len + 1).join(delimiter);
   },
 

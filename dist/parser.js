@@ -67,7 +67,6 @@ var parser = {
     var total = Object.keys(tree).length;
     function doneHandler() {
       done++;
-      //console.log(done, total)
       if (options.onFile) {
         options.onFile.call(undefined, {
           total: total,
@@ -118,8 +117,6 @@ var parser = {
         var api = self.mdast.filterAPINodes(headers, repoName);
         api = self.mdast.buildAPIPaths(api, repoName);
 
-        //console.log('API', api);
-
         // Make an index for that doc set.
         if (headers.length === 1) {
           headers[0].children = [{ type: 'text', value: last, position: {} }];
@@ -139,8 +136,6 @@ var parser = {
         finalAPI = finalAPI.concat(api);
         finalDocs = finalDocs.concat(docs);
 
-        //console.log(docs)
-
         final[result] = {
           api: api,
           docs: docs,
@@ -149,42 +144,27 @@ var parser = {
         };
       }
 
-      //self.writeDocSet(finalDocs);
+      var config = self.mdast.buildAPIConfig(finalAPI);
+      config.docs = [];
+
       for (var doc in final) {
         if (final.hasOwnProperty(doc)) {
-          //console.log('Writing doc set', doc);
+          config.docs.push(doc);
           self.writeDocSet(final[doc].docs);
         }
       }
 
-      //console.log(finalAPI)
-
+      self.writeConfig(autoDocPath, config);
       self.writeAPI(finalAPI);
 
       callback();
     }
-
-    /*
-    const path = __dirname + file;
-    let md;
-    try {
-      md = require('fs').readFileSync(path, { encoding: 'utf-8' });
-    } catch(e) {
-      console.log(e);
-    }
-    */
-    /*
-        */
   },
 
   writeDocSet: function writeDocSet(docs) {
-
     var result = '';
-
     for (var i = 0; i < docs.length; ++i) {
-
       var local = '';
-
       if (!docs[i].docPath) {
         continue;
       }
@@ -213,8 +193,6 @@ var parser = {
 
       local += allJunk;
 
-      //console.log('Writing ' + dir + fullPath, allJunk.length);
-
       if (docs[i].fold.length > 0) {
         local += this.writeDocSet(docs[i].fold);
       }
@@ -224,19 +202,15 @@ var parser = {
 
       result += local;
     }
-
     return result;
   },
 
   writeAPI: function writeAPI(api) {
-
     for (var i = 0; i < api.length; ++i) {
       if (!api[i].apiPath) {
         continue;
       }
-
       var temp = pathx.join(os.tmpdir(), '/.wat/.local');
-
       var path = String(api[i].apiPath);
       var parts = path.split('/');
       var file = parts.pop();
@@ -246,9 +220,6 @@ var parser = {
 
       util.mkdirSafe(dir);
       util.mkdirSafe(tempDir);
-
-      //console.log(dir);
-      //console.log(tempDir);
 
       var codeSampleFound = false;
       var basicText = '## ' + api[i].formatted + '\n\n';
@@ -261,9 +232,7 @@ var parser = {
         var lines = item.position.end.line - item.position.start.line + 1;
         var content = mdast.stringify(item) + '\n\n';
         var isCode = item.type === 'code';
-
         lineX += lines;
-
         var basic = undefined;
         if (lineX <= 20) {
           basic = true;
@@ -300,8 +269,15 @@ var parser = {
       } catch (e) {
         throw new Error(e);
       }
+    }
+  },
 
-      //console.log(dir, file);
+  writeConfig: function writeConfig(path, config) {
+    try {
+      fs.writeFileSync(path + '/config.json', JSON.stringify(config, null, '  '));
+    } catch (e) {
+      console.log('\n\n' + chalk.yellow('  In building an autodoc, Wat couldn\'t write its config file.') + '\n');
+      throw new Error(e);
     }
   }
 

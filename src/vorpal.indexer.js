@@ -14,3 +14,4 @@ module.exports = function (vorpal, options) {
       });
     });
 };
+

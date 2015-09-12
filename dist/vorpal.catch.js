@@ -17,7 +17,6 @@ module.exports = function (vorpal, options) {
     if (_.isArray(result)) {
       result.sort();
     }
-    //self.log(iteration, '|' + result + '|');
     cb(undefined, result);
   }).action(function (args, cb) {
     var self = this;

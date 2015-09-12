@@ -67,7 +67,6 @@ const parser = {
     let total = Object.keys(tree).length;
     function doneHandler() {
       done++;
-      //console.log(done, total)
       if (options.onFile) {
         options.onFile.call(undefined, {
           total: total,
@@ -118,8 +117,6 @@ const parser = {
         let api = self.mdast.filterAPINodes(headers, repoName);
         api = self.mdast.buildAPIPaths(api, repoName);
 
-        //console.log('API', api);
-
         // Make an index for that doc set.
         if (headers.length === 1) {
           headers[0].children = [{ type: 'text', value: last, position: {} }];
@@ -139,9 +136,6 @@ const parser = {
         finalAPI = finalAPI.concat(api);
         finalDocs = finalDocs.concat(docs);
 
-        //console.log(docs)
-
-
         final[result] = {
           api: api,
           docs: docs,
@@ -150,42 +144,27 @@ const parser = {
         }
       }
 
-      //self.writeDocSet(finalDocs);
+      let config = self.mdast.buildAPIConfig(finalAPI);
+      config.docs = [];
+
       for (const doc in final) {
         if (final.hasOwnProperty(doc)) {
-          //console.log('Writing doc set', doc);
+          config.docs.push(doc);
           self.writeDocSet(final[doc].docs);
         }
       }
 
-      //console.log(finalAPI)
-
+      self.writeConfig(autoDocPath, config);
       self.writeAPI(finalAPI);
 
       callback();
     }
-
-    /*
-    const path = __dirname + file;
-    let md;
-    try {
-      md = require('fs').readFileSync(path, { encoding: 'utf-8' });
-    } catch(e) {
-      console.log(e);
-    }
-    */
-/*
-    */
   },
 
   writeDocSet(docs) {
-
     let result = '';
-
     for (let i = 0; i < docs.length; ++i) {
-
       let local = '';
-
       if (!docs[i].docPath) {
         continue;
       }
@@ -214,10 +193,7 @@ const parser = {
         allJunk += mdast.stringify(docs[i].junk[j]) + '\n\n';
       }
 
-
       local += allJunk;
-
-      //console.log('Writing ' + dir + fullPath, allJunk.length);
 
       if (docs[i].fold.length > 0) {
         local += this.writeDocSet(docs[i].fold);
@@ -228,20 +204,15 @@ const parser = {
 
       result += local;
     }
-
     return result;
-
   },
 
   writeAPI(api) {
-
     for (var i = 0; i < api.length; ++i) {
       if (!api[i].apiPath) {
         continue;
       }
-
       const temp = pathx.join(os.tmpdir(), '/.wat/.local');
-
       let path = String(api[i].apiPath);
       let parts = path.split('/');
       let file = parts.pop();
@@ -252,24 +223,18 @@ const parser = {
       util.mkdirSafe(dir);
       util.mkdirSafe(tempDir);
 
-      //console.log(dir);
-      //console.log(tempDir);
-
       let codeSampleFound = false;
       let basicText = `## ${api[i].formatted}\n\n`;
       let detailText = basicText;
       let lineX = 2;
       let lineXBasic = 2;
 
-
       for (let j = 0; j < api[i].junk.length; ++j) {
         let item = api[i].junk[j];
         let lines = item.position.end.line - item.position.start.line + 1;
         let content = mdast.stringify(item) + '\n\n';
         let isCode = (item.type === 'code');
-
         lineX += lines;
-
         let basic;
         if (lineX <= 20) {
           basic = true;
@@ -288,7 +253,6 @@ const parser = {
         if (isCode) {
           codeSampleFound = true;
         }
-
       }
 
       // If detail has no more content than
@@ -307,11 +271,16 @@ const parser = {
       } catch(e) {
         throw new Error(e);
       }
-
-      //console.log(dir, file);
-
     }
+  },
 
+  writeConfig(path, config) {
+    try {
+      fs.writeFileSync(`${path}/config.json`, JSON.stringify(config, null, '  '));
+    } catch(e) {
+      console.log(`\n\n${chalk.yellow(`  In building an autodoc, Wat couldn't write its config file.`)}\n`);
+      throw new Error(e);
+    }
   },
 
 };

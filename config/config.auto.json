@@ -1,4 +1,10 @@
 {
+  "chalk": {
+    "language": "javascript",
+    "urls": {
+      "readme": "https://raw.githubusercontent.com/chalk/chalk/master/readme.md"
+    }
+  },
   "d3": {
     "language": "javascript",
     "urls": {

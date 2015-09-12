@@ -77,17 +77,20 @@ var indexer = {
     var self = this;
     var auto = undefined;
     var normal = undefined;
+    var autoConfigs = {};
+    var normalConfigs = {};
     var dones = 0;
     function checker() {
       dones++;
-      if (dones === 2) {
+      if (dones === 4) {
         //console.log(normal);
         //console.log('----------')
         //console.log(auto);
         //console.log('----------')
-        var result = self.merge(normal, auto);
-        //console.log(result);
-        callback(result);
+        var idx = self.merge(normal, auto);
+        var configs = self.merge(normalConfigs, autoConfigs);
+        var final = self.applyConfigs(idx, configs);
+        callback(final);
       }
     }
     this.buildDir(path.normalize(__dirname + '/../autodocs/'), 'auto', function (data) {
@@ -96,6 +99,14 @@ var indexer = {
     });
     this.buildDir(path.normalize(__dirname + '/../docs/'), 'static', function (data) {
       normal = data;
+      checker();
+    });
+    this.readConfigs(path.normalize(__dirname + '/../autodocs/'), 'auto', function (data) {
+      autoConfigs = data || {};
+      checker();
+    });
+    this.readConfigs(path.normalize(__dirname + '/../docs/'), 'auto', function (data) {
+      normalConfigs = data || {};
       checker();
     });
   },
@@ -154,6 +165,94 @@ var indexer = {
     walker.on('end', function () {
       callback(index);
     });
+  },
+
+  readConfigs: function readConfigs(dir, dirType, callback) {
+    callback = callback || {};
+    var configs = {};
+    var walker = walk.walk(dir, {});
+    walker.on('file', function (root, fileStats, next) {
+      var parts = String(path.normalize(root)).split('docs/');
+      if (parts[1] === undefined) {
+        console.log('Invalid path passed into wat.indexer.build: ' + root);
+        next();
+        return;
+      }
+      if (String(fileStats.name).indexOf('config.json') === -1) {
+        next();
+        return;
+      }
+      var dirParts = String(parts[1]).split('/');
+      var lib = dirParts.pop();
+      var contents = undefined;
+      try {
+        contents = fs.readFileSync(root + '/' + fileStats.name, { encoding: 'utf-8' });
+        contents = JSON.parse(contents);
+      } catch (e) {}
+      configs[lib] = contents;
+      next();
+    });
+
+    walker.on('errors', function (root, nodeStatsArray) {
+      console.log(root, nodeStatsArray);
+      throw new Error(root);
+    });
+
+    walker.on('end', function () {
+      callback(configs);
+    });
+  },
+
+  applyConfigs: function applyConfigs(idx, configs) {
+    var _loop = function (lib) {
+      var methods = configs[lib].methods || [];
+      var properties = configs[lib].properties || [];
+      var docs = configs[lib].docs || [];
+      if (idx[lib]) {
+        util.each(idx[lib], function (key, node, tree) {
+          var newTree = _.clone(tree);
+          newTree.push(key);
+          var treePath = newTree.join('/');
+          if (_.isObject(node[key])) {
+            if (methods.indexOf(treePath) > -1) {
+              node[key].__class = 'method';
+            } else if (properties.indexOf(treePath) > -1) {
+              node[key].__class = 'property';
+            } else {
+              var found = false;
+              for (var i = 0; i < docs.length; ++i) {
+                if (treePath.slice(0, docs[i].length) === docs[i] || docs[i].slice(0, key.length) === key) {
+                  node[key].__class = 'doc';
+                  found = true;
+                  break;
+                }
+              }
+              if (!found) {
+                // If we still haven't found it, see if its
+                // an object, like `foo` in `foo/bar`.
+                var combined = methods.concat(properties);
+                for (var i = 0; i < combined.length; ++i) {
+                  var parts = combined[i].split('/');
+                  var _idx = parts.indexOf(key);
+                  if (_idx > -1 && _idx != parts.length - 1) {
+                    node[key].__class = 'object';
+                    //console.log(key);
+                  }
+                }
+              }
+            }
+          }
+        });
+      }
+      //console.log(methods);
+      //console.log(properties);
+    };
+
+    for (var lib in configs) {
+      _loop(lib);
+    }
+
+    return idx;
   },
 
   merge: function merge(a, b) {
