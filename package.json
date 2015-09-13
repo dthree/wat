@@ -32,7 +32,6 @@
     "gulp-changed": "^1.3.0",
     "gulp-eslint": "^1.0.0",
     "gulp-util": "^3.0.6",
-    "mdast-strip-badges": "^1.0.0",
     "mocha": "^2.2.5",
     "should": "^7.1.0"
   },
@@ -43,6 +42,7 @@
     "leven": "^1.0.2",
     "lodash": "^3.10.1",
     "mdast": "^1.1.0",
+    "mdast-strip-badges": "^1.0.0",
     "minimist": "^1.1.3",
     "mkdirp": "^0.5.1",
     "moment": "^2.10.6",
