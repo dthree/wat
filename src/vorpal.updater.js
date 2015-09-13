@@ -1,7 +1,7 @@
 'use strict';
 
 const chalk = require('chalk');
-const parser = require('./parser');
+const autodocs = require('./autodocs');
 
 module.exports = function (vorpal, options) {
   const parent = options.parent;
@@ -11,6 +11,7 @@ module.exports = function (vorpal, options) {
     .option('-r, --rebuild', 'Rebuild index after complete.')
     .action(function (args, cb) {
       const self = this;
+      const origDelimiter = self.delimiter();
       let lib = String(args.lib).trim();
       let config = parent.clerk.updater.config();
       if (!config) {
@@ -18,42 +19,56 @@ module.exports = function (vorpal, options) {
         cb();
         return;
       }
+
+      let libs = [];
       
-      if (!config[lib]) {
-        this.log(`${chalk.yellow(`\n  ${lib} is not on Wat's list of auto-updating libraries.\n  To include it, add it to ./config/config.auto.json and submit a PR.\n`)}`);
-        cb();
-        return;
+      if (lib === 'all') {
+        libs = Object.keys(config);
+      } else {
+        if (!config[lib]) {
+          this.log(`${chalk.yellow(`\n  ${lib} is not on Wat's list of auto-updating libraries.\n  To include it, add it to ./config/config.auto.json and submit a PR.\n`)}`);
+          cb();
+          return;
+        }
+        libs.push(lib);
       }
 
-      let origDelimiter = self.delimiter();
+      function handleLib(libName) {
+        let data = config[libName];
+        data.urls = data.urls || [];
+        data.language = data.language || 'javascript';
+        const options = {
+          urls: data.urls,
+          language: data.language,
+          aliases: data.aliases,
+          crawl: false,
+          onFile: function(data) {
+            let total = data.total;
+            let downloaded = data.downloaded;
+          },
+        };
 
-      let data = config[lib];
-      data.urls = data.urls || [];
-      data.language = data.language || 'javascript';
-      const options = {
-        urls: data.urls,
-        language: data.language,
-        crawl: false,
-        onFile: function(data) {
-          let total = data.total;
-          let downloaded = data.downloaded;
-          //self.delimiter(`Downloading: ${chalk.cyan(`${downloaded}`)} of ${chalk.cyan(`${total}`)} done.`);
-        },
-      };
+        let result = autodocs.scaffold(libName, options, function (err, data) {
+          if (libs.length < 1) {
+            self.delimiter(origDelimiter);
+            if (args.options.rebuild) {
+              parent.clerk.indexer.build(function(index){
+                parent.clerk.indexer.write(index);
+                self.log('Rebuilt index.');
+                cb();
+              });
+            } else {
+              cb();
+            }
+          } else {
+            let next = libs.shift();
+            handleLib(next);            
+          }
+        });
+      }
 
-      let result = parser.scaffold(lib, options, function (err, data) {
-        self.delimiter(origDelimiter);
-        if (args.options.rebuild) {
-          parent.clerk.indexer.build(function(index){
-            parent.clerk.indexer.write(index);
-            self.log('Rebuilt index.');
-            cb();
-          });
-        } else {
-          cb();
-        }
-
-      });
+      let next = libs.shift();
+      handleLib(next);
 
     });
 

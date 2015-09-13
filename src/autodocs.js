@@ -5,8 +5,8 @@
  */
 
 const stripBadges = require('mdast-strip-badges');
-const javascript = require('./parser.javascript');
-const mdast = require('./parser.mdast');  
+const javascript = require('./autodocs.javascript');
+const mdast = require('./autodocs.ast');  
 const util = require('./util');
 const chalk = require('chalk');
 const fs = require('fs');
@@ -15,7 +15,7 @@ const os = require('os');
 const _ = require('lodash');
 const rimraf = require('rimraf');
 
-const parser = {
+const autodocs = {
 
   javascript,
 
@@ -27,17 +27,19 @@ const parser = {
     const self = this;
     const urls = options.urls;
     const lang = options.language || 'javascript';
+    const aliases = options.aliases || [];
     const repoName = String(name).trim();
-
+    const allNames = aliases;
     const results = {}
     const errors = [];
 
+    allNames.push(repoName);
+
     if (!repoName) {
-      callback();
-      return;
+      throw new Error('No valid library name passed for autodocs.scaffold.');
     }
 
-    // If crawl is set to true, the parser
+    // If crawl is set to true, the autodocs
     // will crawl the given readme files for additional
     // markdown urls.
     const crawl = options.crawl || false;
@@ -99,6 +101,8 @@ const parser = {
       rimraf.sync(autoDocPath);
     } catch(e) {}
 
+    util.mkdirSafe(autoDocPath);
+
     function parse() {
       for (const result in results) {
 
@@ -114,7 +118,7 @@ const parser = {
         let last = pathParts.pop();
         let resultRoot = (pathParts.length > 0) ? pathParts.join('/') : '';
 
-        let api = self.mdast.filterAPINodes(headers, repoName);
+        let api = self.mdast.filterAPINodes(headers, allNames);
         api = self.mdast.buildAPIPaths(api, repoName);
 
         // Make an index for that doc set.
@@ -285,4 +289,4 @@ const parser = {
 
 };
 
-module.exports = parser;
+module.exports = autodocs;

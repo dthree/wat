@@ -2,9 +2,9 @@
 
 require('assert');
 var should = require('should');
-var parser = require('../dist/parser.javascript');
+var parser = require('../dist/autodocs.javascript');
 
-describe.only('parser.javascript', function () {
+describe('autodocs.javascript', function () {
 
   after(function (done) {
     done();
@@ -78,10 +78,14 @@ describe.only('parser.javascript', function () {
       (res.errors.indexOf('no-optional-params-before-required-params') > -1).should.equal(true);
     });
 
-    it('should gracefully handle funky styles', function () {
+    it('should handle <variable> methods', function () {
       var res = parser.parseCommandSyntax('chalk.<style>[.<style>...](string, [string...])');
-      // to do...
-      console.log(res)
+      res.name.should.equal('<style>');
+      res.parents[0].should.equal('chalk');
+      res.parents.length.should.equal(1);
+      res.params.length.should.equal(2);
+      res.params[0].should.equal('string');
+      res.params[1].should.equal('[string...]');
     });
 
   });

@@ -85,6 +85,16 @@ const js = {
     let params = syn.match(self.rules.parameters);
     syn = syn.replace(self.rules.parameters, '');
 
+    // If optional methods (chalk.<foo>[<bar>...])
+    let optionalMethods = syn.match(self.rules.orderedBrackets);
+    syn = syn.replace(self.rules.orderedBrackets, '');
+
+    //console.log(str);
+    //console.log('Syntax: ', syn);
+    //console.log('Params: ', params);
+    //console.log('Optional Methods: ', optionalMethods);
+    //console.log(' ')
+
     let paramArray = [];
     let requiredParamEncountered = false;
 
@@ -211,9 +221,30 @@ const js = {
     return result;
   },
 
-  isCommandSyntax(str) {
-
+  isCommandSyntax(str, node) {
     const self = this;
+
+    console.log(node);
+
+    // Check to see if we're in an example section. 
+    // There shouldn't be any API declarations there: 
+    // rather, misleading things like the filename 'foo.js'
+    // which would otherwise read as syntax.
+    let isExample = false;
+    let isHeader = false;
+    for (let i = 0; i < node.parentHeaders.length; ++i) {
+      let parent = String(node.parentHeaders[i]).trim().toLowerCase();
+      if (parent.indexOf('example') > -1) {
+        isExample = true;
+      }
+    }
+
+    isHeader = (node.depth === 1);
+
+    // End early.
+    if (isExample || isHeader) {
+      return false;
+    }
 
     let cmd = String(str).trim();
     cmd = cmd.replace(self.rules.startHash, '');

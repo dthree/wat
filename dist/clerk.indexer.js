@@ -275,7 +275,7 @@ var indexer = {
 
   write: function write(json) {
     var index = JSON.stringify(json, null, '');
-    var result = fs.writeFileSync(__dirname + '/../config/index.json', JSON.stringify(json, null, '\t'));
+    var result = fs.writeFileSync(__dirname + '/../config/index.json', JSON.stringify(json, null, '  '));
     this._index = json;
     indexer.clerk.config.setLocal('docIndexLastWrite', new Date());
     indexer.clerk.config.setLocal('docIndexSize', String(index).length);

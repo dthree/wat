@@ -77,6 +77,7 @@ var util = {
     var self = this;
     var cats = ['method', 'property', 'object', 'doc'];
     var data = {};
+
     var all = Object.keys(possibilities) || [];
 
     function filter(objs, type) {
@@ -116,6 +117,15 @@ var util = {
     data.remainder = all.filter(function (item) {
       return matches.indexOf(item) > -1 || matches.indexOf(item + '/') > -1 ? false : true;
     });
+
+    // All has been made inconsistent due to adding in '/'es
+    // to the others. Reset it.
+    all = [];
+    for (var i = 0; i < cats.length; ++i) {
+      all = all.concat(data[cats[i]]);
+    }
+
+    var totalWidth = all.join('  ').length + 4;
 
     // Get the widest item of them all
     // (mirror, mirror on the wall).
@@ -178,132 +188,135 @@ var util = {
       'remainder': 'Other'
     };
 
-    // This takes a class, such as `method`,
-    // and draws x number of columns for that
-    // item based on the allocated number of
-    // column (`dataColumns[class]`). Returns
-    // a \n-broken chunk of text.
-    function drawClassBlock(item) {
-      var ctr = 1;
-      var arr = data[item];
-      var columns = dataColumns[item];
-      var width = maxWidth - 2;
-      var color = colors[item];
-      var fullWidth = (width + 2) * columns;
-      var lines = '';
-      var line = '';
-      var longestLine = 0;
-      function endLine() {
-        var lineWidth = strip(line).length;
-        longestLine = lineWidth > longestLine ? lineWidth : longestLine;
-        lines += line + '\n';
-        line = '';
-        ctr = 1;
-      }
-      for (var i = 0; i < arr.length; ++i) {
-        var _item = self.pad(arr[i], width) + '  ';
-        _item = color ? chalk[color](_item) : _item;
-        line += _item;
-        if (ctr >= columns) {
-          endLine();
-        } else {
-          ctr++;
-        }
-      }
-      if (line !== '') {
-        endLine();
-      }
-      lines = lines.split('\n').map(function (ln) {
-        return self.pad(ln, longestLine);
-      }).join('\n');
-      var title = self.pad(names[item], longestLine);
-      var divider = chalk.gray(self.pad('', longestLine - 2, '-') + '  ');
-      lines = chalk.white(chalk.bold(title)) + '\n' + divider + '\n' + lines;
-      return lines;
-    }
-
-    // Throw all blocks into an array, and
-    // note how many rows down the longest block
-    // goes.
-    var combined = [];
-    var longest = 0;
-    for (var item in dataColumns) {
-      var lines = drawClassBlock(item).split('\n');
-      longest = lines.length > longest ? lines.length : longest;
-      combined.push(lines);
-    }
-
-    var maxHeight = process.stdout.rows - 4;
-    maxHeight = maxHeight > 24 ? 24 : maxHeight;
-
-    // Match pad all other blocks with white-space
-    // lines at the bottom to match the length of
-    // the longest block. In other words, make the
-    // blocks... blocks.
-    combined = combined.map(function (lines) {
-      var lineLength = strip(lines[0]).length;
-      for (var i = lines.length; i < longest; ++i) {
-        lines.push(self.pad('', lineLength));
-      }
-
-      var numRealLines = lines.filter(function (line) {
-        return strip(line).trim() !== '';
-      }).length;
-
-      // If we've exceeded the max height and have
-      // content, do a fancy `...` and cut the rest
-      // of the content.
-      if (numRealLines > maxHeight && String(lines[maxHeight - 1]).trim() !== '') {
-        var ellip = numRealLines - maxHeight + ' more ...';
-        ellip = chalk.gray(ellip.length > lineLength ? '...' : ellip);
-        lines = lines.slice(0, maxHeight - 1);
-        lines.push(self.pad(ellip, lineLength));
-      }
-      return lines;
-    });
-
-    longest = maxHeight < longest ? maxHeight + 1 : longest;
-
-    // Now play Tetris. Join the blocks.
+    // Final formatting section.
     var fnl = '';
-    for (var i = 0; i < longest; ++i) {
-      for (var j = 0; j < combined.length; ++j) {
-        if (combined[j][i]) {
-          fnl += combined[j][i];
+
+    // If we fit on one line, roll with that.
+    // Otherwise, do fancy columns.
+    if (totalWidth <= process.stdout.columns) {
+
+      for (var item in data) {
+        var arr = data[item];
+        if (arr.length > 0) {
+          var clr = colors[item];
+          var set = arr.join('  ') + '  ';
+          set = clr ? chalk[clr](set) : set;
+          fnl += set;
         }
       }
-      fnl += '\n';
+      fnl = '\n  ' + String(fnl).trim() + '\n';
+    } else {
+      (function () {
+
+        // This takes a class, such as `method`,
+        // and draws x number of columns for that
+        // item based on the allocated number of
+        // column (`dataColumns[class]`). Returns
+        // a \n-broken chunk of text.
+
+        var drawClassBlock = function drawClassBlock(item) {
+          var ctr = 1;
+          var arr = data[item];
+          var columns = dataColumns[item];
+          var width = maxWidth - 2;
+          var color = colors[item];
+          var fullWidth = (width + 2) * columns;
+          var lines = '';
+          var line = '';
+          var longestLine = 0;
+          function endLine() {
+            var lineWidth = strip(line).length;
+            longestLine = lineWidth > longestLine ? lineWidth : longestLine;
+            lines += line + '\n';
+            line = '';
+            ctr = 1;
+          }
+          for (var i = 0; i < arr.length; ++i) {
+            var _item = self.pad(arr[i], width) + '  ';
+            _item = color ? chalk[color](_item) : _item;
+            line += _item;
+            if (ctr >= columns) {
+              endLine();
+            } else {
+              ctr++;
+            }
+          }
+          if (line !== '') {
+            endLine();
+          }
+          lines = lines.split('\n').map(function (ln) {
+            return self.pad(ln, longestLine);
+          }).join('\n');
+          var title = self.pad(names[item], longestLine);
+          var divider = chalk.gray(self.pad('', longestLine - 2, '-') + '  ');
+          lines = chalk.white(chalk.bold(title)) + '\n' + divider + '\n' + lines;
+          return lines;
+        }
+
+        // Throw all blocks into an array, and
+        // note how many rows down the longest block
+        // goes.
+        ;
+
+        var combined = [];
+        var longest = 0;
+        for (var item in dataColumns) {
+          var lines = drawClassBlock(item).split('\n');
+          longest = lines.length > longest ? lines.length : longest;
+          combined.push(lines);
+        }
+
+        var maxHeight = process.stdout.rows - 4;
+        maxHeight = maxHeight > 24 ? 24 : maxHeight;
+
+        // Match pad all other blocks with white-space
+        // lines at the bottom to match the length of
+        // the longest block. In other words, make the
+        // blocks... blocks.
+        combined = combined.map(function (lines) {
+          var lineLength = strip(lines[0]).length;
+          for (var i = lines.length; i < longest; ++i) {
+            lines.push(self.pad('', lineLength));
+          }
+
+          var numRealLines = lines.filter(function (line) {
+            return strip(line).trim() !== '';
+          }).length;
+
+          // If we've exceeded the max height and have
+          // content, do a fancy `...` and cut the rest
+          // of the content.
+          if (numRealLines > maxHeight && String(lines[maxHeight - 1]).trim() !== '') {
+            var ellip = numRealLines - maxHeight + ' more ...';
+            ellip = chalk.gray(ellip.length > lineLength ? '...' : ellip);
+            lines = lines.slice(0, maxHeight - 1);
+            lines.push(self.pad(ellip, lineLength));
+          }
+          return lines;
+        });
+
+        longest = maxHeight < longest ? maxHeight + 1 : longest;
+
+        // Now play Tetris. Join the blocks.
+        for (var i = 0; i < longest; ++i) {
+          for (var j = 0; j < combined.length; ++j) {
+            if (combined[j][i]) {
+              fnl += combined[j][i];
+            }
+          }
+          fnl += '\n';
+        }
+
+        // Interject a two-space pad to the left of
+        // the blocks, and do some cleanup at the end.
+        fnl = fnl.split('\n').map(function (ln) {
+          return '  ' + ln;
+        }).join('\n').replace(/ +$/, '').replace(/\n$/g, '') + '';
+      })();
     }
 
-    // Interject a two-space pad to the left of
-    // the blocks, and do some cleanup at the end.
-    fnl = fnl.split('\n').map(function (ln) {
-      return '  ' + ln;
-    }).join('\n').replace(/ +$/, '').replace(/\n$/g, '') + '';
-
+    //console.log(require('util').inspect(fnl));
     return fnl;
-
-    //console.log(fnl);
-
-    //dataColumns.remainder = Math.floor((data.remainder.length / all.length * numColumns));
-
-    //console.log(dataColumns)
-
-    /*
-    let types = 0;
-    types = (methods.length > 0) ? types + 1 : types;
-    types = (properties.length > 0) ? types + 1 : types;
-    types = (docs.length > 0) ? types + 1 : types;
-    types = (remainder.length > 0) ? types + 1 : types;
-    */
-
-    //console.log(numColumns);
-    //console.log(dataColumns)
-
-    //console.log(chalk.blue(JSON.stringify(data.method, null, '  ')));
-    //console.log(chalk.magenta(JSON.stringify(data.property, null, '  ')));
-    //console.log(chalk.yellow(JSON.stringify(data.doc, null, '  ')));
-    //console.log(chalk.green(JSON.stringify(data.remainder, null, '  ')));
   },
 
   /**

@@ -1,13 +1,14 @@
 'use strict';
 
 var chalk = require('chalk');
-var parser = require('./parser');
+var autodocs = require('./autodocs');
 
 module.exports = function (vorpal, options) {
   var parent = options.parent;
 
   vorpal.command('update <lib>', 'Automatically rebuilds a given library.').option('-r, --rebuild', 'Rebuild index after complete.').action(function (args, cb) {
     var self = this;
+    var origDelimiter = self.delimiter();
     var lib = String(args.lib).trim();
     var config = parent.clerk.updater.config();
     if (!config) {
@@ -16,40 +17,55 @@ module.exports = function (vorpal, options) {
       return;
     }
 
-    if (!config[lib]) {
-      this.log('' + chalk.yellow('\n  ' + lib + ' is not on Wat\'s list of auto-updating libraries.\n  To include it, add it to ./config/config.auto.json and submit a PR.\n'));
-      cb();
-      return;
+    var libs = [];
+
+    if (lib === 'all') {
+      libs = Object.keys(config);
+    } else {
+      if (!config[lib]) {
+        this.log('' + chalk.yellow('\n  ' + lib + ' is not on Wat\'s list of auto-updating libraries.\n  To include it, add it to ./config/config.auto.json and submit a PR.\n'));
+        cb();
+        return;
+      }
+      libs.push(lib);
     }
 
-    var origDelimiter = self.delimiter();
+    function handleLib(libName) {
+      var data = config[libName];
+      data.urls = data.urls || [];
+      data.language = data.language || 'javascript';
+      var options = {
+        urls: data.urls,
+        language: data.language,
+        aliases: data.aliases,
+        crawl: false,
+        onFile: function onFile(data) {
+          var total = data.total;
+          var downloaded = data.downloaded;
+        }
+      };
 
-    var data = config[lib];
-    data.urls = data.urls || [];
-    data.language = data.language || 'javascript';
-    var options = {
-      urls: data.urls,
-      language: data.language,
-      crawl: false,
-      onFile: function onFile(data) {
-        var total = data.total;
-        var downloaded = data.downloaded;
-        //self.delimiter(`Downloading: ${chalk.cyan(`${downloaded}`)} of ${chalk.cyan(`${total}`)} done.`);
-      }
-    };
+      var result = autodocs.scaffold(libName, options, function (err, data) {
+        if (libs.length < 1) {
+          self.delimiter(origDelimiter);
+          if (args.options.rebuild) {
+            parent.clerk.indexer.build(function (index) {
+              parent.clerk.indexer.write(index);
+              self.log('Rebuilt index.');
+              cb();
+            });
+          } else {
+            cb();
+          }
+        } else {
+          var _next = libs.shift();
+          handleLib(_next);
+        }
+      });
+    }
 
-    var result = parser.scaffold(lib, options, function (err, data) {
-      self.delimiter(origDelimiter);
-      if (args.options.rebuild) {
-        parent.clerk.indexer.build(function (index) {
-          parent.clerk.indexer.write(index);
-          self.log('Rebuilt index.');
-          cb();
-        });
-      } else {
-        cb();
-      }
-    });
+    var next = libs.shift();
+    handleLib(next);
   });
 
   vorpal.command('update index', 'Forces an update of the document index.').action(function (args, cb) {

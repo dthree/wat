@@ -738,7 +738,7 @@
   };
 
   Renderer.prototype.hr = function () {
-    var width = this.options.lineWidth - 4;
+    var width = this.options.lineWidth() - 4;
     var str = '';
     for (var i = 0; i < width; ++i) {
       str += '-';
@@ -757,7 +757,8 @@
   };
 
   Renderer.prototype.paragraph = function (text) {
-    return wrap(text, this.options.lineWidth - 8) + '\n';
+    text = text.replace(/\n/g, ' ');
+    return wrap(text, this.options.lineWidth() - 8) + '\n';
   };
 
   Renderer.prototype.table = function (header, body) {
@@ -1143,7 +1144,9 @@
   markterm.defaults = {
     gfm: true,
     tables: true,
-    lineWidth: process.stdout.columns - 2,
+    lineWidth: function lineWidth() {
+      return process.stdout.columns - 2;
+    },
     breaks: false,
     pedantic: false,
     sanitize: false,

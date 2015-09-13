@@ -52,7 +52,7 @@
         "geo-streams": "https://raw.githubusercontent.com/wiki/mbostock/d3/Geo-Streams.md",
         "geom": "https://raw.githubusercontent.com/wiki/mbostock/d3/Geometry.md",
         "voronoi-geom": "https://raw.githubusercontent.com/wiki/mbostock/d3/Voronoi-Geom.md",
-        "quadtree-geom": "https://raw.githubusercontent.com/wiki/mbostock/d3/Quadtree-Geom.md",
+        "quadtree-geom": "https://raw.githubusercontent.com/wiki/mbostock/d3/Quadtree-Geom.md",   
         "hull-geom": "https://raw.githubusercontent.com/wiki/mbostock/d3/Hull-Geom.md",
         "polygon-geom": "https://raw.githubusercontent.com/wiki/mbostock/d3/Polygon-Geom.md",
         "behaviors": "https://raw.githubusercontent.com/wiki/mbostock/d3/Behaviors.md",
@@ -63,8 +63,15 @@
   },
   "npm-mkdirp": {
     "language": "javascript",
+    "aliases": ["mkdirp"], 
     "urls": {
       "readme": "https://raw.githubusercontent.com/substack/node-mkdirp/master/readme.markdown"
+    }
+  },
+  "pageres": {
+    "language": "javascript",
+    "urls": {
+      "readme": "https://raw.githubusercontent.com/sindresorhus/pageres/master/readme.md"
     }
   },
   "robotjs": {
@@ -77,10 +84,23 @@
       }
     }
   },
-  "wat": {
+  "screenful": {
+    "language": "javascript",
+    "aliases": ["screenful.js"],
+    "urls": {
+      "readme": "https://raw.githubusercontent.com/sindresorhus/screenfull.js/gh-pages/readme.md"
+    }
+  },
+  "vorpal": {
     "language": "javascript",
     "urls": {
-      "readme": "https://raw.githubusercontent.com/dthree/wat/master/readme.md"
+      "readme": "https://raw.githubusercontent.com/dthree/vorpal/master/README.md"
+    }
+  },
+  "vantage": {
+    "language": "javascript",
+    "urls": {
+      "readme": "https://raw.githubusercontent.com/dthree/vantage/master/README.md"
     }
   }
 }

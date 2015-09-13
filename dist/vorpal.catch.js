@@ -14,9 +14,10 @@ module.exports = function (vorpal, options) {
       var res = self.match(word, options);
       return res;
     });
-    if (_.isArray(result)) {
-      result.sort();
-    }
+    //if (_.isArray(result)) {
+    //result.sort();
+    //}
+    //console.log(result);
     cb(undefined, result);
   }).action(function (args, cb) {
     var self = this;

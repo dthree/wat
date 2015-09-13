@@ -10,8 +10,8 @@ const stripBadges = require('mdast-strip-badges');
 const chalk = require('chalk');
 const slug = require('sluggin').Sluggin;
 
-
-let parser = require('./parser.javascript');
+// Default to parsing javascript.
+let parser = require('./autdocs.javascript');
 
 const exports = {
 
@@ -20,7 +20,7 @@ const exports = {
   stringify: mdast.stringify,
 
   language(lang) {
-    parser = require(`./parser.${lang}`);
+    parser = require(`./autodocs.${lang}`);
   },
 
   getUrlsFromAst(node, repo) {
@@ -65,7 +65,6 @@ const exports = {
   },
 
   groupByHeaders(node) {
-    //console.log('##########################')
     const curr = {}
     const res = [];
     let items = node.children;
@@ -74,7 +73,6 @@ const exports = {
 
     function getParentI(dpth) { // 1 (needs 0)
       for (var i = dpth - 1; i > -1; i--) {
-        //console.log(chalk.cyan('GPI: ' + i), curr[i]);
         if (curr[i]) {
           return i;
         }
@@ -89,12 +87,9 @@ const exports = {
         last = item;
         var lastDepth = depth;
         depth = item.depth - 1;
-        //console.log(chalk.magenta(mdast.stringify(item), 'Depth: ' + depth, 'LastDepth: ' + lastDepth));
-        ////console.log(curr);
         if (depth < lastDepth) {
           var parentI = getParentI(depth);
           if (parentI !== undefined) {
-            //console.log('A: Parent');
             curr[parentI].fold.push(item);
             curr[depth] = item;
             for (var j = depth + 1; j < 6; ++j) {
@@ -102,7 +97,6 @@ const exports = {
             }
           } else {
             // If no parent, push to top.
-            //console.log('A: No Parent');
             res.push(item);
             for (var j = 0; j < 6; ++j) {
               delete curr[j];
@@ -113,21 +107,14 @@ const exports = {
           curr[depth] = item;
           var parentI = getParentI(depth);
           if (parentI !== undefined) {
-            //console.log('B: Parent');
             curr[parentI].fold.push(item);
           } else {
-            //console.log('B: No Parent');
-            //console.log((curr[0]) ? '0: ' + mdast.stringify(curr[0]) : '' );
-            //console.log((curr[1]) ? '1: ' + mdast.stringify(curr[1]) : '' );
-            ////console.log('Appending to Current: ' + mdast.stringify(curr[parentI]));
-            ////console.log('Current')
             res.push(item);
           }
         } else if (depth > lastDepth) {
           var parentI = getParentI(depth);
           curr[depth] = item;
           if (curr[parentI]) {
-            //console.log('C: Appending to ' + parentI);
             curr[parentI].fold.push(item);
           } else {
             //console.log('WTF');
@@ -141,24 +128,54 @@ const exports = {
         }
       }
     }
+
+    // Assign parent nodes to the end.
+    function assignParents(nd, parent) {
+      if (parent) {
+        nd.parent = parent;
+      }
+      for (let j = 0; j < nd.fold.length; ++j) {
+        assignParents(nd.fold[j], nd);
+      }
+    }
+
+    for (let i = 0; i < res.length; ++i) {
+      assignParents(res[i]);
+    }
+
     return res;
   },
 
-  filterAPINodes(ast, repoName) {
+  filterAPINodes(ast, repoNames) {
     const api = [];
-    const repo = String(repoName).trim().toLowerCase().replace(/(\W+)/g, '');
+
+    repoNames = repoNames.map(function(name){
+      return String(name).trim().toLowerCase().replace(/(\W+)/g, '');
+    });
+
+    function getParentHeaders(nd, arr) {
+      arr = arr || [];
+      if (nd.parent) {
+        let hdr = mdast.stringify(nd.parent);
+        arr.push(hdr);
+        return getParentHeaders(nd.parent, arr);
+      } else {
+        return arr;
+      }
+    }
 
     function loop(obj, lvl, parent) {
       for (let i = 0; i < obj.length; ++i) {
-        //console.log(obj[i])
         let item = obj[i];
+        item.parentHeaders = getParentHeaders(item, []);
         if (parent) {
           item.parent = parent;
         }
+
         if (item.type === 'heading') {
           let headerString = mdast.stringify(item);
           let content = ''; //(item.junk.length > 0) ? mdast.stringify(item.junk) : '';
-          let isAPI = parser.isCommandSyntax(headerString);
+          let isAPI = parser.isCommandSyntax(headerString, item);
           if (isAPI) {
             let syntax = parser.parseCommandSyntax(headerString);
             let formatted = parser.stringifyCommandSyntax(syntax);
@@ -169,7 +186,10 @@ const exports = {
 
             if (item.syntax && _.isArray(item.syntax.parents)) {
               let first = String(item.syntax.parents[0]).trim().toLowerCase().replace(/(\W+)/g, '');
-              if (first === repo) {
+              // If we match on any of the name aliases for the repo, 
+              // don't count that as a parent object in the syntax.
+              // i.e. `chalk.red` should just become `.red`.
+              if (repoNames.indexOf(first) > -1) {
                 item.syntax.parents.shift();
               }
             }

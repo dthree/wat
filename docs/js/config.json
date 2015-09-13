@@ -1,0 +1,52 @@
+{
+  "methods": [
+    "json/stringify",
+    "array/concat",
+    "array/filter",
+    "array/from",
+    "array/join",
+    "array/map",
+    "array/reduce",
+    "array/slice",
+    "array/toString",
+    "array/entries",
+    "array/findIndex",
+    "array/index",
+    "array/keys",
+    "array/of",
+    "array/reduceRight",
+    "array/some",
+    "array/unshift",
+    "array/every",
+    "array/forEach",
+    "array/indexOf",
+    "array/lastIndexOf",
+    "array/pop",
+    "array/reverse",
+    "array/sort",
+    "array/valueOf",
+    "array/fill",
+    "array/isArray",
+    "array/push",
+    "array/shift",
+    "array/splice",
+    "array/values",
+    "object",
+    "object/assign",
+    "object/create",
+    "object/index",
+    "object/",
+    "boolean",
+    "boolean/toString",
+    "boolean/valueOf"
+  ],
+  "properties": [
+    "object/length",
+    "object/prototype",
+    "array/length"
+  ],
+  "docs": [
+    "readme"
+  ]
+}
+
