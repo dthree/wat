@@ -224,7 +224,8 @@ const js = {
   isCommandSyntax(str, node) {
     const self = this;
 
-    console.log(node);
+    node = node || {}
+    node.parentHeaders = node.parentHeaders || [];
 
     // Check to see if we're in an example section. 
     // There shouldn't be any API declarations there: 
