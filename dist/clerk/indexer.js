@@ -8,7 +8,7 @@ var _ = require('lodash');
 var walk = require('walk');
 var fs = require('fs');
 var path = require('path');
-var util = require('./util');
+var util = require('../util');
 var chalk = require('chalk');
 
 var indexer = {
@@ -30,10 +30,6 @@ var indexer = {
   // you sometimes don't want Wat to
   // be smart and override your index.
   updateRemotely: true,
-
-  init: function init(parent) {
-    this.parent = parent;
-  },
 
   /**
   * Thump, thump... It's alive!
@@ -75,7 +71,7 @@ var indexer = {
 
   build: function build(callback) {
     var self = this;
-    var autodocs = this.parent.updater.config();
+    var autodocs = this.app.clerk.autodocs.config();
     var auto = undefined;
     var normal = undefined;
     var autoConfigs = {};
@@ -97,19 +93,19 @@ var indexer = {
         callback(idx);
       }
     }
-    this.buildDir(path.normalize(__dirname + '/../autodocs/'), 'auto', function (data) {
+    this.buildDir(path.normalize(__dirname + '/../../autodocs/'), 'auto', function (data) {
       auto = data;
       checker();
     });
-    this.buildDir(path.normalize(__dirname + '/../docs/'), 'static', function (data) {
+    this.buildDir(path.normalize(__dirname + '/../../docs/'), 'static', function (data) {
       normal = data;
       checker();
     });
-    this.readConfigs(path.normalize(__dirname + '/../autodocs/'), 'auto', function (data) {
+    this.readConfigs(path.normalize(__dirname + '/../../autodocs/'), 'auto', function (data) {
       autoConfigs = data || {};
       checker();
     });
-    this.readConfigs(path.normalize(__dirname + '/../docs/'), 'auto', function (data) {
+    this.readConfigs(path.normalize(__dirname + '/../../docs/'), 'auto', function (data) {
       normalConfigs = data || {};
       checker();
     });
@@ -297,7 +293,7 @@ var indexer = {
 
   write: function write(json) {
     var index = JSON.stringify(json, null, '');
-    var result = fs.writeFileSync(__dirname + '/../config/index.json', JSON.stringify(json, null, '  '));
+    var result = fs.writeFileSync(__dirname + '/../../config/index.json', JSON.stringify(json, null, '  '));
     this._index = json;
     indexer.clerk.config.setLocal('docIndexLastWrite', new Date());
     indexer.clerk.config.setLocal('docIndexSize', String(index).length);
@@ -315,7 +311,7 @@ var indexer = {
   index: function index() {
     if (!this._index) {
       try {
-        var index = fs.readFileSync(__dirname + '/../config/index.json', { encoding: 'utf-8' });
+        var index = fs.readFileSync(__dirname + '/../../config/index.json', { encoding: 'utf-8' });
         var json = JSON.parse(index);
         this._index = json;
       } catch (e) {
@@ -383,7 +379,7 @@ var indexer = {
     // If we can't read the file,
     // assume we just download it newly.
     try {
-      var stats = fs.statSync(path.join(__dirname, '/../config/index.json'));
+      var stats = fs.statSync(path.join(__dirname, '/../../config/index.json'));
       sinceUpdate = Math.floor(new Date() - stats.mtime);
     } catch (e) {}
 
@@ -425,4 +421,7 @@ var indexer = {
   }
 };
 
-module.exports = indexer;
+module.exports = function (app) {
+  indexer.app = app;
+  return indexer;
+};

@@ -5,15 +5,16 @@
  */
 
 var stripBadges = require('mdast-strip-badges');
-var javascript = require('./autodocs.javascript');
-var mdast = require('./autodocs.ast');
-var util = require('./util');
+var util = require('../util');
 var chalk = require('chalk');
 var fs = require('fs');
 var pathx = require('path');
 var os = require('os');
 var _ = require('lodash');
 var rimraf = require('rimraf');
+
+var javascript = require('./parser.javascript');
+var mdast = require('./parser.mdast');
 
 var autodocs = {
 
@@ -22,12 +23,14 @@ var autodocs = {
   mdast: mdast,
 
   run: function run(name, options, callback) {
-
+    options = options || {};
+    options.rebuild = options.rebuilt || true;
+    var self = this;
     var lib = String(name).trim();
-    var config = parent.clerk.updater.config();
+    var config = self.app.clerk.autodocs.config();
+
     if (!config) {
-      this.log('' + chalk.yellow('\n  Wat had trouble reading "./config/config.auto.json". \n'));
-      cb();
+      callback('Wat had trouble reading "./config/config.auto.json".');
       return;
     }
 
@@ -37,8 +40,7 @@ var autodocs = {
       libs = Object.keys(config);
     } else {
       if (!config[lib]) {
-        this.log('' + chalk.yellow('\n  ' + lib + ' is not on Wat\'s list of auto-updating libraries.\n  To include it, add it to ./config/config.auto.json and submit a PR.\n'));
-        cb();
+        callback(lib + ' is not on Wat\'s list of auto-updating libraries.\n  To include it, add it to ./config/config.auto.json and submit a PR.');
         return;
       }
       libs.push(lib);
@@ -48,7 +50,7 @@ var autodocs = {
       var data = config[libName];
       data.urls = data.urls || [];
       data.language = data.language || 'javascript';
-      var options = {
+      var opt = {
         urls: data.urls,
         language: data.language,
         aliases: data.aliases,
@@ -59,17 +61,15 @@ var autodocs = {
         }
       };
 
-      var result = autodocs.scaffold(libName, options, function (err, data) {
+      var result = self.scaffold(libName, opt, function (err, data) {
         if (libs.length < 1) {
-          self.delimiter(origDelimiter);
-          if (args.options.rebuild) {
-            parent.clerk.indexer.build(function (index) {
-              parent.clerk.indexer.write(index);
-              self.log('Rebuilt index.');
-              cb();
+          if (options.rebuild) {
+            self.app.clerk.indexer.build(function (index) {
+              self.app.clerk.indexer.write(index);
+              callback();
             });
           } else {
-            cb();
+            callback();
           }
         } else {
           var _next = libs.shift();
@@ -157,7 +157,7 @@ var autodocs = {
       fetchOne(url, tree[url]);
     }
 
-    var autoDocPath = __dirname + '/../autodocs/' + repoName;
+    var autoDocPath = __dirname + '/../../autodocs/' + repoName;
     try {
       rimraf.sync(autoDocPath);
     } catch (e) {}
@@ -240,7 +240,7 @@ var autodocs = {
       var file = parts.pop();
       var directory = parts.join('/');
       var fileAddon = docs[i].fold.length > 0 ? '/' + file : '';
-      var dir = __dirname + '/..' + directory;
+      var dir = __dirname + '/../..' + directory;
       var tempDir = temp + directory;
 
       util.mkdirSafe(dir + fileAddon);
@@ -280,7 +280,7 @@ var autodocs = {
       var parts = path.split('/');
       var file = parts.pop();
       var directory = parts.join('/');
-      var dir = __dirname + '/..' + directory;
+      var dir = __dirname + '/../..' + directory;
       var tempDir = temp + directory;
 
       util.mkdirSafe(dir);
@@ -348,4 +348,7 @@ var autodocs = {
 
 };
 
-module.exports = autodocs;
+module.exports = function (app) {
+  autodocs.app = app;
+  return autodocs;
+};

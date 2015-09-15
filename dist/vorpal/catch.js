@@ -1,15 +1,15 @@
 'use strict';
 
 var chalk = require('chalk');
-var util = require('./util');
+var util = require('../util');
 var _ = require('lodash');
 
 module.exports = function (vorpal, options) {
-  var parent = options.parent;
+  var app = options.app;
 
   vorpal['catch']('[commands...]').option('-d, --detail', 'View detailed markdown on item.').option('-i, --install', 'View installation instructions.').autocompletion(function (text, iteration, cb) {
     var self = this;
-    var index = parent.clerk.indexer.index();
+    var index = app.clerk.indexer.index();
     var result = util.autocomplete(text, iteration, index, function (word, options) {
       var res = self.match(word, options);
       return res;
@@ -26,11 +26,24 @@ module.exports = function (vorpal, options) {
       args.commands.shift();
     }
 
-    var path = util.command.buildPath(args.commands.join(' '), args.options, parent.clerk.indexer.index());
+    var command = args.commands.join(' ');
+
+    var path = util.command.buildPath(command, args.options, app.clerk.indexer.index());
 
     function execPath(pathObj) {
       // If we are an unbuilt library, build it.
-      if (pathObj.index && pathObj.index.__class === 'unbuilt-lib') {}
+      if (pathObj.index && pathObj.index.__class === 'unbuilt-lib') {
+        self.log('\n  ' + chalk.blue('Fetching ' + command + '...'));
+        app.autodocs.run(command, {}, function (err) {
+          if (err) {
+            self.log('\n\n  ' + err + '\n');
+          } else {
+            self.log('  ' + chalk.blue('Done!') + '\n');
+          }
+          cb();
+        });
+        return;
+      }
 
       var fullPath = util.command.buildExtension(pathObj.path, pathObj.index, args.options);
       var type = pathObj.index.__type || 'static';
@@ -43,7 +56,7 @@ module.exports = function (vorpal, options) {
         self.log(chalk.yellow('\n  Sorry, there\'s no installation write-up for this command. Showing the basic one instead.'));
       }
 
-      parent.clerk.fetch(fullPath, type, function (err, data) {
+      app.clerk.fetch(fullPath, type, function (err, data) {
         if (err) {
           self.log('Unexpected Error: ', err);
         } else {
@@ -62,10 +75,10 @@ module.exports = function (vorpal, options) {
         }
         self.log(' ');
       } else {
-        var results = parent.clerk.search(args.commands.join(' '));
+        var results = app.clerk.search(args.commands.join(' '));
         if (results.length === 1 && results[0].points > 0) {
           self.log(chalk.yellow('\n  Showing results for \'' + results[0].command + '\':'));
-          var _path = util.command.buildPath(results[0].command, args.options, parent.clerk.indexer.index());
+          var _path = util.command.buildPath(results[0].command, args.options, app.clerk.indexer.index());
           execPath(_path);
         } else if (results.length > 0) {
           self.log(chalk.yellow('\n  Did you mean:'));

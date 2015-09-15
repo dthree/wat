@@ -8,9 +8,9 @@ var _ = require('lodash');
 var mkdirp = require('mkdirp');
 var fs = require('fs');
 var chalk = require('chalk');
-var util = require('./util');
 var os = require('os');
 var path = require('path');
+var util = require('../util');
 
 var temp = path.join(os.tmpdir(), '/.wat');
 
@@ -245,7 +245,7 @@ var clerk = {
       value: path
     });
     if (local !== undefined) {
-      var formatted = self.cosmetician.markdownToTerminal(local);
+      var formatted = self.app.cosmetician.markdownToTerminal(local);
       cb(undefined, formatted);
     } else {
       var remoteDir = type === 'auto' ? clerk.paths.remoteAutodocUrl : clerk.paths.remoteDocUrl;
@@ -258,7 +258,7 @@ var clerk = {
             cb(err);
           }
         } else {
-          var formatted = self.cosmetician.markdownToTerminal(data);
+          var formatted = self.app.cosmetician.markdownToTerminal(data);
           clerk.file(path, type, data);
           cb(undefined, formatted);
         }
@@ -294,10 +294,11 @@ var clerk = {
 
 module.exports = function (app) {
   clerk.app = app;
-  clerk.indexer = require('./clerk.indexer')(app);
-  clerk.history = require('./clerk.history')(app);
-  clerk.updater = require('./clerk.updater')(app);
-  clerk.config = require('./clerk.config')(app);
-  clerk.prefs = require('./clerk.prefs')(app);
+  clerk.indexer = require('./indexer')(app);
+  clerk.history = require('./history')(app);
+  clerk.updater = require('./updater')(app);
+  clerk.config = require('./config')(app);
+  clerk.autodocs = require('./autodocs')(app);
+  clerk.prefs = require('./prefs')(app);
   return clerk;
 };

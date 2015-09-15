@@ -32,6 +32,13 @@ var util = {
     var otherWords = commands.slice(0, commands.length - 1);
     var poss = [];
 
+    var response = undefined;
+
+    // Find the deepest point on the index that
+    // matches the given commands. i.e.
+    // "earth usa cali" against
+    // { "earth": { "usa": { "cali": { "foo": "bar" } }}}
+    // would return { "foo": "bar" }
     var levels = 0;
     var possibleObjects = util.matchAgainstIndex(_.clone(commands), index, function () {
       levels++;
@@ -41,7 +48,6 @@ var util = {
     var possibilities = Object.keys(possibleObjects);
     var match = matchFn(String(lastWord).trim(), possibilities);
 
-    var response = undefined;
     if (match && levels !== otherWords.length + 1) {
       var space = possibilities.indexOf(String(match).trim()) > -1 ? ' ' : '';
       response = '' + String(otherWords.join(' ') + ' ' + match).trim() + space;
@@ -53,9 +59,18 @@ var util = {
       } else if (iteration > 1 && possibilities.length === 1 && otherWords.length !== levels) {
         response = String('' + original + possibilities[0]).trim() + ' ';
       } else {
-        response = original;
+        if (levels === 1 && Object.keys(possibleObjects).length === 0 && iteration > 1) {
+          // In this scenario, the user has chosen an autodoc
+          // lib that hasn't been downloaded yet, and has tabbed.
+          // We tell the user what he can do.
+          var msg = chalk.blue('\n  This library has not been built. \n  Press [enter] to automatically download and build it.\n');
+          response = [msg];
+        } else {
+          response = original;
+        }
       }
     }
+
     return response;
   },
 
@@ -75,7 +90,7 @@ var util = {
 
   formatAutocomplete: function formatAutocomplete(possibilities) {
     var self = this;
-    var cats = ['method', 'property', 'object', 'doc'];
+    var cats = ['method', 'property', 'object', 'doc', 'lib', 'unbuilt-lib'];
     var data = {};
 
     var all = Object.keys(possibilities) || [];
@@ -176,6 +191,8 @@ var util = {
       'property': 'blue',
       'object': 'yellow',
       'doc': 'white',
+      'lib': 'white',
+      'unbuilt-lib': 'gray',
       'remainder': 'gray'
     };
 
@@ -185,6 +202,8 @@ var util = {
       'property': 'Properties',
       'object': 'Objects',
       'doc': 'Docs',
+      'lib': 'Libraries',
+      'unbuilt-lib': 'Downloadable Libraries',
       'remainder': 'Other'
     };
 
@@ -620,6 +639,9 @@ var util = {
           }
           result = idx.index;
         } else if (idx.__basic) {
+          result = idx;
+        } else if (idx.__class === 'unbuilt-lib') {
+          // If we are an unbuilt library, accept it.
           result = idx;
         } else {
           result = Object.keys(idx);

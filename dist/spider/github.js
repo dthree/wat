@@ -5,20 +5,15 @@
  */
 
 var _ = require('lodash');
-var util = require('./util');
 var moment = require('moment');
 var chalk = require('chalk');
-var parser = require('./parser');
 var mdast = require('mdast');
 var stripBadges = require('mdast-strip-badges');
+var util = require('../util');
 
 var currentRepo = undefined;
 
 var github = {
-
-  init: function init(parent) {
-    this.parent = parent;
-  },
 
   testPage: function testPage(path) {},
 
@@ -40,7 +35,7 @@ var github = {
 
             var md = mdast().use(stripBadges).use(attacher);
             results = md.process(data);
-            //results = self.parent.cosmetician.markdownToTerminal(data, {lineWidth: (process.stdout.columns - 2)});
+            //results = self.app.cosmetician.markdownToTerminal(data, {lineWidth: (process.stdout.columns - 2)});
             cb(undefined, String(results).slice(0, 0));
           } else {
             request(urls, cb);
@@ -83,4 +78,7 @@ var github = {
 
 };
 
-module.exports = github;
+module.exports = function (app) {
+  github.app = app;
+  return github;
+};

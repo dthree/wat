@@ -4,27 +4,27 @@
  * Module dependencies.
  */
 
-var _ = require('lodash');
-var mkdirp = require('mkdirp');
-var fs = require('fs');
-var chalk = require('chalk');
-var util = require('./util');
-var os = require('os');
-var path = require('path');
+const _ = require('lodash');
+const mkdirp = require('mkdirp');
+const fs = require('fs');
+const chalk = require('chalk');
+const os = require('os');
+const path = require('path');
+const util = require('../util');
 
-var temp = path.join(os.tmpdir(), '/.wat');
+const temp = path.join(os.tmpdir(), '/.wat');
 
-var clerk = {
+const clerk = {
 
   lastUserAction: undefined,
 
   paths: {
     tempDir: temp,
-    prefs: temp + '/.local/prefs.json',
-    cache: temp + '/.local/cache.json',
-    hist: temp + '/.local/hist.json',
-    docs: temp + '/.local/docs/',
-    autodocs: temp + '/.local/autodocs/',
+    prefs: `${temp}/.local/prefs.json`,
+    cache: `${temp}/.local/cache.json`,
+    hist: `${temp}/.local/hist.json`,
+    docs: `${temp}/.local/docs/`,
+    autodocs: `${temp}/.local/autodocs/`,
     config: './config/config.json',
     autoConfig: './config/config.auto.json',
     remoteDocUrl: '',
@@ -32,7 +32,7 @@ var clerk = {
     remoteArchiveUrl: ''
   },
 
-  start: function start(options) {
+  start(options) {
     options = options || {};
     this.scaffold();
     this.load();
@@ -44,41 +44,41 @@ var clerk = {
     setInterval(this.updater.nextQueueItem, 6000);
   },
 
-  scaffold: function scaffold() {
+  scaffold() {
     mkdirp.sync(this.paths.tempDir);
-    mkdirp.sync(this.paths.tempDir + '/.local');
-    mkdirp.sync(this.paths.tempDir + '/.local/docs');
-    mkdirp.sync(this.paths.tempDir + '/.local/autodocs');
-    this.scaffoldDir('' + this.paths.docs, 'static');
-    this.scaffoldDir('' + this.paths.autodocs, 'auto');
+    mkdirp.sync(`${this.paths.tempDir}/.local`);
+    mkdirp.sync(`${this.paths.tempDir}/.local/docs`);
+    mkdirp.sync(`${this.paths.tempDir}/.local/autodocs`);
+    this.scaffoldDir(`${this.paths.docs}`, 'static');
+    this.scaffoldDir(`${this.paths.autodocs}`, 'auto');
     fs.appendFileSync(this.paths.prefs, '');
     fs.appendFileSync(this.paths.cache, '');
     fs.appendFileSync(this.paths.hist, '');
     return this;
   },
 
-  scaffoldDir: function scaffoldDir(dir, dirType) {
-    var index = this.indexer.index() || {};
+  scaffoldDir(dir, dirType) {
+    const index = this.indexer.index() || {};
     function traverse(idx, path) {
       function rejectFn(str) {
-        return String(str).indexOf('__') > -1;
+        return (String(str).indexOf('__') > -1);
       }
       if (idx['__type'] && idx['__type'] !== dirType) {
         return;
       }
-      for (var key in idx) {
+      for (const key in idx) {
         if (idx.hasOwnProperty(key) && String(key).indexOf('__') === -1) {
           if (idx[key]['__type'] && idx[key]['__type'] !== dirType) {
             return;
           }
           // Clean out all files with '__...'
-          var content = Object.keys(idx[key]);
+          let content = Object.keys(idx[key]);
           content = _.reject(content, rejectFn);
           if (content.length > 0) {
-            var fullPath = dir + path + key;
+            const fullPath = dir + path + key;
             mkdirp.sync(fullPath);
             if (_.isObject(idx[key])) {
-              traverse(idx[key], '' + path + key + '/');
+              traverse(idx[key], `${path}${key}/`);
             }
           }
         }
@@ -87,32 +87,32 @@ var clerk = {
     traverse(index, '');
   },
 
-  forEachInIndex: function forEachInIndex(callback) {
-    var index = this.indexer.index() || {};
-    var dir = clerk.paths.docs;
+  forEachInIndex(callback) {
+    const index = this.indexer.index() || {};
+    const dir = clerk.paths.docs;
     function traverse(idx, path) {
-      for (var key in idx) {
+      for (const key in idx) {
         if (idx.hasOwnProperty(key)) {
           // Clean out all files with '__...'
-          var content = Object.keys(idx[key]);
-          var special = {};
-          var nonSpecial = [];
-          for (var i = 0; i < content.length; ++i) {
-            var isSpecial = String(content[i]).indexOf('__') > -1;
+          const content = Object.keys(idx[key]);
+          const special = {};
+          const nonSpecial = [];
+          for (let i = 0; i < content.length; ++i) {
+            const isSpecial = (String(content[i]).indexOf('__') > -1);
             if (isSpecial) {
               special[content[i]] = idx[key][content[i]];
             } else {
               nonSpecial.push(content[i]);
             }
           }
-          var fullPath = dir + path + key;
-          for (var item in special) {
+          const fullPath = dir + path + key;
+          for (const item in special) {
             if (special.hasOwnProperty(item)) {
               callback(fullPath, item, special[item]);
             }
           }
           if (nonSpecial.length > 0 && _.isObject(idx[key])) {
-            traverse(idx[key], '' + path + key + '/');
+            traverse(idx[key], `${path}${key}/`);
           }
         }
       }
@@ -120,22 +120,22 @@ var clerk = {
     traverse(index, '');
   },
 
-  search: function search(str) {
-    var search = String(str).split(' ');
-    var matches = [];
+  search(str) {
+    const search = String(str).split(' ');
+    let matches = [];
     this.forEachInIndex(function (path, key) {
       if (key !== '__basic') {
         return;
       }
 
-      var commands = util.parseCommandsFromPath(path);
-      var points = 0;
-      var dirty = 0;
-      for (var i = 0; i < search.length; ++i) {
-        var word = String(search[i]).toLowerCase().trim();
-        var finds = 0;
-        for (var j = 0; j < commands.length; ++j) {
-          var cmd = String(commands[j]).toLowerCase().trim();
+      const commands = util.parseCommandsFromPath(path);
+      let points = 0;
+      let dirty = 0;
+      for (let i = 0; i < search.length; ++i) {
+        const word = String(search[i]).toLowerCase().trim();
+        let finds = 0;
+        for (let j = 0; j < commands.length; ++j) {
+          const cmd = String(commands[j]).toLowerCase().trim();
           if (word === cmd) {
             finds++;
             if (i === j) {
@@ -153,15 +153,15 @@ var clerk = {
 
       if (points > 0) {
         matches.push({
-          points: points,
-          dirty: dirty,
+          points,
+          dirty,
           command: commands.join(' ')
         });
       }
     });
 
     matches = matches.sort(function (a, b) {
-      var sort = 0;
+      let sort = 0;
       if (a.points > b.points) {
         sort = -1;
       } else if (a.points < b.points) {
@@ -173,50 +173,50 @@ var clerk = {
     return matches;
   },
 
-  compareDocs: function compareDocs() {
-    var changes = [];
-    var newDocs = [];
+  compareDocs() {
+    const changes = [];
+    const newDocs = [];
     this.forEachInIndex(function (path, key, value) {
-      var exten = util.extensions[key] || key;
+      const exten = util.extensions[key] || key;
       try {
-        var stat = fs.statSync(path + exten);
+        const stat = fs.statSync(path + exten);
         if (parseFloat(stat.size) !== parseFloat(value)) {
           changes.push(path + exten);
         }
-      } catch (e) {
+      } catch(e) {
         if (e.code === 'ENOENT') {
           newDocs.push(path + exten);
         }
       }
     });
 
-    var usage = {};
-    var ctr = 0;
-    for (var i = 0; i < this.history._hist.length; ++i) {
+    const usage = {};
+    let ctr = 0;
+    for (let i = 0; i < this.history._hist.length; ++i) {
       if (ctr > 200) {
         break;
       }
-      var item = this.history._hist[i] || {};
+      const item = this.history._hist[i] || {};
       if (item.type === 'command') {
         ctr++;
-        var lang = String(item.value).split('/')[0];
+        const lang = String(item.value).split('/')[0];
         usage[lang] = usage[lang] || 0;
         usage[lang]++;
       }
     }
 
     // Update all changes.
-    for (var i = 0; i < changes.length; ++i) {
+    for (let i = 0; i < changes.length; ++i) {
       clerk.updater.push(changes[i]);
     }
 
     // A bit arbitrary, if recent history shows
     // the person used this lib 3 or more times
     // recently, download all docs.
-    for (var i = 0; i < newDocs.length; ++i) {
-      var parts = String(newDocs[i]).split('docs/');
+    for (let i = 0; i < newDocs.length; ++i) {
+      const parts = String(newDocs[i]).split('docs/');
       if (parts[1]) {
-        var lang = String(parts[1]).split('/')[0];
+        const lang = String(parts[1]).split('/')[0];
         if (usage[lang] && usage[lang] > 2) {
           clerk.updater.push(newDocs[i]);
         }
@@ -224,41 +224,43 @@ var clerk = {
     }
   },
 
-  load: function load() {
-    var hist = fs.readFileSync(clerk.paths.hist, { encoding: 'utf-8' });
+  load() {
+    let hist = fs.readFileSync(clerk.paths.hist, {encoding: 'utf-8'});
     try {
       hist = JSON.parse(hist);
       this.history._hist = hist;
-    } catch (e) {
+    } catch(e) {
       this.history._hist = [];
     }
     this.config.getLocal();
   },
 
-  fetch: function fetch(path, type, cb) {
+  fetch(path, type, cb) {
     cb = cb || function () {};
     clerk.lastUserAction = new Date();
-    var self = clerk;
-    var local = clerk.fetchLocal(path, type);
+    const self = clerk;
+    const local = clerk.fetchLocal(path, type);
     this.history.push({
       type: 'command',
       value: path
     });
     if (local !== undefined) {
-      var formatted = self.cosmetician.markdownToTerminal(local);
+      const formatted = self.app.cosmetician.markdownToTerminal(local);
       cb(undefined, formatted);
     } else {
-      var remoteDir = type === 'auto' ? clerk.paths.remoteAutodocUrl : clerk.paths.remoteDocUrl;
+      const remoteDir = (type === 'auto') 
+        ? clerk.paths.remoteAutodocUrl
+        : clerk.paths.remoteDocUrl;
       util.fetchRemote(this.paths.remoteDocUrl + path, function (err, data) {
         if (err) {
           if (String(err).indexOf('Not Found') > -1) {
-            var response = chalk.yellow('\n  Wat couldn\'t find the Markdown file for this command.\n  This probably means your index needs an update.\n\n') + '  File: ' + self.paths.remoteDocUrl + path + '\n';
+            const response = `${chalk.yellow(`\n  Wat couldn\'t find the Markdown file for this command.\n  This probably means your index needs an update.\n\n`)}  File: ${self.paths.remoteDocUrl}${path}\n`;
             cb(undefined, response);
           } else {
             cb(err);
           }
         } else {
-          var formatted = self.cosmetician.markdownToTerminal(data);
+          const formatted = self.app.cosmetician.markdownToTerminal(data);
           clerk.file(path, type, data);
           cb(undefined, formatted);
         }
@@ -266,26 +268,30 @@ var clerk = {
     }
   },
 
-  fetchLocal: function fetchLocal(path, type) {
-    var directory = type === 'auto' ? clerk.paths.autodocs : clerk.paths.docs;
-    var file = undefined;
+  fetchLocal(path, type) {
+    const directory = (type === 'auto') 
+      ? clerk.paths.autodocs
+      : clerk.paths.docs;
+    let file;
     try {
-      file = fs.readFileSync(directory + path, { encoding: 'utf-8' });
+      file = fs.readFileSync(directory + path, {encoding: 'utf-8'});
       return file;
-    } catch (e) {
+    } catch(e) {
       return undefined;
     }
   },
 
-  file: function file(path, type, data, retry) {
-    var directory = type === 'auto' ? clerk.paths.autodocs : clerk.paths.docs;
+  file(path, type, data, retry) {
+    const directory = (type === 'auto')
+      ? clerk.paths.autodocs
+      : clerk.paths.docs;
     try {
-      fs.appendFileSync(directory + path, data, { flag: 'w' });
-    } catch (e) {
+      fs.appendFileSync(directory + path, data, {flag: 'w'});
+    } catch(e) {
       if (retry === undefined) {
         this.scaffold();
       } else {
-        throw new Error('Unexpected error writing to cache: ' + e);
+        throw new Error(`Unexpected error writing to cache: ${e}`);
       }
       return this.file(path, data, true);
     }
@@ -294,10 +300,11 @@ var clerk = {
 
 module.exports = function (app) {
   clerk.app = app;
-  clerk.indexer = require('./clerk.indexer')(app);
-  clerk.history = require('./clerk.history')(app);
-  clerk.updater = require('./clerk.updater')(app);
-  clerk.config = require('./clerk.config')(app);
-  clerk.prefs = require('./clerk.prefs')(app);
+  clerk.indexer = require('./indexer')(app);
+  clerk.history = require('./history')(app);
+  clerk.updater = require('./updater')(app);
+  clerk.config = require('./config')(app);
+  clerk.autodocs = require('./autodocs')(app);
+  clerk.prefs = require('./prefs')(app);
   return clerk;
 };

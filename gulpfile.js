@@ -16,8 +16,7 @@ gulp.task('lint', function(){
 });
 
 gulp.task('initClerk', function(){
-  clerk = require('./dist/clerk');
-  clerk.init();
+  clerk = require('./dist/clerk/clerk');
   clerk.start({
     updateRemotely: false
   });

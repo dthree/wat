@@ -1,24 +1,16 @@
 'use strict';
 
 var chalk = require('chalk');
-var autodocs = require('./autodocs');
 
 module.exports = function (vorpal, options) {
-  var parent = options.parent;
-
-  vorpal.command('fetch <lib>', 'Automatically builds a given library.').option('-r, --rebuild', 'Rebuild index after complete.').action(function (args, cb) {
-    var self = this;
-    var origDelimiter = self.delimiter();
-
-    autodocs.run(args.lib);
-  });
+  var app = options.app;
 
   vorpal.command('update index', 'Forces an update of the document index.').action(function (args, cb) {
     var self = this;
-    parent.clerk.indexer.update({ force: true }, function (err) {
+    app.clerk.indexer.update({ force: true }, function (err) {
       if (!err) {
         self.log(chalk.cyan('\n  Successfully updated index.'));
-        var amt = parent.clerk.updater.queue.length;
+        var amt = app.clerk.updater.queue.length;
         if (amt > 1) {
           self.log('\n  ' + amt + ' documents are queued for updating.');
         }
@@ -28,20 +20,8 @@ module.exports = function (vorpal, options) {
     });
   });
 
-  vorpal.command('get updatable', 'Lists libraries able to be be auto-rebuilt.').option('-m, --max', 'Maximum history items to show.').alias('get updateable').action(function (args, cb) {
-    var self = this;
-    var max = args.options.max || 30;
-    var config = parent.clerk.updater.config();
-
-    var items = '\n  ' + Object.keys(config).join('\n  ') + '\n';
-
-    this.log(items);
-
-    cb();
-  });
-
   vorpal.command('get updates', 'Shows what docs are mid being updated.').option('-m, --max', 'Maximum history items to show.').action(function (args, cb) {
-    var queue = parent.clerk.updater.queue;
+    var queue = app.clerk.updater.queue;
     var max = args.options.max || 30;
     var limit = queue.length - 1 - max;
     limit = limit < 0 ? 0 : limit;

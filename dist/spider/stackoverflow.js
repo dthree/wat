@@ -5,16 +5,11 @@
  */
 
 var _ = require('lodash');
-var util = require('./util');
-var cosmetician = require('./cosmetician');
 var moment = require('moment');
 var chalk = require('chalk');
+var util = require('../util');
 
 var stackoverflow = {
-
-  init: function init(parent) {
-    this.parent = parent;
-  },
 
   getPage: function getPage(searchResult, callback) {
     callback = callback || {};
@@ -43,16 +38,16 @@ var stackoverflow = {
       var headerLength = String(question.title).length + 2;
       var viewLength = String(question.view_count).length + 8;
       var padding = process.stdout.columns - (headerLength + viewLength);
-      var header = '  ' + chalk.cyan(question.title) + cosmetician.pad('', padding) + question.view_count + ' views';
+      var header = '  ' + chalk.cyan(question.title) + self.app.cosmetician.pad('', padding) + question.view_count + ' views';
       var quest = self.formatAnswer(question, margin);
       var title = chalk.yellow('Stack Overflow');
-      var hr = cosmetician.hr(2);
+      var hr = self.app.cosmetician.hr(2);
 
       var result = '  ' + title + '\n' + header + '\n\n' + quest + '\n\n  Answers\n  ' + hr + '\n';
       for (var l = 0; l < answers.length; ++l) {
         result += self.formatAnswer(answers[l], margin) + '\n';
         if (l < answers.length - 1) {
-          result += cosmetician.pad('', margin) + cosmetician.hr(margin) + '\n';
+          result += self.app.cosmetician.pad('', margin) + self.app.cosmetician.hr(margin) + '\n';
         }
       }
       callback(undefined, result);
@@ -210,4 +205,7 @@ var stackoverflow = {
   }
 };
 
-module.exports = stackoverflow;
+module.exports = function (app) {
+  stackoverflow.app = app;
+  return stackoverflow;
+};

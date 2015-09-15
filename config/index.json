@@ -195,6 +195,31 @@
         "__class": "method"
       },
       "__class": "object"
-    }
+    },
+    "__class": "lib"
+  },
+  "chalk": {
+    "__class": "unbuilt-lib"
+  },
+  "d3": {
+    "__class": "unbuilt-lib"
+  },
+  "npm-mkdirp": {
+    "__class": "unbuilt-lib"
+  },
+  "pageres": {
+    "__class": "unbuilt-lib"
+  },
+  "robotjs": {
+    "__class": "unbuilt-lib"
+  },
+  "screenful": {
+    "__class": "unbuilt-lib"
+  },
+  "vorpal": {
+    "__class": "unbuilt-lib"
+  },
+  "vantage": {
+    "__class": "unbuilt-lib"
   }
 }
