@@ -2,7 +2,7 @@
 
 require('assert');
 var should = require('should');
-var parser = require('../dist/autodocs.javascript');
+var parser = require('../dist/autodocs/parser.javascript');
 
 describe('autodocs.javascript', function () {
 
@@ -23,7 +23,7 @@ describe('autodocs.javascript', function () {
       res.type.should.equal('property');
       res.name.should.equal('bar');
       res.parents[0].should.equal('foo');
-      res.errors.length.should.equal(0);
+      res.errors.length.should.equal(0); 
     });
 
     it('should elminate header tags', function () {
@@ -157,6 +157,11 @@ describe('autodocs.javascript', function () {
       str.should.equal('.bar(a, b[, c[, d:string[, e:goat[, f:blah]]]])');
     });
 
+    it('should erase `new` tag', function () {
+      var node = parser.parseCommandSyntax('## new Agent([options])');
+      //console.log(node);
+    });
+
   });
 
   describe('.isCommandSyntax', function () {
@@ -169,13 +174,17 @@ describe('autodocs.javascript', function () {
     it('should determine whether headers are syntax', function () {
       var fixtures = {
         'Install': false,
-        'foo.bar' : true,
         'this is a header': false,
-        'foo.bar(a, b, c)': true,
         ';I like unicor:ns.great': false,
-        '.foo is bar': false,
-        '.foo': true,
+        'Example: Simple Protocol v1 (and so on)': false,
         '[({,%@623462wgxvl42': false,
+        'foo.bar' : true,
+        'foo.bar(a, b, c)': true,
+        '.foo is bar': false,
+        'clearImmediate(immediateObject)': true,
+        'ref()': true,
+        'new Agent([options])': true,
+        '.foo': true,
         'FOO([a], [b]': true
       }
       for (var item in fixtures) {

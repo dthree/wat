@@ -16,30 +16,8 @@ const highlighter = require('./highlighter');
 
 const cosmetician = {
 
-  init(parent) {
-    const self = this;
-    this.parent = parent;
-    markterm.cosmetician = cosmetician;
-    markterm.setOptions({
-      gfm: true,
-      sanitize: true,
-      highlight(code, lang) {
-        let results = code;
-        try {
-          results = highlighter.highlight(code, lang, {});
-          results = self.tab(results, 2, ' ');
-          results = self.tab(results, 1, '|');
-        } catch(e) {
-          console.log(e.stack);
-        }
-        return results;
-      }
-    });
-    highlighter.theme('default');
-  },
-
   theme(theme) {
-    this.parent.clerk.prefs.set('theme', theme);
+    this.app.clerk.prefs.set('theme', theme);
     return highlighter.theme(theme);
   },
 
@@ -100,4 +78,25 @@ const cosmetician = {
   }
 };
 
-module.exports = cosmetician;
+module.exports = function (app) {
+  const self = cosmetician;
+  cosmetician.app = app;
+  markterm.cosmetician = cosmetician;
+  markterm.setOptions({
+    gfm: true,
+    sanitize: true,
+    highlight(code, lang) {
+      let results = code;
+      try {
+        results = highlighter.highlight(code, lang, {});
+        results = self.tab(results, 2, ' ');
+        results = self.tab(results, 1, '|');
+      } catch(e) {
+        console.log(e.stack);
+      }
+      return results;
+    }
+  });
+  highlighter.theme('default');
+  return cosmetician;
+};

@@ -61,6 +61,51 @@
       }
     }
   },
+  "node": {
+    "language": "javascript",
+    "urls": {
+      "api": {
+        "documentation": "https://raw.githubusercontent.com/nodejs/node/master/doc/api/documentation.markdown",
+        "synopsis": "https://raw.githubusercontent.com/nodejs/node/master/doc/api/synopsis.markdown",
+        "addons": "https://raw.githubusercontent.com/nodejs/node/master/doc/api/addons.markdown",
+        "assert": "https://raw.githubusercontent.com/nodejs/node/master/doc/api/assert.markdown",
+        "buffer": "https://raw.githubusercontent.com/nodejs/node/master/doc/api/buffer.markdown",
+        "child_process": "https://raw.githubusercontent.com/nodejs/node/master/doc/api/child_process.markdown",
+        "cluster": "https://raw.githubusercontent.com/nodejs/node/master/doc/api/cluster.markdown",
+        "console": "https://raw.githubusercontent.com/nodejs/node/master/doc/api/console.markdown",
+        "crypto": "https://raw.githubusercontent.com/nodejs/node/master/doc/api/crypto.markdown",
+        "debugger": "https://raw.githubusercontent.com/nodejs/node/master/doc/api/debugger.markdown",
+        "dgram": "https://raw.githubusercontent.com/nodejs/node/master/doc/api/dgram.markdown",
+        "dns": "https://raw.githubusercontent.com/nodejs/node/master/doc/api/dns.markdown",
+        "domain": "https://raw.githubusercontent.com/nodejs/node/master/doc/api/domain.markdown",
+        "errors": "https://raw.githubusercontent.com/nodejs/node/master/doc/api/errors.markdown",
+        "events": "https://raw.githubusercontent.com/nodejs/node/master/doc/api/events.markdown",
+        "fs": "https://raw.githubusercontent.com/nodejs/node/master/doc/api/fs.markdown",
+        "globals": "https://raw.githubusercontent.com/nodejs/node/master/doc/api/globals.markdown",
+        "http": "https://raw.githubusercontent.com/nodejs/node/master/doc/api/http.markdown",
+        "https": "https://raw.githubusercontent.com/nodejs/node/master/doc/api/https.markdown",
+        "modules": "https://raw.githubusercontent.com/nodejs/node/master/doc/api/modules.markdown",
+        "net": "https://raw.githubusercontent.com/nodejs/node/master/doc/api/net.markdown",
+        "os": "https://raw.githubusercontent.com/nodejs/node/master/doc/api/os.markdown",
+        "path": "https://raw.githubusercontent.com/nodejs/node/master/doc/api/path.markdown",
+        "process": "https://raw.githubusercontent.com/nodejs/node/master/doc/api/process.markdown",
+        "punycode": "https://raw.githubusercontent.com/nodejs/node/master/doc/api/punycode.markdown",
+        "querystring": "https://raw.githubusercontent.com/nodejs/node/master/doc/api/querystring.markdown",
+        "readline": "https://raw.githubusercontent.com/nodejs/node/master/doc/api/readline.markdown",
+        "repl": "https://raw.githubusercontent.com/nodejs/node/master/doc/api/repl.markdown",
+        "stream": "https://raw.githubusercontent.com/nodejs/node/master/doc/api/stream.markdown",
+        "string_decoder": "https://raw.githubusercontent.com/nodejs/node/master/doc/api/string_decoder.markdown",
+        "timers": "https://raw.githubusercontent.com/nodejs/node/master/doc/api/timers.markdown",
+        "tls": "https://raw.githubusercontent.com/nodejs/node/master/doc/api/tls.markdown",
+        "tty": "https://raw.githubusercontent.com/nodejs/node/master/doc/api/tty.markdown",
+        "url": "https://raw.githubusercontent.com/nodejs/node/master/doc/api/url.markdown",
+        "util": "https://raw.githubusercontent.com/nodejs/node/master/doc/api/util.markdown",
+        "v8": "https://raw.githubusercontent.com/nodejs/node/master/doc/api/v8.markdown",
+        "vm": "https://raw.githubusercontent.com/nodejs/node/master/doc/api/vm.markdown",
+        "zlib": "https://raw.githubusercontent.com/nodejs/node/master/doc/api/zlib.markdown"
+      }
+    }
+  },
   "npm-mkdirp": {
     "language": "javascript",
     "aliases": ["mkdirp"], 
@@ -104,3 +149,6 @@
     }
   }
 }
+
+
+

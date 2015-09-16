@@ -204,6 +204,9 @@
   "d3": {
     "__class": "unbuilt-lib"
   },
+  "node": {
+    "__class": "unbuilt-lib"
+  },
   "npm-mkdirp": {
     "__class": "unbuilt-lib"
   },

@@ -171,6 +171,16 @@ var js = {
       errors.push('invalid-signature-chars');
     }
 
+    // Check for 'new Blah', meaning its an object.
+    var isObject = false;
+    var nameWords = String(name).split(' ');
+    if (nameWords.length > 1) {
+      if (String(nameWords[0]).toLowerCase().trim() === 'new') {
+        isObject = true;
+        name = nameWords.slice(1, nameWords.length).join(' ');
+      }
+    }
+
     parents = parents.map(function (item) {
       return String(item).trim();
     }).filter(function (item) {
@@ -179,12 +189,16 @@ var js = {
 
     result.params = orderedParams;
     result.type = isMethod ? 'method' : 'property';
+    result.type = isObject ? 'object' : result.type;
     result.name = name;
     result.parents = parents || [];
     result.errors = errors;
     result.isImplicitChild = isImplicitChild;
 
-    var stringer = this.stringifyCommandSyntax(result);
+    if (name === 'new Agent') {
+      console.log(result);
+    }
+
     return result;
   },
 
@@ -265,8 +279,10 @@ var js = {
     var hasMultipleWords = cmdWithoutParens.match(self.rules.multipleWords);
 
     var isSyntax = false;
-    if (hasParens && !startsWithWords) {
+    if (hasParens && !startsWithWords && !hasMultipleWords) {
       isSyntax = true;
+    } else if (1 == 2) {
+      isSyntax = false;
     } else if (startDot && !hasMultipleWords) {
       isSyntax = true;
     } else if (startWordDotWord && !hasMultipleWords) {

@@ -31,12 +31,8 @@ const app = {
     this.clerk = require('./clerk/clerk')(app);
     this.spider = require('./spider/spider')(app);
     this.autodocs = require('./autodocs/autodocs')(app);
+    this.cosmetician = require('./cosmetician/cosmetician')(app);
 
-    this.cosmetician = require('./cosmetician');
-
-
-    this.cosmetician.init(app);
-    
     this.clerk.start(options);
 
     const help = vorpal.find('help');
