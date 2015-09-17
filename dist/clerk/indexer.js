@@ -73,24 +73,28 @@ var indexer = {
     var self = this;
     var autodocs = this.app.clerk.autodocs.config();
     var auto = undefined;
+    var local = undefined;
     var normal = undefined;
     var autoConfigs = {};
     var normalConfigs = {};
     var dones = 0;
     function checker() {
       dones++;
-      if (dones === 4) {
-        //console.log(normal);
-        //console.log('----------')
-        //console.log(auto);
-        //console.log('----------')
+      if (dones === 5) {
+        // Merge docs and autodocs folders.
         var idx = self.merge(normal, auto);
-        var configs = self.merge(normalConfigs, autoConfigs);
 
+        // Merge local /tmp docs.
+        //idx = self.mergeLocal(idx, local);
+
+        // Merge config files into index.
+        var configs = self.merge(normalConfigs, autoConfigs);
         idx = self.applyConfigs(idx, configs);
+
+        // Add in unloaded autodoc hints into index.
         idx = self.applyAutodocs(idx, autodocs);
 
-        callback(idx);
+        callback(idx, local);
       }
     }
     this.buildDir(path.normalize(__dirname + '/../../autodocs/'), 'auto', function (data) {
@@ -101,12 +105,39 @@ var indexer = {
       normal = data;
       checker();
     });
-    this.readConfigs(path.normalize(__dirname + '/../../autodocs/'), 'auto', function (data) {
+    this.readConfigs(path.normalize(__dirname + '/../../autodocs/'), function (data) {
       autoConfigs = data || {};
       checker();
     });
-    this.readConfigs(path.normalize(__dirname + '/../../docs/'), 'auto', function (data) {
+    this.readConfigs(path.normalize(__dirname + '/../../docs/'), function (data) {
       normalConfigs = data || {};
+      checker();
+    });
+    this.buildLocal(function (localIdx) {
+      local = localIdx;
+      checker();
+    });
+  },
+
+  buildLocal: function buildLocal(callback) {
+    var self = this;
+    var autodocs = this.app.clerk.autodocs.config();
+    var auto = undefined;
+    var autoConfigs = {};
+    var dones = 0;
+    function checker() {
+      dones++;
+      if (dones === 2) {
+        var idx = self.applyConfigs(auto, autoConfigs);
+        callback(idx);
+      }
+    }
+    this.buildDir(path.normalize(self.app.clerk.paths.tempDir + '/.local/autodocs/'), 'auto', function (data) {
+      auto = data;
+      checker();
+    });
+    this.readConfigs(path.normalize(self.app.clerk.paths.tempDir + '/.local/autodocs/'), function (data) {
+      autoConfigs = data || {};
       checker();
     });
   },
@@ -167,7 +198,7 @@ var indexer = {
     });
   },
 
-  readConfigs: function readConfigs(dir, dirType, callback) {
+  readConfigs: function readConfigs(dir, callback) {
     callback = callback || {};
     var configs = {};
     var walker = walk.walk(dir, {});
@@ -282,6 +313,30 @@ var indexer = {
       }
     }
     return a;
+  },
+
+  /**
+  * Does a safer merge, where the local
+  * data is considered invalid where it
+  * conflicts with official data contained
+  * in the project folder. By local is meant
+  * tmp/ data.
+  *
+  * @param {Object} official
+  * @param {Object} local
+  * @return {Object} merged
+  * @api public
+  */
+
+  mergeLocal: function mergeLocal(official, local) {
+    for (var item in local) {
+      if (local.hasOwnProperty(item)) {
+        if (official[item] === undefined) {
+          official[item] = local[item];
+        }
+      }
+    }
+    return official;
   },
 
   /**

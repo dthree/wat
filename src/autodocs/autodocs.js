@@ -88,6 +88,7 @@ const autodocs = {
     const self = this;
     const urls = options.urls;
     const lang = options.language || 'javascript';
+    const isStatic = options.static || false;
     const aliases = options.aliases || [];
     const repoName = String(name).trim();
     const allNames = aliases;
@@ -209,24 +210,26 @@ const autodocs = {
         }
       }
 
+      const writeOptions = { static: isStatic }
       let config = self.mdast.buildAPIConfig(finalAPI);
       config.docs = [];
 
       for (const doc in final) {
         if (final.hasOwnProperty(doc)) {
           config.docs.push(doc);
-          self.writeDocSet(final[doc].docs);
+          self.writeDocSet(final[doc].docs, writeOptions);
         }
       }
 
       self.writeConfig(autoDocPath, config);
-      self.writeAPI(finalAPI);
+      self.writeAPI(finalAPI, writeOptions);
 
       callback();
     }
   },
 
-  writeDocSet(docs) {
+  writeDocSet(docs, options) {
+    options = options || {}
     let result = '';
     for (let i = 0; i < docs.length; ++i) {
       let local = '';
@@ -243,7 +246,9 @@ const autodocs = {
       let dir = __dirname + '/../..' + directory;
       let tempDir = temp + directory;
 
-      util.mkdirSafe(dir + fileAddon);
+      if (options.static) {
+        util.mkdirSafe(dir + fileAddon);
+      }
       util.mkdirSafe(tempDir + fileAddon);
 
       docs[i].junk = docs[i].junk || [];
@@ -264,7 +269,9 @@ const autodocs = {
         local += this.writeDocSet(docs[i].fold);
       }
 
-      fs.writeFileSync(dir + fullPath, local);
+      if (options.static) {
+        fs.writeFileSync(dir + fullPath, local);
+      }
       fs.writeFileSync(tempDir + fullPath, local);
 
       result += local;
@@ -272,7 +279,8 @@ const autodocs = {
     return result;
   },
 
-  writeAPI(api) {
+  writeAPI(api, options) {
+    options = options || {}
     for (var i = 0; i < api.length; ++i) {
       if (!api[i].apiPath) {
         continue;
@@ -285,7 +293,9 @@ const autodocs = {
       let dir = __dirname + '/../..' + directory;
       let tempDir = temp + directory;
 
-      util.mkdirSafe(dir);
+      if (options.static) {
+        util.mkdirSafe(dir);
+      }
       util.mkdirSafe(tempDir);
 
       let codeSampleFound = false;
@@ -328,10 +338,14 @@ const autodocs = {
 
       try {
         fs.writeFileSync(tempDir + '/' + file + '.md', basicText, 'utf-8');
-        fs.writeFileSync(dir + '/' + file + '.md', basicText, 'utf-8');
+        if (options.static) {
+          fs.writeFileSync(dir + '/' + file + '.md', basicText, 'utf-8');
+        }
         if (detailText !== '') {
           fs.writeFileSync(tempDir + '/' + file + '.detail.md', detailText, 'utf-8');
-          fs.writeFileSync(dir + '/' + file + '.detail.md', detailText, 'utf-8');
+          if (options.static) {
+            fs.writeFileSync(dir + '/' + file + '.detail.md', detailText, 'utf-8');
+          }
         }
       } catch(e) {
         throw new Error(e);

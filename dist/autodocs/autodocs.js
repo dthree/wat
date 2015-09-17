@@ -88,6 +88,7 @@ var autodocs = {
     var self = this;
     var urls = options.urls;
     var lang = options.language || 'javascript';
+    var isStatic = options['static'] || false;
     var aliases = options.aliases || [];
     var repoName = String(name).trim();
     var allNames = aliases;
@@ -209,24 +210,26 @@ var autodocs = {
         };
       }
 
+      var writeOptions = { 'static': isStatic };
       var config = self.mdast.buildAPIConfig(finalAPI);
       config.docs = [];
 
       for (var doc in final) {
         if (final.hasOwnProperty(doc)) {
           config.docs.push(doc);
-          self.writeDocSet(final[doc].docs);
+          self.writeDocSet(final[doc].docs, writeOptions);
         }
       }
 
       self.writeConfig(autoDocPath, config);
-      self.writeAPI(finalAPI);
+      self.writeAPI(finalAPI, writeOptions);
 
       callback();
     }
   },
 
-  writeDocSet: function writeDocSet(docs) {
+  writeDocSet: function writeDocSet(docs, options) {
+    options = options || {};
     var result = '';
     for (var i = 0; i < docs.length; ++i) {
       var local = '';
@@ -243,7 +246,9 @@ var autodocs = {
       var dir = __dirname + '/../..' + directory;
       var tempDir = temp + directory;
 
-      util.mkdirSafe(dir + fileAddon);
+      if (options['static']) {
+        util.mkdirSafe(dir + fileAddon);
+      }
       util.mkdirSafe(tempDir + fileAddon);
 
       docs[i].junk = docs[i].junk || [];
@@ -262,7 +267,9 @@ var autodocs = {
         local += this.writeDocSet(docs[i].fold);
       }
 
-      fs.writeFileSync(dir + fullPath, local);
+      if (options['static']) {
+        fs.writeFileSync(dir + fullPath, local);
+      }
       fs.writeFileSync(tempDir + fullPath, local);
 
       result += local;
@@ -270,7 +277,8 @@ var autodocs = {
     return result;
   },
 
-  writeAPI: function writeAPI(api) {
+  writeAPI: function writeAPI(api, options) {
+    options = options || {};
     for (var i = 0; i < api.length; ++i) {
       if (!api[i].apiPath) {
         continue;
@@ -283,7 +291,9 @@ var autodocs = {
       var dir = __dirname + '/../..' + directory;
       var tempDir = temp + directory;
 
-      util.mkdirSafe(dir);
+      if (options['static']) {
+        util.mkdirSafe(dir);
+      }
       util.mkdirSafe(tempDir);
 
       var codeSampleFound = false;
@@ -326,10 +336,14 @@ var autodocs = {
 
       try {
         fs.writeFileSync(tempDir + '/' + file + '.md', basicText, 'utf-8');
-        fs.writeFileSync(dir + '/' + file + '.md', basicText, 'utf-8');
+        if (options['static']) {
+          fs.writeFileSync(dir + '/' + file + '.md', basicText, 'utf-8');
+        }
         if (detailText !== '') {
           fs.writeFileSync(tempDir + '/' + file + '.detail.md', detailText, 'utf-8');
-          fs.writeFileSync(dir + '/' + file + '.detail.md', detailText, 'utf-8');
+          if (options['static']) {
+            fs.writeFileSync(dir + '/' + file + '.detail.md', detailText, 'utf-8');
+          }
         }
       } catch (e) {
         throw new Error(e);
