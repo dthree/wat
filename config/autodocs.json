@@ -1,12 +1,14 @@
 {
   "chalk": {
     "language": "javascript",
+    "static": false,
     "urls": {
       "readme": "https://raw.githubusercontent.com/chalk/chalk/master/readme.md"
     }
   },
   "d3": {
     "language": "javascript",
+    "static": false,
     "urls": {
       "readme": "https://raw.githubusercontent.com/mbostock/d3/master/README.md",
       "wiki": {
@@ -63,6 +65,7 @@
   },
   "node": {
     "language": "javascript",
+    "static": false,
     "urls": {
       "api": {
         "documentation": "https://raw.githubusercontent.com/nodejs/node/master/doc/api/documentation.markdown",
@@ -109,18 +112,21 @@
   "npm-mkdirp": {
     "language": "javascript",
     "aliases": ["mkdirp"], 
+    "static": false,
     "urls": {
       "readme": "https://raw.githubusercontent.com/substack/node-mkdirp/master/readme.markdown"
     }
   },
   "pageres": {
     "language": "javascript",
+    "static": false,
     "urls": {
       "readme": "https://raw.githubusercontent.com/sindresorhus/pageres/master/readme.md"
     }
   },
   "robotjs": {
     "language": "javascript",
+    "static": false,
     "urls": {
       "readme": "https://raw.githubusercontent.com/octalmage/robotjs/master/README.md",
       "wiki": {
@@ -132,18 +138,21 @@
   "screenful": {
     "language": "javascript",
     "aliases": ["screenful.js"],
+    "static": false,
     "urls": {
       "readme": "https://raw.githubusercontent.com/sindresorhus/screenfull.js/gh-pages/readme.md"
     }
   },
   "vorpal": {
     "language": "javascript",
+    "static": false,
     "urls": {
       "readme": "https://raw.githubusercontent.com/dthree/vorpal/master/README.md"
     }
   },
   "vantage": {
     "language": "javascript",
+    "static": false,
     "urls": {
       "readme": "https://raw.githubusercontent.com/dthree/vantage/master/README.md"
     }

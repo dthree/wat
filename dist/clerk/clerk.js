@@ -12,19 +12,41 @@ var os = require('os');
 var path = require('path');
 var util = require('../util');
 
-var temp = path.join(os.tmpdir(), '/.wat');
+var tempRoot = path.join(os.tmpdir(), '/.wat/.local/');
+var staticRoot = __dirname + '/../../';
 
 var clerk = {
 
   lastUserAction: undefined,
 
   paths: {
-    tempDir: temp,
-    prefs: temp + '/.local/prefs.json',
-    cache: temp + '/.local/cache.json',
-    hist: temp + '/.local/hist.json',
-    docs: temp + '/.local/docs/',
-    autodocs: temp + '/.local/autodocs/',
+    temp: {
+      root: tempRoot,
+      prefs: tempRoot + 'prefs.json',
+      cache: tempRoot + 'cache.json',
+      hist: tempRoot + 'hist.json',
+      docs: tempRoot + 'docs/',
+      autodocs: tempRoot + 'autodocs/'
+    },
+    'static': {
+      root: staticRoot,
+      config: staticRoot + 'config/config.json',
+      autoConfig: staticRoot + 'config/autodocs.json',
+      docs: staticRoot + 'docs/',
+      autodocs: staticRoot + 'docs/'
+    },
+    remote: {
+      docs: '',
+      autodocs: '',
+      config: '',
+      archive: ''
+    },
+    tempDir: tempRoot,
+    prefs: tempRoot + 'prefs.json',
+    cache: tempRoot + 'cache.json',
+    hist: tempRoot + 'hist.json',
+    docs: tempRoot + 'docs/',
+    autodocs: tempRoot + 'autodocs/',
     config: './config/config.json',
     autoConfig: './config/config.auto.json',
     remoteDocUrl: '',
@@ -45,15 +67,14 @@ var clerk = {
   },
 
   scaffold: function scaffold() {
-    mkdirp.sync(this.paths.tempDir);
-    mkdirp.sync(this.paths.tempDir + '/.local');
-    mkdirp.sync(this.paths.tempDir + '/.local/docs');
-    mkdirp.sync(this.paths.tempDir + '/.local/autodocs');
-    this.scaffoldDir('' + this.paths.docs, 'static');
-    this.scaffoldDir('' + this.paths.autodocs, 'auto');
-    fs.appendFileSync(this.paths.prefs, '');
-    fs.appendFileSync(this.paths.cache, '');
-    fs.appendFileSync(this.paths.hist, '');
+    mkdirp.sync(this.paths.temp.root);
+    mkdirp.sync(this.paths.temp.docs);
+    mkdirp.sync(this.paths.temp.autodocs);
+    this.scaffoldDir(this.paths['static'].docs, 'static');
+    this.scaffoldDir(this.paths['static'].autodocs, 'auto');
+    fs.appendFileSync(this.paths.temp.prefs, '');
+    fs.appendFileSync(this.paths.temp.cache, '');
+    fs.appendFileSync(this.paths.temp.hist, '');
     return this;
   },
 
@@ -89,7 +110,7 @@ var clerk = {
 
   forEachInIndex: function forEachInIndex(callback) {
     var index = this.indexer.index() || {};
-    var dir = clerk.paths.docs;
+    var dir = clerk.paths.temp.docs;
     function traverse(idx, path) {
       for (var key in idx) {
         if (idx.hasOwnProperty(key)) {
@@ -105,7 +126,7 @@ var clerk = {
               nonSpecial.push(content[i]);
             }
           }
-          var fullPath = dir + path + key;
+          var fullPath = '' + dir + path + key;
           for (var item in special) {
             if (special.hasOwnProperty(item)) {
               callback(fullPath, item, special[item]);
@@ -225,7 +246,7 @@ var clerk = {
   },
 
   load: function load() {
-    var hist = fs.readFileSync(clerk.paths.hist, { encoding: 'utf-8' });
+    var hist = fs.readFileSync(clerk.paths.temp.hist, { encoding: 'utf-8' });
     try {
       hist = JSON.parse(hist);
       this.history._hist = hist;
@@ -248,26 +269,28 @@ var clerk = {
       var formatted = self.app.cosmetician.markdownToTerminal(local);
       cb(undefined, formatted);
     } else {
-      var remoteDir = type === 'auto' ? clerk.paths.remoteAutodocUrl : clerk.paths.remoteDocUrl;
-      util.fetchRemote(this.paths.remoteDocUrl + path, function (err, data) {
-        if (err) {
-          if (String(err).indexOf('Not Found') > -1) {
-            var response = chalk.yellow('\n  Wat couldn\'t find the Markdown file for this command.\n  This probably means your index needs an update.\n\n') + '  File: ' + self.paths.remoteDocUrl + path + '\n';
-            cb(undefined, response);
+      (function () {
+        var remoteDir = type === 'auto' ? clerk.paths.remote.autodocs : clerk.paths.remote.docs;
+        util.fetchRemote(remoteDir + path, function (err, data) {
+          if (err) {
+            if (String(err).indexOf('Not Found') > -1) {
+              var response = chalk.yellow('\n  Wat couldn\'t find the Markdown file for this command.\n  This probably means your index needs an update.\n\n') + '  File: ' + remoteDir + path + '\n';
+              cb(undefined, response);
+            } else {
+              cb(err);
+            }
           } else {
-            cb(err);
+            var formatted = self.app.cosmetician.markdownToTerminal(data);
+            clerk.file(path, type, data);
+            cb(undefined, formatted);
           }
-        } else {
-          var formatted = self.app.cosmetician.markdownToTerminal(data);
-          clerk.file(path, type, data);
-          cb(undefined, formatted);
-        }
-      });
+        });
+      })();
     }
   },
 
   fetchLocal: function fetchLocal(path, type) {
-    var directory = type === 'auto' ? clerk.paths.autodocs : clerk.paths.docs;
+    var directory = type === 'auto' ? clerk.paths.temp.autodocs : clerk.paths.temp.docs;
     var file = undefined;
     try {
       file = fs.readFileSync(directory + path, { encoding: 'utf-8' });
@@ -278,7 +301,7 @@ var clerk = {
   },
 
   file: function file(path, type, data, retry) {
-    var directory = type === 'auto' ? clerk.paths.autodocs : clerk.paths.docs;
+    var directory = type === 'auto' ? clerk.paths.temp.autodocs : clerk.paths.temp.docs;
     try {
       fs.appendFileSync(directory + path, data, { flag: 'w' });
     } catch (e) {

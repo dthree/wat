@@ -13,7 +13,7 @@ var autodocs = {
   config: function config() {
     var self = autodocs;
     try {
-      var config = fs.readFileSync(__dirname + '/../../' + self.app.clerk.paths.autoConfig, { encoding: 'utf-8' });
+      var config = fs.readFileSync(self.app.clerk.paths['static'].autoConfig, { encoding: 'utf-8' });
       config = JSON.parse(config);
       self._config = config;
     } catch (e) {

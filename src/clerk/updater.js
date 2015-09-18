@@ -24,7 +24,7 @@ const updater = {
     if (item && lastAction > 10000) {
       const partial = String(item).split('docs/');
       const url = (partial.length > 1) ? partial[1] : partial[0];
-      util.fetchRemote(self.app.clerk.paths.remoteDocUrl + url, function (err, data) {
+      util.fetchRemote(self.app.clerk.paths.remote.docs + url, function (err, data) {
         if (err) {
           console.log('PROBLEM...');
           console.log(err);

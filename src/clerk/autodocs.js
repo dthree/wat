@@ -13,7 +13,7 @@ const autodocs = {
   config() {
     const self = autodocs;
     try {
-      let config = fs.readFileSync(__dirname + '/../../' + self.app.clerk.paths.autoConfig, {encoding: 'utf-8'});
+      let config = fs.readFileSync(self.app.clerk.paths.static.autoConfig, {encoding: 'utf-8'});
       config = JSON.parse(config);
       self._config = config;
     } catch(e) {

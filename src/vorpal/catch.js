@@ -18,6 +18,20 @@ module.exports = function (vorpal, options) {
         const res = self.match(word, options);
         return res;
       });
+      if (result[0] === 'build') {
+        let command = String(result[1]).trim();
+        let message = '';
+        self.log(`  ${chalk.blue(`Building, please wait...${message}`)}\n`);
+        app.autodocs.run(command, {}, function(err){
+          if (err) {
+            self.log(`  ${err}\n`);
+          } else {
+            self.log(`  ${chalk.blue(`Done.`)}\n`);
+          }
+          cb();
+        });
+        result = result = result[1];
+      }
       cb(undefined, result);
     })
     .action(function (args, cb) {

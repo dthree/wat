@@ -1,7 +1,8 @@
 {
   "remoteDocUrl": "https://raw.githubusercontent.com/dthree/wat/master/docs/",
+  "remoteAutodocUrl": "https://raw.githubusercontent.com/dthree/wat/master/autodocs/",
   "remoteConfigUrl": "https://raw.githubusercontent.com/dthree/wat/master/config/",
   "remoteArchiveUrl": "https://api.github.com/repos/dthree/wat/tarball",
-  "docIndexLastWrite": "2015-09-16T01:33:26.306Z",
+  "docIndexLastWrite": "2015-09-18T18:30:22.746Z",
   "docIndexSize": 2752
 }

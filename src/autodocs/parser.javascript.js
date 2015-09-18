@@ -153,6 +153,9 @@ const js = {
       }
     }
     
+    // Make sure we don't have trailing spaces.
+    syn = syn.trim();
+
     let isImplicitChild;
     if (syn.match(self.rules.startPeriod)) {
       isImplicitChild = true;
@@ -191,9 +194,9 @@ const js = {
     result.errors = errors;
     result.isImplicitChild = isImplicitChild;
 
-    if (name === 'new Agent') {
-      console.log(result);
-    }
+    //if (name === 'new Agent') {
+      //console.log(result);
+    //}
 
     return result;
   },
@@ -231,7 +234,7 @@ const js = {
     if (obj.type === 'method') {
       result = result + '(' + pResult + ')';
     }
-  
+
     return result;
   },
 

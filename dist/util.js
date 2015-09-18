@@ -63,8 +63,18 @@ var util = {
           // In this scenario, the user has chosen an autodoc
           // lib that hasn't been downloaded yet, and has tabbed.
           // We tell the user what he can do.
-          var msg = chalk.blue('\n  This library has not been built. \n  Press [enter] to automatically download and build it.\n');
-          response = [msg];
+          var msg = undefined;
+          if (iteration < 4) {
+            var times = 4 - iteration;
+            times = times > 1 ? times + ' more times' : times + ' more time';
+            times = chalk.cyan(times);
+            msg = [chalk.blue('\n  This library has not been built. \n  To build, press ' + chalk.cyan('[tab]') + ' ' + times + ', or press ' + chalk.cyan('[enter]') + '.\n')];
+          } else if (iteration === 4) {
+            msg = ['build', original];
+          } else {
+            msg = original;
+          }
+          response = msg;
         } else {
           response = original;
         }

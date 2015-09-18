@@ -12,19 +12,41 @@ const os = require('os');
 const path = require('path');
 const util = require('../util');
 
-const temp = path.join(os.tmpdir(), '/.wat');
+const tempRoot = path.join(os.tmpdir(), '/.wat/.local/');
+const staticRoot = `${__dirname}/../../`;
 
 const clerk = {
 
   lastUserAction: undefined,
 
   paths: {
-    tempDir: temp,
-    prefs: `${temp}/.local/prefs.json`,
-    cache: `${temp}/.local/cache.json`,
-    hist: `${temp}/.local/hist.json`,
-    docs: `${temp}/.local/docs/`,
-    autodocs: `${temp}/.local/autodocs/`,
+    temp: {
+      root: tempRoot,
+      prefs: `${tempRoot}prefs.json`,
+      cache: `${tempRoot}cache.json`,
+      hist: `${tempRoot}hist.json`,
+      docs: `${tempRoot}docs/`,
+      autodocs: `${tempRoot}autodocs/`,
+    },
+    static: {
+      root: staticRoot,
+      config: `${staticRoot}config/config.json`,
+      autoConfig: `${staticRoot}config/autodocs.json`,
+      docs: `${staticRoot}docs/`,
+      autodocs: `${staticRoot}docs/`
+    },
+    remote: {
+      docs: '',
+      autodocs: '',
+      config: '',
+      archive: ''
+    },
+    tempDir: tempRoot,
+    prefs: `${tempRoot}prefs.json`,
+    cache: `${tempRoot}cache.json`,
+    hist: `${tempRoot}hist.json`,
+    docs: `${tempRoot}docs/`,
+    autodocs: `${tempRoot}autodocs/`,
     config: './config/config.json',
     autoConfig: './config/config.auto.json',
     remoteDocUrl: '',
@@ -45,15 +67,14 @@ const clerk = {
   },
 
   scaffold() {
-    mkdirp.sync(this.paths.tempDir);
-    mkdirp.sync(`${this.paths.tempDir}/.local`);
-    mkdirp.sync(`${this.paths.tempDir}/.local/docs`);
-    mkdirp.sync(`${this.paths.tempDir}/.local/autodocs`);
-    this.scaffoldDir(`${this.paths.docs}`, 'static');
-    this.scaffoldDir(`${this.paths.autodocs}`, 'auto');
-    fs.appendFileSync(this.paths.prefs, '');
-    fs.appendFileSync(this.paths.cache, '');
-    fs.appendFileSync(this.paths.hist, '');
+    mkdirp.sync(this.paths.temp.root);
+    mkdirp.sync(this.paths.temp.docs);
+    mkdirp.sync(this.paths.temp.autodocs);
+    this.scaffoldDir(this.paths.static.docs, 'static');
+    this.scaffoldDir(this.paths.static.autodocs, 'auto');
+    fs.appendFileSync(this.paths.temp.prefs, '');
+    fs.appendFileSync(this.paths.temp.cache, '');
+    fs.appendFileSync(this.paths.temp.hist, '');
     return this;
   },
 
@@ -89,7 +110,7 @@ const clerk = {
 
   forEachInIndex(callback) {
     const index = this.indexer.index() || {};
-    const dir = clerk.paths.docs;
+    const dir = clerk.paths.temp.docs;
     function traverse(idx, path) {
       for (const key in idx) {
         if (idx.hasOwnProperty(key)) {
@@ -105,7 +126,7 @@ const clerk = {
               nonSpecial.push(content[i]);
             }
           }
-          const fullPath = dir + path + key;
+          const fullPath = `${dir}${path}${key}`;
           for (const item in special) {
             if (special.hasOwnProperty(item)) {
               callback(fullPath, item, special[item]);
@@ -225,7 +246,7 @@ const clerk = {
   },
 
   load() {
-    let hist = fs.readFileSync(clerk.paths.hist, {encoding: 'utf-8'});
+    let hist = fs.readFileSync(clerk.paths.temp.hist, {encoding: 'utf-8'});
     try {
       hist = JSON.parse(hist);
       this.history._hist = hist;
@@ -249,12 +270,12 @@ const clerk = {
       cb(undefined, formatted);
     } else {
       const remoteDir = (type === 'auto') 
-        ? clerk.paths.remoteAutodocUrl
-        : clerk.paths.remoteDocUrl;
-      util.fetchRemote(this.paths.remoteDocUrl + path, function (err, data) {
+        ? clerk.paths.remote.autodocs
+        : clerk.paths.remote.docs;
+      util.fetchRemote(remoteDir + path, function (err, data) {
         if (err) {
           if (String(err).indexOf('Not Found') > -1) {
-            const response = `${chalk.yellow(`\n  Wat couldn\'t find the Markdown file for this command.\n  This probably means your index needs an update.\n\n`)}  File: ${self.paths.remoteDocUrl}${path}\n`;
+            const response = `${chalk.yellow(`\n  Wat couldn\'t find the Markdown file for this command.\n  This probably means your index needs an update.\n\n`)}  File: ${remoteDir}${path}\n`;
             cb(undefined, response);
           } else {
             cb(err);
@@ -270,8 +291,8 @@ const clerk = {
 
   fetchLocal(path, type) {
     const directory = (type === 'auto') 
-      ? clerk.paths.autodocs
-      : clerk.paths.docs;
+      ? clerk.paths.temp.autodocs
+      : clerk.paths.temp.docs;
     let file;
     try {
       file = fs.readFileSync(directory + path, {encoding: 'utf-8'});
@@ -283,8 +304,8 @@ const clerk = {
 
   file(path, type, data, retry) {
     const directory = (type === 'auto')
-      ? clerk.paths.autodocs
-      : clerk.paths.docs;
+      ? clerk.paths.temp.autodocs
+      : clerk.paths.temp.docs;
     try {
       fs.appendFileSync(directory + path, data, {flag: 'w'});
     } catch(e) {

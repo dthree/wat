@@ -6,8 +6,8 @@ module.exports = function (vorpal, options) {
   vorpal.command('index', 'Updates the index based on local docs.').action(function (args, cb) {
     var self = this;
 
-    app.clerk.indexer.build(function (index) {
-      app.clerk.indexer.write(index);
+    app.clerk.indexer.build(function (index, localIndex) {
+      app.clerk.indexer.write(index, localIndex);
       self.log('Rebuilt index.');
       cb();
     });

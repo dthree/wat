@@ -24,7 +24,7 @@ var autodocs = {
 
   run: function run(name, options, callback) {
     options = options || {};
-    options.rebuild = options.rebuilt || true;
+    options.rebuild = options.rebuild || true;
     var self = this;
     var lib = String(name).trim();
     var config = self.app.clerk.autodocs.config();
@@ -64,8 +64,8 @@ var autodocs = {
       var result = self.scaffold(libName, opt, function (err, data) {
         if (libs.length < 1) {
           if (options.rebuild) {
-            self.app.clerk.indexer.build(function (index) {
-              self.app.clerk.indexer.write(index);
+            self.app.clerk.indexer.build(function (index, localIndex) {
+              self.app.clerk.indexer.write(index, localIndex);
               callback();
             });
           } else {
@@ -94,6 +94,7 @@ var autodocs = {
     var allNames = aliases;
     var results = {};
     var errors = [];
+    var writeOptions = { 'static': isStatic };
 
     allNames.push(repoName);
 
@@ -158,12 +159,21 @@ var autodocs = {
       fetchOne(url, tree[url]);
     }
 
-    var autoDocPath = __dirname + '/../../autodocs/' + repoName;
+    var temp = pathx.join(os.tmpdir(), '/.wat/.local');
+
+    var autodocPath = __dirname + '/../../autodocs/' + repoName;
+    var localAutodocPath = temp + '/autodocs/' + repoName;
     try {
-      rimraf.sync(autoDocPath);
+      if (writeOptions['static']) {
+        rimraf.sync(autodocPath);
+      }
+      rimraf.sync(localAutodocPath);
     } catch (e) {}
 
-    util.mkdirSafe(autoDocPath);
+    if (writeOptions['static']) {
+      util.mkdirSafe(autodocPath);
+    }
+    util.mkdirSafe(localAutodocPath);
 
     function parse() {
       for (var result in results) {
@@ -210,7 +220,6 @@ var autodocs = {
         };
       }
 
-      var writeOptions = { 'static': isStatic };
       var config = self.mdast.buildAPIConfig(finalAPI);
       config.docs = [];
 
@@ -221,7 +230,11 @@ var autodocs = {
         }
       }
 
-      self.writeConfig(autoDocPath, config);
+      if (writeOptions['static']) {
+        self.writeConfig(autodocPath, config);
+      }
+      self.writeConfig(localAutodocPath, config);
+
       self.writeAPI(finalAPI, writeOptions);
 
       callback();
@@ -357,6 +370,43 @@ var autodocs = {
     } catch (e) {
       console.log('\n\n' + chalk.yellow('  In building an autodoc, Wat couldn\'t write its config file.') + '\n');
       throw new Error(e);
+    }
+  },
+
+  'delete': function _delete(name, opt, callback) {
+    var options = options || {};
+    options.rebuild = opt.rebuild || true;
+    var self = this;
+    var lib = String(name).trim();
+    var temp = pathx.join(os.tmpdir(), '/.wat/.local');
+    var autodocPath = __dirname + '/../../autodocs/' + name;
+    var localAutodocPath = temp + '/autodocs/' + name;
+    var config = self.app.clerk.autodocs.config();
+
+    if (config[name] === undefined) {
+      callback('\n  ' + name + ' isn\'t an auto-generated library. Did you get the spelling right?\n');
+      return;
+    }
+
+    if (config[name]['static'] === true) {
+      callback('\n  ' + name + ' is a permanent library and cannot be unbuilt.\n');
+      return;
+    }
+
+    try {
+      if (options['static']) {
+        rimraf.sync(autodocPath);
+      }
+      rimraf.sync(localAutodocPath);
+    } catch (e) {}
+
+    if (options.rebuild) {
+      self.app.clerk.indexer.build(function (index, localIndex) {
+        self.app.clerk.indexer.write(index, localIndex);
+        callback();
+      });
+    } else {
+      callback();
     }
   }
 

@@ -8,8 +8,8 @@ module.exports = function (vorpal, options) {
     .action(function (args, cb) {
       const self = this;
 
-      app.clerk.indexer.build(function(index){
-        app.clerk.indexer.write(index);
+      app.clerk.indexer.build(function(index, localIndex){
+        app.clerk.indexer.write(index, localIndex);
         self.log('Rebuilt index.');
         cb();
       });

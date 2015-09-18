@@ -28,7 +28,7 @@ var config = {
   getLocal: function getLocal() {
     var self = this;
     try {
-      var _config = fs.readFileSync(path.join(__dirname, '/../../', self.app.clerk.paths.config), { encoding: 'utf-8' });
+      var _config = fs.readFileSync(self.app.clerk.paths['static'].config, { encoding: 'utf-8' });
       _config = JSON.parse(_config);
       this._config = _config;
     } catch (e) {
@@ -38,9 +38,10 @@ var config = {
     }
 
     // Read local config on how to find remote data.
-    self.app.clerk.paths.remoteDocUrl = this._config.remoteDocUrl || self.app.clerk.paths.remoteDocUrl;
-    self.app.clerk.paths.remoteConfigUrl = this._config.remoteConfigUrl || self.app.clerk.paths.remoteConfigUrl;
-    self.app.clerk.paths.remoteArchiveUrl = this._config.remoteArchiveUrl || self.app.clerk.paths.remoteArchiveUrl;
+    self.app.clerk.paths.remote.docs = this._config.remoteDocUrl || self.app.clerk.paths.remote.docs;
+    self.app.clerk.paths.remote.autodocs = this._config.remoteAutodocUrl || self.app.clerk.paths.remote.autodocs;
+    self.app.clerk.paths.remote.config = this._config.remoteConfigUrl || self.app.clerk.paths.remote.config;
+    self.app.clerk.paths.remote.archive = this._config.remoteArchiveUrl || self.app.clerk.paths.remote.archive;
     return this._config;
   },
 

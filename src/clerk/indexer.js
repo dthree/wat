@@ -16,6 +16,9 @@ const indexer = {
   // The JSON of the index.
   _index: undefined,
 
+  // The JSON of the local index.
+  _localIndex: undefined,
+
   // Last time the index was
   // pulled from online.
   _indexLastUpdate: undefined,
@@ -92,6 +95,9 @@ const indexer = {
         idx = self.applyConfigs(idx, configs);
 
         // Add in unloaded autodoc hints into index.
+        idx = self.applyLibs(idx);
+
+        // Add in unloaded autodoc hints into index.
         idx = self.applyAutodocs(idx, autodocs);
 
         callback(idx, local);
@@ -129,6 +135,7 @@ const indexer = {
       dones++;
       if (dones === 2) {
         let idx = self.applyConfigs(auto, autoConfigs);
+        idx = self.applyLibs(idx);
         callback(idx);
       }
     }
@@ -282,13 +289,15 @@ const indexer = {
     return idx;
   },
 
-  applyAutodocs(idx, autodocs) {
-
+  applyLibs(idx) {
     // Make the __class lib automatically.
     Object.keys(idx).map(function (value) {
       idx[value].__class = 'lib';
     });
+    return idx;
+  },
 
+  applyAutodocs(idx, autodocs) {
     // Throw downloadable auto-doc libraries in the index.
     Object.keys(autodocs).forEach(function(item){
       let exists = (idx[item] !== undefined) ? true : false;
@@ -300,19 +309,8 @@ const indexer = {
     return idx;
   },
 
-  merge(a, b) {
-    for (const item in b) {
-      if (b.hasOwnProperty(item)) {
-        if (a[item] === undefined) {
-          a[item] = b[item];
-        }
-      }
-    }
-    return a;
-  },
-
   /**
-  * Does a safer merge, where the local
+  * Does a safe merge, where the local
   * data is considered invalid where it
   * conflicts with official data contained
   * in the project folder. By local is meant
@@ -324,15 +322,23 @@ const indexer = {
   * @api public
   */
 
-  mergeLocal(official, local) {
+  merge(official, local) {
+    const result = {}
+    for (const item in official) {
+      if (official.hasOwnProperty(item)) {
+        result[item] = official[item];
+      }
+    }
     for (const item in local) {
       if (local.hasOwnProperty(item)) {
-        if (official[item] === undefined) {
-          official[item] = local[item];
+        let nonexistent = (result[item] === undefined);
+        let unbuilt = (result[item] && (result[item].__class === 'unbuilt-lib'));
+        if (nonexistent || unbuilt) {
+          result[item] = local[item];
         }
       }
     }
-    return official;
+    return result;
   },
 
   /**
@@ -342,13 +348,15 @@ const indexer = {
   * @api public
   */
 
-  write(json) {
-    const index = JSON.stringify(json, null, '');
-    const result = fs.writeFileSync(`${__dirname}/../../config/index.json`, JSON.stringify(json, null, '  '));
-    this._index = json;
+  write(idx, localIdx) {
+    fs.writeFileSync(`${__dirname}/../../config/index.json`, JSON.stringify(idx, null));
+    fs.writeFileSync(`${this.app.clerk.paths.tempDir}/.local/autodocs/index.local.json`, JSON.stringify(localIdx, null));
+    this._index = idx;
+    this._localIndex = localIdx;
+    this._mergedIndex = this.merge(this._index, this._localIndex);
     indexer.clerk.config.setLocal('docIndexLastWrite', new Date());
-    indexer.clerk.config.setLocal('docIndexSize', String(index).length);
-    return result;
+    indexer.clerk.config.setLocal('docIndexSize', String(JSON.stringify(idx)).length);
+    return this;
   },
 
   /**
@@ -360,17 +368,21 @@ const indexer = {
   */
 
   index() {
-    if (!this._index) {
+    const self = this;
+    if (!this._index || !this._localIndex || !this._mergedIndex) {
       try {
-        const index = fs.readFileSync(`${__dirname}/../../config/index.json`, {encoding: 'utf-8'});
-        const json = JSON.parse(index);
-        this._index = json;
+        this._index = JSON.parse(fs.readFileSync(`${__dirname}/../../config/index.json`, {encoding: 'utf-8'}));
       } catch(e) {
-        this._index = undefined;
-        return undefined;
+        this._index = {};
       }
+      try {
+        this._localIndex = JSON.parse(fs.readFileSync(`${self.app.clerk.paths.tempDir}/.local/autodocs/index.local.json`, {encoding: 'utf-8'}));
+      } catch(e) {
+        this._localIndex = {};
+      }
+      this._mergedIndex = this.merge(this._index, this._localIndex) || {};
     }
-    return this._index;
+    return this._mergedIndex;
   },
 
   /**

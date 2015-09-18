@@ -157,6 +157,9 @@ var js = {
       })();
     }
 
+    // Make sure we don't have trailing spaces.
+    syn = syn.trim();
+
     var isImplicitChild = undefined;
     if (syn.match(self.rules.startPeriod)) {
       isImplicitChild = true;
@@ -195,9 +198,9 @@ var js = {
     result.errors = errors;
     result.isImplicitChild = isImplicitChild;
 
-    if (name === 'new Agent') {
-      console.log(result);
-    }
+    //if (name === 'new Agent') {
+    //console.log(result);
+    //}
 
     return result;
   },
