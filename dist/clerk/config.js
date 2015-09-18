@@ -48,7 +48,7 @@ var config = {
   getRemote: function getRemote(callback) {
     callback = callback || function () {};
     var self = this;
-    var url = self.app.clerk.paths.remoteConfigUrl + 'config.json';
+    var url = self.app.clerk.paths.remote.config + 'config.json';
     util.fetchRemote(url, function (err, data) {
       if (!err) {
         try {
@@ -68,7 +68,7 @@ var config = {
     if (key && value) {
       this._config[key] = value;
     }
-    fs.writeFileSync(path.join(__dirname, '/../../', self.app.clerk.paths.config), JSON.stringify(this._config, null, '  '));
+    fs.writeFileSync(self.app.clerk.paths['static'].config, JSON.stringify(this._config, null, '  '));
   }
 };
 

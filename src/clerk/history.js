@@ -57,7 +57,7 @@ const history = {
     if (this._hist.length > this._max) {
       this._hist = this._hist.slice(this._hist.length - this._max);
     }
-    fs.writeFileSync(this.app.clerk.paths.hist, JSON.stringify(this._hist));
+    fs.writeFileSync(this.app.clerk.paths.temp.hist, JSON.stringify(this._hist));
     return this;
   }
 };

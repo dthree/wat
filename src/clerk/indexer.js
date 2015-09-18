@@ -139,11 +139,11 @@ const indexer = {
         callback(idx);
       }
     }
-    this.buildDir(path.normalize(`${self.app.clerk.paths.tempDir}/.local/autodocs/`), 'auto', function (data) {
+    this.buildDir(self.app.clerk.paths.temp.autodocs, 'auto', function (data) {
       auto = data;
       checker();
     });
-    this.readConfigs(path.normalize(`${self.app.clerk.paths.tempDir}/.local/autodocs/`), function (data) {
+    this.readConfigs(self.app.clerk.paths.temp.autodocs, function (data) {
       autoConfigs = data || {};
       checker();
     });
@@ -349,8 +349,8 @@ const indexer = {
   */
 
   write(idx, localIdx) {
-    fs.writeFileSync(`${__dirname}/../../config/index.json`, JSON.stringify(idx, null));
-    fs.writeFileSync(`${this.app.clerk.paths.tempDir}/.local/autodocs/index.local.json`, JSON.stringify(localIdx, null));
+    fs.writeFileSync(`${this.app.clerk.paths.static.root}config/index.json`, JSON.stringify(idx, null));
+    fs.writeFileSync(`${this.app.clerk.paths.temp.autodocs}index.local.json`, JSON.stringify(localIdx, null));
     this._index = idx;
     this._localIndex = localIdx;
     this._mergedIndex = this.merge(this._index, this._localIndex);
@@ -376,7 +376,7 @@ const indexer = {
         this._index = {};
       }
       try {
-        this._localIndex = JSON.parse(fs.readFileSync(`${self.app.clerk.paths.tempDir}/.local/autodocs/index.local.json`, {encoding: 'utf-8'}));
+        this._localIndex = JSON.parse(fs.readFileSync(`${this.app.clerk.paths.temp.autodocs}index.local.json`, {encoding: 'utf-8'}));
       } catch(e) {
         this._localIndex = {};
       }
@@ -395,7 +395,7 @@ const indexer = {
 
   getRemoteIndex(callback) {
     const self = this;
-    util.fetchRemote(`${self.clerk.paths.remoteConfigUrl}index.json`, function (err, data) {
+    util.fetchRemote(`${self.clerk.paths.remote.config}index.json`, function (err, data) {
       if (!err) {
         let err2 = false;
         let json;
@@ -403,7 +403,7 @@ const indexer = {
           json = JSON.parse(data);
         } catch(e) {
           err2 = true;
-          callback(`Error parsing remote index json: ${data}, Error: ${e}, url: ${self.clerk.paths.remoteConfigUrl}index.json`);
+          callback(`Error parsing remote index json: ${data}, Error: ${e}, url: ${self.clerk.paths.remote.config}index.json`);
         }
         if (!err2) {
           callback(undefined, json);
@@ -465,7 +465,7 @@ const indexer = {
           }
         } else if (String(err).indexOf('Not Found') > -1) {
           const lellow = chalk.yellow(`\nWat could not locate the remote config directory and so does not know where to pull docs from.\nRe-installing your instance of Wat through NPM should solve this problem.`);
-          const error = `${lellow}\n\nUrl Attempted: ${self.clerk.paths.remoteConfigUrl}config.json`;
+          const error = `${lellow}\n\nUrl Attempted: ${self.clerk.paths.remote.config}config.json`;
           console.log(error);
           throw new Error(err);
         } else if (err.code === 'EAI_AGAIN') {

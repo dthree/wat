@@ -13,7 +13,7 @@ const prefs = {
   get() {
     const self = prefs;
     try {
-      let prefs = fs.readFileSync(self.app.clerk.paths.prefs, {encoding: 'utf-8'});
+      let prefs = fs.readFileSync(self.app.clerk.paths.temp.prefs, {encoding: 'utf-8'});
       prefs = JSON.parse(prefs);
       self._prefs = prefs;
     } catch(e) {}
@@ -25,7 +25,7 @@ const prefs = {
     if (key && value) {
       self._prefs[key] = value;
     }
-    fs.writeFileSync(self.app.clerk.paths.prefs, JSON.stringify(self._prefs, null, '  '));
+    fs.writeFileSync(self.app.clerk.paths.temp.prefs, JSON.stringify(self._prefs, null, '  '));
   }
 };
 
