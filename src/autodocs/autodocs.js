@@ -159,10 +159,10 @@ const autodocs = {
       fetchOne(url, tree[url]);
     }
 
-    const temp = pathx.join(os.tmpdir(), '/.wat/.local');
+    const temp = this.app.clerk.paths.temp.root;
 
-    let autodocPath = `${__dirname}/../../autodocs/${repoName}`;
-    let localAutodocPath = `${temp}/autodocs/${repoName}`;
+    let autodocPath = `${self.app.clerk.paths.static.autodocs}${repoName}`;
+    let localAutodocPath = `${self.app.clerk.paths.temp.autodocs}${repoName}`;
     try {
       if (writeOptions.static) {
         rimraf.sync(autodocPath);
@@ -250,7 +250,7 @@ const autodocs = {
         continue;
       }
 
-      const temp = pathx.join(os.tmpdir(), '/.wat/.local');
+      const temp = this.app.clerk.paths.temp.root;
       let path = String(docs[i].docPath);
       let parts = path.split('/');
       let file = parts.pop();
@@ -298,7 +298,7 @@ const autodocs = {
       if (!api[i].apiPath) {
         continue;
       }
-      const temp = pathx.join(os.tmpdir(), '/.wat/.local');
+      const temp = this.app.clerk.paths.temp.root;
       let path = String(api[i].apiPath);
       let parts = path.split('/');
       let file = parts.pop();
@@ -380,9 +380,11 @@ const autodocs = {
     options.rebuild = opt.rebuild || true;
     const self = this;
     const lib = String(name).trim();
-    const temp = pathx.join(os.tmpdir(), '/.wat/.local');
-    const autodocPath = `${__dirname}/../../autodocs/${name}`;
-    const localAutodocPath = `${temp}/autodocs/${name}`;
+    const temp = this.app.clerk.paths.temp.root;
+
+    let autodocPath = `${self.app.clerk.paths.static.autodocs}${name}`;
+    let localAutodocPath = `${self.app.clerk.paths.temp.autodocs}${name}`;
+
     const config = self.app.clerk.autodocs.config();
 
     if (config[name] === undefined) {

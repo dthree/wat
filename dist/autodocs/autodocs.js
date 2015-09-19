@@ -159,10 +159,10 @@ var autodocs = {
       fetchOne(url, tree[url]);
     }
 
-    var temp = pathx.join(os.tmpdir(), '/.wat/.local');
+    var temp = this.app.clerk.paths.temp.root;
 
-    var autodocPath = __dirname + '/../../autodocs/' + repoName;
-    var localAutodocPath = temp + '/autodocs/' + repoName;
+    var autodocPath = '' + self.app.clerk.paths['static'].autodocs + repoName;
+    var localAutodocPath = '' + self.app.clerk.paths.temp.autodocs + repoName;
     try {
       if (writeOptions['static']) {
         rimraf.sync(autodocPath);
@@ -250,7 +250,7 @@ var autodocs = {
         continue;
       }
 
-      var temp = pathx.join(os.tmpdir(), '/.wat/.local');
+      var temp = this.app.clerk.paths.temp.root;
       var path = String(docs[i].docPath);
       var parts = path.split('/');
       var file = parts.pop();
@@ -296,7 +296,7 @@ var autodocs = {
       if (!api[i].apiPath) {
         continue;
       }
-      var temp = pathx.join(os.tmpdir(), '/.wat/.local');
+      var temp = this.app.clerk.paths.temp.root;
       var path = String(api[i].apiPath);
       var parts = path.split('/');
       var file = parts.pop();
@@ -378,9 +378,11 @@ var autodocs = {
     options.rebuild = opt.rebuild || true;
     var self = this;
     var lib = String(name).trim();
-    var temp = pathx.join(os.tmpdir(), '/.wat/.local');
-    var autodocPath = __dirname + '/../../autodocs/' + name;
-    var localAutodocPath = temp + '/autodocs/' + name;
+    var temp = this.app.clerk.paths.temp.root;
+
+    var autodocPath = '' + self.app.clerk.paths['static'].autodocs + name;
+    var localAutodocPath = '' + self.app.clerk.paths.temp.autodocs + name;
+
     var config = self.app.clerk.autodocs.config();
 
     if (config[name] === undefined) {
