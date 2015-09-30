@@ -1,6 +1,6 @@
 {
   "name": "wat",
-  "version": "0.1.10",
+  "version": "0.1.11",
   "description": "Community-controlled cheat sheets for every coder.",
   "main": "./dist/index.js",
   "scripts": {
