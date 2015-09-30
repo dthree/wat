@@ -206,13 +206,17 @@ const exports = {
   },
 
   stripHTML(md) {
-    const anchors = /<a\b[^>]*>(.*?)<\/a>/ig;
+    const anchors = /<a\b[^>]*>((.|\n|\r\n)*?)<\/a>/gi;
     const bolds = /<b>(.*?)<\/b>/ig;
+    const strikethroughs = /<s>((.|\n|\r\n)*?)<\/s>/ig;
     const breaks = /<br>/ig;
-    const italics = /<i>(.*?)<\/i>/ig;
+    const images = /<img ((.|\n|\r\n)*?)\/>/ig;
+    const italics = /<i>((.|\n|\r\n)*?)<\/i>/ig;
     md = md.replace(anchors, '$1');
     md = md.replace(bolds, '**$1**');
+    md = md.replace(images, '');
     md = md.replace(breaks, '');
+    md = md.replace(strikethroughs, '$1');
     md = md.replace(italics, '*$1*');
     return md;
   },

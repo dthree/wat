@@ -219,13 +219,17 @@ var _exports = {
   },
 
   stripHTML: function stripHTML(md) {
-    var anchors = /<a\b[^>]*>(.*?)<\/a>/ig;
+    var anchors = /<a\b[^>]*>((.|\n|\r\n)*?)<\/a>/gi;
     var bolds = /<b>(.*?)<\/b>/ig;
+    var strikethroughs = /<s>((.|\n|\r\n)*?)<\/s>/ig;
     var breaks = /<br>/ig;
-    var italics = /<i>(.*?)<\/i>/ig;
+    var images = /<img ((.|\n|\r\n)*?)\/>/ig;
+    var italics = /<i>((.|\n|\r\n)*?)<\/i>/ig;
     md = md.replace(anchors, '$1');
     md = md.replace(bolds, '**$1**');
+    md = md.replace(images, '');
     md = md.replace(breaks, '');
+    md = md.replace(strikethroughs, '$1');
     md = md.replace(italics, '*$1*');
     return md;
   },

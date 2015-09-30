@@ -20,25 +20,30 @@ module.exports = function (vorpal, options) {
     .alias('so')
     .alias('stack')
     .parse(function (str) {
-      return `${str} | less`;
+      return `${str} | less -F`;
     })
     .action(function (args, cb) {
       const self = this;
       const command = (args.command || []).join(' ');
-      self.log(' ');
+      let results = '\n';
+
+      function end() {
+        self.log(results);
+        cb();
+      }
 
       function process(itm) {
         spider.stackoverflow.getPage(itm, function (err, text) {
           if (err) {
             if (err === 'NO_ANSWERS') {
-              self.log(`${chalk.yellow(`  Wat couldn\'t find any matches on Stack Overflow.`)}\n  Try re-wording your command.\n`);
+              results += `${chalk.yellow(`  Wat couldn\'t find any matches on Stack Overflow.`)}\n  Try re-wording your command.\n`;
             } else {
-              self.log('Error: ', err);
+              results += `Error: ${err}`;
             }
           } else {
-            self.log(text);
+            results += text;
           }
-          cb();
+          end();
         });
       }
 
@@ -46,15 +51,15 @@ module.exports = function (vorpal, options) {
         const wanted = spider.filterGoogle(links, ['stackoverflow']);
         const item = wanted.shift();
         if (err) {
-          self.log(`  ${chalk.yellow(`Hmmm.. Wat had trouble searching this command.`)}\n`);
-          cb();
+          results += `  ${chalk.yellow(`Hmmm.. Wat had trouble searching this command.`)}\n`;
+          end();
           return;
         }
         if (item) {
           process(item);
         } else {
-          self.log(`${chalk.yellow(`  Wat couldn\'t find any matches on Stack Overflow.`)}\n  Try re-wording your command.\n`);
-          cb();
+          results += `${chalk.yellow(`  Wat couldn\'t find any matches on Stack Overflow.`)}\n  Try re-wording your command.\n`;
+          end();
         }   
       });
     });

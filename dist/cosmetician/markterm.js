@@ -734,7 +734,23 @@
   };
 
   Renderer.prototype.heading = function (text, level, raw) {
-    return '<md-h' + level + '>' + text + '</md>\n';
+    var line = '';
+    if (level < 3) {
+      for (var i = 0; i < this.options.lineWidth() - 4; ++i) {
+        line += '-';
+      }
+    }
+    var res;
+    if (level === 1) {
+      line = chalk.bold(line);
+      res = '<md-h' + level + '>' + text + '</md>\n' + line + '\n';
+    } else if (level === 2) {
+      line = chalk.grey(line);
+      res = '<md-h' + level + '>' + text + '</md>\n' + line + '\n';
+    } else {
+      res = '<md-h' + level + '>' + text + '</md>\n';
+    }
+    return res;
   };
 
   Renderer.prototype.hr = function () {
@@ -762,17 +778,31 @@
   };
 
   Renderer.prototype.table = function (header, body) {
-    return '<table>\n' + '<thead>\n' + header + '</thead>\n' + '<tbody>\n' + body + '</tbody>\n' + '</table>\n';
+    return header + body;
+    /*
+    return '<table>\n'
+      + '<thead>\n'
+      + header
+      + '</thead>\n'
+      + '<tbody>\n'
+      + body
+      + '</tbody>\n'
+      + '</table>\n';
+    */
   };
 
   Renderer.prototype.tablerow = function (content) {
-    return '<tr>\n' + content + '</tr>\n';
+    if (String(content).trim() !== '') {
+      return '' + content + '\n';
+    } else {
+      return '';
+    }
   };
 
   Renderer.prototype.tablecell = function (content, flags) {
     var type = flags.header ? 'th' : 'td';
-    var tag = flags.align ? '<' + type + ' style="text-align:' + flags.align + '">' : '<' + type + '>';
-    return tag + content + '</' + type + '>\n';
+    var tag = '<md-' + type + '>';
+    return tag + content + '</md>  ';
   };
 
   // span level renderer
