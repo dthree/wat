@@ -301,7 +301,6 @@ var clerk = {
   },
 
   file: function file(path, type, data, retry) {
-    console.log('filing', path, type, data);
     var rootDir = type === 'auto' ? clerk.paths.temp.autodocs : clerk.paths.temp.docs;
     var file = rootDir + path;
     var dir = String(file).split('/');

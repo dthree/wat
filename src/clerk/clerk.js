@@ -303,7 +303,6 @@ const clerk = {
   },
 
   file(path, type, data, retry) {
-    console.log('filing', path, type, data);
     const rootDir = (type === 'auto')
       ? clerk.paths.temp.autodocs
       : clerk.paths.temp.docs;
