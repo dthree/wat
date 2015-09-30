@@ -51,7 +51,8 @@
     "sluggin": "^0.1.1",
     "strip-ansi": "^3.0.0",
     "tmp": "0.0.27",
-    "vorpal": "^1.0.9",
+    "vorpal": "^1.2.6",
+    "vorpal-less": "0.0.6",
     "walk": "^2.3.9",
     "wrap-ansi": "^0.2.0"
   },
@@ -62,6 +63,7 @@
   "files": [
     "dist",
     "bin",
+    "autodocs",
     "config"
   ],
   "eslintConfig": {

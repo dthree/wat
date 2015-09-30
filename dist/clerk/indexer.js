@@ -152,6 +152,22 @@ var indexer = {
   buildDir: function buildDir(dir, dirType, callback) {
     callback = callback || {};
     var index = {};
+
+    // Make sure dir exists.
+    var exists = true;
+    try {
+      exists = fs.statSync(dir);
+    } catch (e) {
+      exists = false;
+    }
+
+    if (!exists) {
+      callback({});
+      return;
+    }
+
+    //console.log('exists!', exists, dir)
+
     var walker = walk.walk(dir, {});
     walker.on('file', function (root, fileStats, next) {
       var parts = String(path.normalize(root)).split('docs/');

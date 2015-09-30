@@ -11,6 +11,9 @@ module.exports = function (vorpal, options) {
     .catch('[commands...]')
     .option('-d, --detail', 'View detailed markdown on item.')
     .option('-i, --install', 'View installation instructions.')
+    .parse(function (str) {
+      return str + ' | less -F';
+    })
     .autocompletion(function (text, iteration, cb) {
       const self = this;
       const index = app.clerk.indexer.index();
@@ -29,7 +32,7 @@ module.exports = function (vorpal, options) {
             self.log(`  ${chalk.blue(`Done.`)}\n`);
           }
           cb();
-        });
+      });
         result = result = result[1];
       }
       cb(undefined, result);
@@ -40,6 +43,11 @@ module.exports = function (vorpal, options) {
       args = args || {};
       args.options = args.options || {};
 
+      // Get rid of any piped commands.
+      if (args.commands.indexOf('|') > -1) {
+        args.commands = args.commands.slice(0, args.commands.indexOf('|'));
+      }
+
       // Handle humans.
       if (String(args.commands[0]).toLowerCase() === 'wat') {
         args.commands.shift();
@@ -48,6 +56,17 @@ module.exports = function (vorpal, options) {
       const command = args.commands.join(' ');
 
       const path = util.command.buildPath(command, args.options, app.clerk.indexer.index());
+
+      function logResults(str) {
+        if (String(str).split('\n').length > process.stdout.rows && 1 == 2) {
+          //console.log('doing less...');
+          //vorpal._dude = str;
+          cb();
+        } else {
+          self.log(str);
+          cb();
+        }
+      };
 
       function execPath(pathObj) {
         // If we are an unbuilt library, build it.
@@ -78,10 +97,10 @@ module.exports = function (vorpal, options) {
         app.clerk.fetch(fullPath, type, function (err, data) {
           if (err) {
             self.log('Unexpected Error: ', err);
+            cb();
           } else {
-            self.log(data);
+            logResults(data);
           }
-          cb();
         });
       }
 
@@ -118,5 +137,8 @@ module.exports = function (vorpal, options) {
       } else {
         execPath(path);
       }
+    }).done(function(){
+      //vorpal.exec('less', function () {
+      //});
     });
 };

@@ -194,10 +194,10 @@ var stackoverflow = {
     var creation = moment(parseFloat(answ.creation_date) * 1000).format('DD MMM YYYY');
     var owner = answ.owner;
 
-    var scoreSpace = cosmetician.pad(score, margin - 4, ' ');
+    var scoreSpace = this.app.cosmetician.pad(score, margin - 4, ' ');
     scoreSpace = accepted === true ? chalk.green(scoreSpace) : scoreSpace;
     var creator = '  ' + scoreSpace + '  ' + chalk.cyan(owner.display_name + ' on ' + creation);
-    var formatted = cosmetician.tab(cosmetician.markdownToTerminal(markdown, { lineWidth: function lineWidth() {
+    var formatted = this.app.cosmetician.tab(this.app.cosmetician.markdownToTerminal(markdown, { lineWidth: function lineWidth() {
         return process.stdout.columns - margin - 2;
       } }), margin - 2);
 

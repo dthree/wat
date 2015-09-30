@@ -6,6 +6,7 @@
 
 const Vorpal = require('vorpal');
 const vorpal = new Vorpal();
+const less = require('vorpal-less');
 
 const app = {
 
@@ -16,7 +17,13 @@ const app = {
 
     const dir = `${__dirname}/.`;
 
+    this.clerk = require('./clerk/clerk')(app);
+    this.spider = require('./spider/spider')(app);
+    this.autodocs = require('./autodocs/autodocs')(app);
+    this.cosmetician = require('./cosmetician/cosmetician')(app);
+
     vorpal
+      .use(less)
       .use(`${dir}/vorpal/sigint.js`, {app: app})
       .use(`${dir}/vorpal/theme.js`, {app: app})
       .use(`${dir}/vorpal/indexer.js`, {app: app})
@@ -27,11 +34,6 @@ const app = {
       .use(`${dir}/vorpal/hist.js`, {app: app})
       .delimiter('?')
       .show();
-
-    this.clerk = require('./clerk/clerk')(app);
-    this.spider = require('./spider/spider')(app);
-    this.autodocs = require('./autodocs/autodocs')(app);
-    this.cosmetician = require('./cosmetician/cosmetician')(app);
 
     this.clerk.start(options);
 

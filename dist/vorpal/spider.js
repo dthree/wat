@@ -13,7 +13,9 @@ module.exports = function (vorpal, options) {
     cb();
   });
 
-  vorpal.command('stackoverflow [command...]', 'Searches Stack Overflow.').alias('so').alias('stack').action(function (args, cb) {
+  vorpal.command('stackoverflow [command...]', 'Searches Stack Overflow.').alias('so').alias('stack').parse(function (str) {
+    return str + ' | less';
+  }).action(function (args, cb) {
     var self = this;
     var command = (args.command || []).join(' ');
     self.log(' ');

@@ -19,6 +19,9 @@ module.exports = function (vorpal, options) {
     .command('stackoverflow [command...]', 'Searches Stack Overflow.')
     .alias('so')
     .alias('stack')
+    .parse(function (str) {
+      return `${str} | less`;
+    })
     .action(function (args, cb) {
       const self = this;
       const command = (args.command || []).join(' ');

@@ -303,18 +303,19 @@ const clerk = {
   },
 
   file(path, type, data, retry) {
-    const directory = (type === 'auto')
+    console.log('filing', path, type, data);
+    const rootDir = (type === 'auto')
       ? clerk.paths.temp.autodocs
       : clerk.paths.temp.docs;
+    const file = rootDir + path;
+    let dir = String(file).split('/');
+    dir.pop();
+    dir = dir.join('/');
     try {
-      fs.appendFileSync(directory + path, data, {flag: 'w'});
+      mkdirp.sync(dir);
+      fs.appendFileSync(file, data, {flag: 'w'});
     } catch(e) {
-      if (retry === undefined) {
-        this.scaffold();
-      } else {
-        throw new Error(`Unexpected error writing to cache: ${e}`);
-      }
-      return this.file(path, data, true);
+      this.log('Error saving to the local filesystem: ', e);
     }
   }
 };

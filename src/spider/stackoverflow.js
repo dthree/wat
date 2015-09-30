@@ -196,10 +196,10 @@ const stackoverflow = {
     const creation = moment(parseFloat(answ.creation_date) * 1000).format('DD MMM YYYY');
     const owner = answ.owner;
 
-    let scoreSpace = cosmetician.pad(score, margin - 4, ' ');
+    let scoreSpace = this.app.cosmetician.pad(score, margin - 4, ' ');
     scoreSpace = (accepted === true) ? chalk.green(scoreSpace) : scoreSpace;
     const creator = `  ${scoreSpace}  ${chalk.cyan(`${owner.display_name} on ${creation}`)}`;
-    const formatted = cosmetician.tab(cosmetician.markdownToTerminal(markdown, {lineWidth: (function(){ return process.stdout.columns - margin - 2})}), margin - 2);
+    const formatted = this.app.cosmetician.tab(this.app.cosmetician.markdownToTerminal(markdown, {lineWidth: (function(){ return process.stdout.columns - margin - 2})}), margin - 2);
 
     return `${creator}\n${formatted}`;
   }

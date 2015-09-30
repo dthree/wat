@@ -301,16 +301,17 @@ var clerk = {
   },
 
   file: function file(path, type, data, retry) {
-    var directory = type === 'auto' ? clerk.paths.temp.autodocs : clerk.paths.temp.docs;
+    console.log('filing', path, type, data);
+    var rootDir = type === 'auto' ? clerk.paths.temp.autodocs : clerk.paths.temp.docs;
+    var file = rootDir + path;
+    var dir = String(file).split('/');
+    dir.pop();
+    dir = dir.join('/');
     try {
-      fs.appendFileSync(directory + path, data, { flag: 'w' });
+      mkdirp.sync(dir);
+      fs.appendFileSync(file, data, { flag: 'w' });
     } catch (e) {
-      if (retry === undefined) {
-        this.scaffold();
-      } else {
-        throw new Error('Unexpected error writing to cache: ' + e);
-      }
-      return this.file(path, data, true);
+      this.log('Error saving to the local filesystem: ', e);
     }
   }
 };

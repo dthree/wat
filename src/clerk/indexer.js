@@ -152,6 +152,22 @@ const indexer = {
   buildDir(dir, dirType, callback) {
     callback = callback || {};
     let index = {};
+
+    // Make sure dir exists.
+    var exists = true;
+    try {
+      exists = fs.statSync(dir);
+    } catch(e) {
+      exists = false;
+    }
+
+    if (!exists) {
+      callback({});
+      return;
+    }
+
+    //console.log('exists!', exists, dir)
+
     const walker = walk.walk(dir, {});
     walker.on('file', function (root, fileStats, next) {
       const parts = String(path.normalize(root)).split('docs/');
@@ -217,7 +233,7 @@ const indexer = {
         return;
       }
       if (String(fileStats.name).indexOf('config.json') === -1) {
-        next();  
+        next();
         return;
       }
       let dirParts = String(parts[1]).split('/');
