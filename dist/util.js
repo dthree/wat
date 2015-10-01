@@ -112,7 +112,23 @@ var util = {
           results[item] = objs[item];
         }
       }
-      return Object.keys(results);
+      if (type === 'doc') {
+        // Get fancy by reading the __seq
+        // property of the docs in the index,
+        // and then sort them by that.
+        var res = [];
+        for (var item in results) {
+          res.push([item, results[item].__seq]);
+        }
+        res = res.sort(function (a, b) {
+          return a[1] - b[1];
+        }).map(function (itm) {
+          return itm[0];
+        });
+        return res;
+      } else {
+        return Object.keys(results);
+      }
     }
 
     // If the object has children, add a slash.
@@ -190,6 +206,9 @@ var util = {
       dataColumns[maxItem] = dataColumns[maxItem] - columnOverflow;
     }
 
+    var types = Object.keys(dataColumns);
+    var onlyDocs = types.length === 1 && types[0] === 'doc';
+
     // Methods and Properties go alphabetical.
     // Docs go in exact sequences.
     data.method.sort();
@@ -220,10 +239,24 @@ var util = {
     // Final formatting section.
     var fnl = '';
 
-    // If we fit on one line, roll with that.
-    // Otherwise, do fancy columns.
-    if (totalWidth <= process.stdout.columns) {
-
+    // If we are only documents, do one straight
+    // line. If we otherwise fit on one line, roll
+    // with that. Otherwise, do fancy columns.
+    if (onlyDocs) {
+      var docs = data['doc'];
+      var _max = process.stdout.rows - 5;
+      var total = docs.length;
+      docs = docs.slice(0, _max);
+      if (docs.length > 0) {
+        var clr = colors['doc'];
+        var set = '\n  ' + docs.join('\n  ') + '\n';
+        set = clr ? chalk[clr](set) : set;
+        fnl += set;
+      }
+      if (total !== docs.length) {
+        fnl += chalk.grey('  ' + (total - docs.length) + ' more...\n');
+      }
+    } else if (totalWidth <= process.stdout.columns) {
       for (var item in data) {
         var arr = data[item];
         if (arr.length > 0) {

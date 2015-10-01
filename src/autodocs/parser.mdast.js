@@ -19,6 +19,13 @@ const exports = {
 
   stringify: mdast.stringify,
 
+  sequenceAst(ast) {
+    for (let i = 0; i < ast.children.length; ++i) {
+      ast.children[i].sequence = i;
+    }
+    return ast;
+  },
+
   language(lang) {
     parser = require(`./parser.${lang}`);
   },
@@ -207,15 +214,17 @@ const exports = {
 
   stripHTML(md) {
     const anchors = /<a\b[^>]*>((.|\n|\r\n)*?)<\/a>/gi;
-    const bolds = /<b>(.*?)<\/b>/ig;
-    const strikethroughs = /<s>((.|\n|\r\n)*?)<\/s>/ig;
-    const breaks = /<br>/ig;
-    const images = /<img ((.|\n|\r\n)*?)\/>/ig;
-    const italics = /<i>((.|\n|\r\n)*?)<\/i>/ig;
+    const bolds = /<b>(.*?)<\/b>/gi;
+    const strikethroughs = /<s>((.|\n|\r\n)*?)<\/s>/gi;
+    const breaks = /<br>/gi;
+    const comments = /<!--((.|\n|\r\n)*?)-->/gi;
+    const images = /<img ((.|\n|\r\n)*?)>/gi;
+    const italics = /<i>((.|\n|\r\n)*?)<\/i>/gi;
     md = md.replace(anchors, '$1');
     md = md.replace(bolds, '**$1**');
     md = md.replace(images, '');
     md = md.replace(breaks, '');
+    md = md.replace(comments, '');
     md = md.replace(strikethroughs, '$1');
     md = md.replace(italics, '*$1*');
     return md;
@@ -302,6 +311,45 @@ const exports = {
       }
     }
     return config;
+  },
+
+  /**
+   * Builds a JSON object defining 
+   * the sequencing of all doc sets.
+   * 
+   * @param {Array} api
+   * @return {Object} config
+   * @api public 
+   */
+
+  buildDocConfig(api, repoName) {
+    function loop(apix, resx) {
+      resx = resx || [];
+      for (let i = 0; i < apix.length; ++i) {
+        let path = String(apix[i].docPath).split(`${repoName}/`);
+        if (path.length > 0) {
+          path.shift();
+        }
+        path = path.join(`${repoName}/`);
+        resx.push([path, apix[i].sequence]);
+        if (apix[i].fold) {
+          resx = loop(apix[i].fold, resx);
+        }
+      }
+      return resx;
+    }
+    let res = [];
+    res = loop(api, res);
+    let ctr = 0;
+    let obj = {}
+    res.sort(function (a, b) {
+      return a[1] - b[1];
+    }).map(function (str) {
+      obj[str[0]] = ctr;
+      ctr++;
+    });
+
+    return obj;
   },
 
 };

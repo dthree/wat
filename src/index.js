@@ -48,7 +48,5 @@ const app = {
   }
 };
 
-//console.log(require('os').tmpdir())
-
 module.exports = app;
 

@@ -54,6 +54,7 @@ const autodocs = {
         urls: data.urls,
         language: data.language,
         aliases: data.aliases,
+        static: data.static,
         crawl: false,
         onFile: function(data) {
           let total = data.total;
@@ -181,7 +182,8 @@ const autodocs = {
         let md = results[result];
         md = self.mdast.stripHTML(md);
 
-        const ast = self.mdast.parse(md);
+        let ast = self.mdast.parse(md);
+        ast = self.mdast.sequenceAst(ast);
         const urls = self.mdast.getUrlsFromAst(ast);
         const repoUrls = self.mdast.filterUrlsByGithubRepo(urls, undefined, repoName);
         let headers = self.mdast.groupByHeaders(ast);
@@ -207,7 +209,8 @@ const autodocs = {
           }];
         }
 
-        let docs = self.mdast.buildDocPaths(headers, `/autodocs/${repoName}/${resultRoot}`);
+        let docs = self.mdast.buildDocPaths(headers, `/autodocs/${repoName}${resultRoot}`);
+
 
         finalAPI = finalAPI.concat(api);
         finalDocs = finalDocs.concat(docs);
@@ -221,11 +224,15 @@ const autodocs = {
       }
 
       let config = self.mdast.buildAPIConfig(finalAPI);
+      let docSequence = self.mdast.buildDocConfig(finalDocs, repoName);
+
       config.docs = [];
+      config.docSequence = docSequence;
 
       for (const doc in final) {
         if (final.hasOwnProperty(doc)) {
           config.docs.push(doc);
+          //config.docsSequence[doc] = 0;
           self.writeDocSet(final[doc].docs, writeOptions);
         }
       }
@@ -234,9 +241,7 @@ const autodocs = {
         self.writeConfig(autodocPath, config);
       }
       self.writeConfig(localAutodocPath, config);
-
       self.writeAPI(finalAPI, writeOptions);
-
       callback();
     }
   },
@@ -279,7 +284,7 @@ const autodocs = {
       local += allJunk;
 
       if (docs[i].fold.length > 0) {
-        local += this.writeDocSet(docs[i].fold);
+        local += this.writeDocSet(docs[i].fold, options);
       }
 
       if (options.static) {
@@ -293,6 +298,9 @@ const autodocs = {
   },
 
   writeAPI(api, options) {
+
+    //console.log(api);
+
     options = options || {}
     for (var i = 0; i < api.length; ++i) {
       if (!api[i].apiPath) {
@@ -317,8 +325,25 @@ const autodocs = {
       let lineX = 2;
       let lineXBasic = 2;
 
-      for (let j = 0; j < api[i].junk.length; ++j) {
-        let item = api[i].junk[j];
+      let items = [];
+      function buildFolds(itm) {
+        var str = mdast.stringify(itm);
+        items.push(itm);
+        for (let j = 0; j < itm.junk.length; ++j) {
+          var junkie = mdast.stringify(itm.junk[j]);
+          items.push(itm.junk[j]);
+        }
+        for (let j = 0; j < itm.fold.length; ++j) {
+          buildFolds(itm.fold[j]);
+        }
+      }
+
+      //if (i === 0) {
+        buildFolds(api[i])
+      //}
+
+      for (let j = 0; j < items.length; ++j) {
+        let item = items[j];
         let lines = item.position.end.line - item.position.start.line + 1;
         let content = mdast.stringify(item) + '\n\n';
         let isCode = (item.type === 'code');

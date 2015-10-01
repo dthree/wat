@@ -262,6 +262,8 @@ const indexer = {
       let methods = configs[lib].methods || [];
       let properties = configs[lib].properties || [];
       let docs = configs[lib].docs || [];
+      let docSequence = configs[lib].docSequence || [];
+      //console.log(docSequence);
       if (idx[lib]) {
         util.each(idx[lib], function(key, node, tree){
           let newTree = _.clone(tree);
@@ -276,6 +278,9 @@ const indexer = {
               let found = false;
               for (let i = 0; i < docs.length; ++i) {
                 if (treePath.slice(0, docs[i].length) === docs[i] || docs[i].slice(0, key.length) === key) {
+                  if (docSequence[treePath]) {
+                    node[key].__seq = docSequence[treePath];
+                  }
                   node[key].__class = 'doc';
                   found = true;
                   break;

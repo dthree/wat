@@ -19,6 +19,13 @@ var _exports = {
 
   stringify: mdast.stringify,
 
+  sequenceAst: function sequenceAst(ast) {
+    for (var i = 0; i < ast.children.length; ++i) {
+      ast.children[i].sequence = i;
+    }
+    return ast;
+  },
+
   language: function language(lang) {
     parser = require('./parser.' + lang);
   },
@@ -220,15 +227,17 @@ var _exports = {
 
   stripHTML: function stripHTML(md) {
     var anchors = /<a\b[^>]*>((.|\n|\r\n)*?)<\/a>/gi;
-    var bolds = /<b>(.*?)<\/b>/ig;
-    var strikethroughs = /<s>((.|\n|\r\n)*?)<\/s>/ig;
-    var breaks = /<br>/ig;
-    var images = /<img ((.|\n|\r\n)*?)\/>/ig;
-    var italics = /<i>((.|\n|\r\n)*?)<\/i>/ig;
+    var bolds = /<b>(.*?)<\/b>/gi;
+    var strikethroughs = /<s>((.|\n|\r\n)*?)<\/s>/gi;
+    var breaks = /<br>/gi;
+    var comments = /<!--((.|\n|\r\n)*?)-->/gi;
+    var images = /<img ((.|\n|\r\n)*?)>/gi;
+    var italics = /<i>((.|\n|\r\n)*?)<\/i>/gi;
     md = md.replace(anchors, '$1');
     md = md.replace(bolds, '**$1**');
     md = md.replace(images, '');
     md = md.replace(breaks, '');
+    md = md.replace(comments, '');
     md = md.replace(strikethroughs, '$1');
     md = md.replace(italics, '*$1*');
     return md;
@@ -315,6 +324,45 @@ var _exports = {
       }
     }
     return config;
+  },
+
+  /**
+   * Builds a JSON object defining 
+   * the sequencing of all doc sets.
+   * 
+   * @param {Array} api
+   * @return {Object} config
+   * @api public 
+   */
+
+  buildDocConfig: function buildDocConfig(api, repoName) {
+    function loop(apix, resx) {
+      resx = resx || [];
+      for (var i = 0; i < apix.length; ++i) {
+        var path = String(apix[i].docPath).split(repoName + '/');
+        if (path.length > 0) {
+          path.shift();
+        }
+        path = path.join(repoName + '/');
+        resx.push([path, apix[i].sequence]);
+        if (apix[i].fold) {
+          resx = loop(apix[i].fold, resx);
+        }
+      }
+      return resx;
+    }
+    var res = [];
+    res = loop(api, res);
+    var ctr = 0;
+    var obj = {};
+    res.sort(function (a, b) {
+      return a[1] - b[1];
+    }).map(function (str) {
+      obj[str[0]] = ctr;
+      ctr++;
+    });
+
+    return obj;
   }
 
 };

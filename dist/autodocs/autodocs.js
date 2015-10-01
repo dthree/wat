@@ -54,6 +54,7 @@ var autodocs = {
         urls: data.urls,
         language: data.language,
         aliases: data.aliases,
+        'static': data['static'],
         crawl: false,
         onFile: function onFile(data) {
           var total = data.total;
@@ -182,6 +183,7 @@ var autodocs = {
         md = self.mdast.stripHTML(md);
 
         var ast = self.mdast.parse(md);
+        ast = self.mdast.sequenceAst(ast);
         var _urls = self.mdast.getUrlsFromAst(ast);
         var repoUrls = self.mdast.filterUrlsByGithubRepo(_urls, undefined, repoName);
         var headers = self.mdast.groupByHeaders(ast);
@@ -207,7 +209,7 @@ var autodocs = {
           }];
         }
 
-        var docs = self.mdast.buildDocPaths(headers, '/autodocs/' + repoName + '/' + resultRoot);
+        var docs = self.mdast.buildDocPaths(headers, '/autodocs/' + repoName + resultRoot);
 
         finalAPI = finalAPI.concat(api);
         finalDocs = finalDocs.concat(docs);
@@ -221,11 +223,15 @@ var autodocs = {
       }
 
       var config = self.mdast.buildAPIConfig(finalAPI);
+      var docSequence = self.mdast.buildDocConfig(finalDocs, repoName);
+
       config.docs = [];
+      config.docSequence = docSequence;
 
       for (var doc in final) {
         if (final.hasOwnProperty(doc)) {
           config.docs.push(doc);
+          //config.docsSequence[doc] = 0;
           self.writeDocSet(final[doc].docs, writeOptions);
         }
       }
@@ -234,9 +240,7 @@ var autodocs = {
         self.writeConfig(autodocPath, config);
       }
       self.writeConfig(localAutodocPath, config);
-
       self.writeAPI(finalAPI, writeOptions);
-
       callback();
     }
   },
@@ -277,7 +281,7 @@ var autodocs = {
       local += allJunk;
 
       if (docs[i].fold.length > 0) {
-        local += this.writeDocSet(docs[i].fold);
+        local += this.writeDocSet(docs[i].fold, options);
       }
 
       if (options['static']) {
@@ -291,12 +295,32 @@ var autodocs = {
   },
 
   writeAPI: function writeAPI(api, options) {
+    var _this = this;
+
+    //console.log(api);
+
     options = options || {};
-    for (var i = 0; i < api.length; ++i) {
-      if (!api[i].apiPath) {
-        continue;
+
+    var _loop = function () {
+      var buildFolds = function buildFolds(itm) {
+        var str = mdast.stringify(itm);
+        items.push(itm);
+        for (var j = 0; j < itm.junk.length; ++j) {
+          var junkie = mdast.stringify(itm.junk[j]);
+          items.push(itm.junk[j]);
+        }
+        for (var j = 0; j < itm.fold.length; ++j) {
+          buildFolds(itm.fold[j]);
+        }
       }
-      var temp = this.app.clerk.paths.temp.root;
+
+      //if (i === 0) {
+      ;
+
+      if (!api[i].apiPath) {
+        return 'continue';
+      }
+      var temp = _this.app.clerk.paths.temp.root;
       var path = String(api[i].apiPath);
       var parts = path.split('/');
       var file = parts.pop();
@@ -315,8 +339,12 @@ var autodocs = {
       var lineX = 2;
       var lineXBasic = 2;
 
-      for (var j = 0; j < api[i].junk.length; ++j) {
-        var item = api[i].junk[j];
+      var items = [];
+      buildFolds(api[i]);
+      //}
+
+      for (var j = 0; j < items.length; ++j) {
+        var item = items[j];
         var lines = item.position.end.line - item.position.start.line + 1;
         var content = mdast.stringify(item) + '\n\n';
         var isCode = item.type === 'code';
@@ -361,6 +389,12 @@ var autodocs = {
       } catch (e) {
         throw new Error(e);
       }
+    };
+
+    for (var i = 0; i < api.length; ++i) {
+      var _ret = _loop();
+
+      if (_ret === 'continue') continue;
     }
   },
 
