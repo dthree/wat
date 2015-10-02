@@ -108,7 +108,8 @@ const clerk = {
     traverse(index, '');
   },
 
-  forEachInIndex(callback) {
+  forEachInIndex(callback, options) {
+    options = options || {}
     const index = this.indexer.index() || {};
     const dir = clerk.paths.temp.docs;
     function traverse(idx, path) {
@@ -127,9 +128,15 @@ const clerk = {
             }
           }
           const fullPath = `${dir}${path}${key}`;
-          for (const item in special) {
-            if (special.hasOwnProperty(item)) {
-              callback(fullPath, item, special[item]);
+          let accept = true;
+          if (options.filter) {
+            accept = options.filter(special)
+          } 
+          if (accept) {
+            for (const item in special) {
+              if (special.hasOwnProperty(item)) {
+                callback(fullPath, item, special[item]);
+              }
             }
           }
           if (nonSpecial.length > 0 && _.isObject(idx[key])) {
@@ -144,40 +151,48 @@ const clerk = {
   search(str) {
     const search = String(str).split(' ');
     let matches = [];
-    this.forEachInIndex(function (path, key) {
+    this.forEachInIndex(function (path, key, data) {
       if (key !== '__basic') {
         return;
       }
-
       const commands = util.parseCommandsFromPath(path);
+      let commandString = chalk.grey(commands.join(' '));
       let points = 0;
       let dirty = 0;
       for (let i = 0; i < search.length; ++i) {
         const word = String(search[i]).toLowerCase().trim();
+        var reg = new RegExp(`(${word})`);
+        commandString = commandString.replace(reg, chalk.blue('$1'));
         let finds = 0;
         for (let j = 0; j < commands.length; ++j) {
           const cmd = String(commands[j]).toLowerCase().trim();
+          let newPoints = 0;
           if (word === cmd) {
             finds++;
-            if (i === j) {
-              points += 2;
-            } else {
-              points += 1;
-            }
+            newPoints += 1;
+          } else if (cmd.indexOf(word) > -1) {
+            newPoints += Math.round((word.length / cmd.length) * 100) / 100;;
+            finds++;
           }
+          points += (i === j) ? newPoints * 2 : newPoints * 1;
         }
         if (finds === 0) {
           dirty++;
           points--;
         }
       }
-
       if (points > 0) {
         matches.push({
           points,
           dirty,
-          command: commands.join(' ')
+          command: commands.join(' '),
+          commandMatch: commandString
         });
+      }
+    }, {
+      filter: function(item) {
+        let okay = item.__class !== 'doc';
+        return okay;
       }
     });
 
@@ -190,6 +205,14 @@ const clerk = {
       }
       return sort;
     });
+
+    // Get rid of dirty matches if there are cleans.
+    let clean = _.where(matches, { dirty: 0 });
+    if (clean.length > 0) {
+      matches = clean.filter(function(itm) {
+        return itm.dirty === 0;
+      });
+    }
 
     return matches;
   },

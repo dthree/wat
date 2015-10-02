@@ -108,7 +108,8 @@ var clerk = {
     traverse(index, '');
   },
 
-  forEachInIndex: function forEachInIndex(callback) {
+  forEachInIndex: function forEachInIndex(callback, options) {
+    options = options || {};
     var index = this.indexer.index() || {};
     var dir = clerk.paths.temp.docs;
     function traverse(idx, path) {
@@ -127,9 +128,15 @@ var clerk = {
             }
           }
           var fullPath = '' + dir + path + key;
-          for (var item in special) {
-            if (special.hasOwnProperty(item)) {
-              callback(fullPath, item, special[item]);
+          var accept = true;
+          if (options.filter) {
+            accept = options.filter(special);
+          }
+          if (accept) {
+            for (var item in special) {
+              if (special.hasOwnProperty(item)) {
+                callback(fullPath, item, special[item]);
+              }
             }
           }
           if (nonSpecial.length > 0 && _.isObject(idx[key])) {
@@ -144,40 +151,48 @@ var clerk = {
   search: function search(str) {
     var search = String(str).split(' ');
     var matches = [];
-    this.forEachInIndex(function (path, key) {
+    this.forEachInIndex(function (path, key, data) {
       if (key !== '__basic') {
         return;
       }
-
       var commands = util.parseCommandsFromPath(path);
+      var commandString = chalk.grey(commands.join(' '));
       var points = 0;
       var dirty = 0;
       for (var i = 0; i < search.length; ++i) {
         var word = String(search[i]).toLowerCase().trim();
+        var reg = new RegExp('(' + word + ')');
+        commandString = commandString.replace(reg, chalk.blue('$1'));
         var finds = 0;
         for (var j = 0; j < commands.length; ++j) {
           var cmd = String(commands[j]).toLowerCase().trim();
+          var newPoints = 0;
           if (word === cmd) {
             finds++;
-            if (i === j) {
-              points += 2;
-            } else {
-              points += 1;
-            }
+            newPoints += 1;
+          } else if (cmd.indexOf(word) > -1) {
+            newPoints += Math.round(word.length / cmd.length * 100) / 100;;
+            finds++;
           }
+          points += i === j ? newPoints * 2 : newPoints * 1;
         }
         if (finds === 0) {
           dirty++;
           points--;
         }
       }
-
       if (points > 0) {
         matches.push({
           points: points,
           dirty: dirty,
-          command: commands.join(' ')
+          command: commands.join(' '),
+          commandMatch: commandString
         });
+      }
+    }, {
+      filter: function filter(item) {
+        var okay = item.__class !== 'doc';
+        return okay;
       }
     });
 
@@ -190,6 +205,14 @@ var clerk = {
       }
       return sort;
     });
+
+    // Get rid of dirty matches if there are cleans.
+    var clean = _.where(matches, { dirty: 0 });
+    if (clean.length > 0) {
+      matches = clean.filter(function (itm) {
+        return itm.dirty === 0;
+      });
+    }
 
     return matches;
   },

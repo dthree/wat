@@ -25,6 +25,7 @@ const autodocs = {
   run(name, options, callback) {
     options = options || {}
     options.rebuild = options.rebuild || true;
+    options.progress = options.progress || function () {};
     const self = this;
     let lib = String(name).trim();
     let config = self.app.clerk.autodocs.config();
@@ -59,6 +60,7 @@ const autodocs = {
         onFile: function(data) {
           let total = data.total;
           let downloaded = data.downloaded;
+          options.progress(data);
         },
       };
 
@@ -209,7 +211,9 @@ const autodocs = {
           }];
         }
 
-        let docs = self.mdast.buildDocPaths(headers, `/autodocs/${repoName}${resultRoot}`);
+        //console.log('hi', '|', repoName, '|', resultRoot, '|');
+
+        let docs = self.mdast.buildDocPaths(headers, `/autodocs/${repoName}/${resultRoot}`);
 
 
         finalAPI = finalAPI.concat(api);

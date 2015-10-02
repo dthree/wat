@@ -231,6 +231,11 @@ const exports = {
   },
 
   buildDocPaths(nodes, rootName) {
+    // Make sure we don't end with a '/',
+    // as that would wind up with '//' later on.
+    rootName = (rootName[rootName.length - 1] === '/') ? 
+      rootName.slice(0, rootName.length - 1) : 
+      rootName;
     const tree = {}
     for (let i = 0; i < nodes.length; ++i) {
       let fold = nodes[i].fold;

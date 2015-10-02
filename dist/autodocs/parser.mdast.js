@@ -244,6 +244,9 @@ var _exports = {
   },
 
   buildDocPaths: function buildDocPaths(nodes, rootName) {
+    // Make sure we don't end with a '/',
+    // as that would wind up with '//' later on.
+    rootName = rootName[rootName.length - 1] === '/' ? rootName.slice(0, rootName.length - 1) : rootName;
     var tree = {};
     for (var i = 0; i < nodes.length; ++i) {
       var fold = nodes[i].fold;

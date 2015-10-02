@@ -25,6 +25,7 @@ var autodocs = {
   run: function run(name, options, callback) {
     options = options || {};
     options.rebuild = options.rebuild || true;
+    options.progress = options.progress || function () {};
     var self = this;
     var lib = String(name).trim();
     var config = self.app.clerk.autodocs.config();
@@ -59,6 +60,7 @@ var autodocs = {
         onFile: function onFile(data) {
           var total = data.total;
           var downloaded = data.downloaded;
+          options.progress(data);
         }
       };
 
@@ -209,7 +211,9 @@ var autodocs = {
           }];
         }
 
-        var docs = self.mdast.buildDocPaths(headers, '/autodocs/' + repoName + resultRoot);
+        //console.log('hi', '|', repoName, '|', resultRoot, '|');
+
+        var docs = self.mdast.buildDocPaths(headers, '/autodocs/' + repoName + '/' + resultRoot);
 
         finalAPI = finalAPI.concat(api);
         finalDocs = finalDocs.concat(docs);

@@ -68,7 +68,7 @@ var util = {
             var times = 4 - iteration;
             times = times > 1 ? times + ' more times' : times + ' more time';
             times = chalk.cyan(times);
-            msg = [chalk.blue('\n  This library has not been built. \n  To build, press ' + chalk.cyan('[tab]') + ' ' + times + ', or press ' + chalk.cyan('[enter]') + '.\n')];
+            msg = ['pre-build', chalk.blue('\n  This library has not been built. \n  To build, press ' + chalk.cyan('[tab]') + ' ' + times + ', or press ' + chalk.cyan('[enter]') + '.\n')];
           } else if (iteration === 4) {
             msg = ['build', original];
           } else {
@@ -649,7 +649,15 @@ var util = {
       if (!indexObject) {
         response.exists = false;
       } else if (_.isArray(indexObject)) {
-        response.suggestions = indexObject;
+
+        var sugg = util.autocomplete(str, 2, index, function (word, options) {
+          return options;
+        });
+        if (_.isArray(sugg)) {
+          response.suggestions = sugg;
+        } else {
+          response.suggestions = indexObject;
+        }
       } else {
         response.index = indexObject;
         response.exists = true;

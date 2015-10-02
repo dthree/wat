@@ -3,6 +3,7 @@
 const chalk = require('chalk');
 const util = require('../util');
 const _ = require('lodash');
+const stripAnsi = require('strip-ansi');
 
 module.exports = function (vorpal, options) {
   const app = options.app;
@@ -21,21 +22,55 @@ module.exports = function (vorpal, options) {
         const res = self.match(word, options);
         return res;
       });
-      if (result[0] === 'build') {
+
+      function draw(done, total) {
+        // Add time on to the end of the
+        // loader to compensate for building.
+        done = Math.floor(done * .7);
+        done = (done < 0) ? 0 : done;
+        let width = 40;
+        let donesPerBar = total / width;
+        let bars = Math.floor(donesPerBar * done);
+        let str = '';
+        for (let i = 0; i < width; ++i) {
+          if (i <= done) {
+            str += chalk.bgGreen(' ');
+          } else {
+            str += chalk.bgWhite(' ');
+          }
+        }
+        let buildStr = (total === 100) ? '' : chalk.grey(`Building: ${done} of ${total}\n`);
+        return '  ' + str + '\n  ' + buildStr;
+      }
+
+      if (result[0] === 'pre-build') {
+        vorpal.ui.rewrite(`\n  ${result[1]}\n`);
+        cb(undefined, undefined);
+      } else if (result[0] === 'build') {
         let command = String(result[1]).trim();
         let message = '';
-        self.log(`  ${chalk.blue(`Building, please wait...${message}`)}\n`);
-        app.autodocs.run(command, {}, function(err){
+        vorpal.ui.rewrite(draw(0, 100));
+        app.autodocs.run(command, {
+          progress: function(data) {
+            vorpal.ui.rewrite(draw(data.downloaded, data.total));
+            //vorpal.ui.rewrite(`  ${chalk.blue(`Building, please wait...${data.total} of ${data.downloaded}`)}\n`);
+          },
+        }, function(err){
           if (err) {
-            self.log(`  ${err}\n`);
+            //self.log(`  ${err}\n`);
           } else {
-            self.log(`  ${chalk.blue(`Done.`)}\n`);
+            //self.log(`  ${chalk.blue(`Done.`)}\n`);
           }
+          vorpal.ui.rewrite('\n\n\n\n');
+          vorpal.ui.print();
           cb();
-      });
+        });
         result = result = result[1];
+        cb(undefined, undefined);
+      } else {
+        cb(undefined, result);
       }
-      cb(undefined, result);
+
     })
     .action(function (args, cb) {
       const self = this;
@@ -56,6 +91,7 @@ module.exports = function (vorpal, options) {
       const command = args.commands.join(' ');
 
       const path = util.command.buildPath(command, args.options, app.clerk.indexer.index());
+      //console.log(path)
 
       function logResults(str) {
         if (String(str).split('\n').length > process.stdout.rows && 1 == 2) {
@@ -106,29 +142,48 @@ module.exports = function (vorpal, options) {
 
       if (path.exists === false) {
         if (path.suggestions) {
-          self.log(chalk.yellow(`\n  Sorry, there's no cheat sheet for that command. However, you can try these:\n`));
+          self.log(chalk.yellow(`\n  Sorry, there's no cheat sheet for that command. However, you can try "${chalk.white(`${command} ...`)} ":\n`));
           for (let i = 0; i < path.suggestions.length; ++i) {
-            const str = `  ${String(String(path.path).split('/').join(' ')).trim()} ${path.suggestions[i]}`;
+            const str = `${path.suggestions[i]}`;
             self.log(str);
           }
           self.log(' ');
         } else {
           const results = app.clerk.search(args.commands.join(' '));
           if (results.length === 1 && results[0].points > 0) {
-            self.log(chalk.yellow(`\n  Showing results for '${results[0].command}':`));
+            self.log(`${chalk.yellow(`\n  Showing results for "`)}${results[0].commandMatch}${chalk.yellow(`":`)}`);
             const path = util.command.buildPath(results[0].command, args.options, app.clerk.indexer.index());
             execPath(path);
           } else if (results.length > 0) {
-            self.log(chalk.yellow(`\n  Did you mean:`));
+            //self.log(chalk.yellow(`\n  Did you mean:`));
             for (let i = 0; i < results.length; ++i) {
               if (i > 7) {
                 break;
               }
-              let cmd = results[i].command;
-              cmd = cmd.replace(args.commands, chalk.white(args.commands));
-              self.log(`  ${cmd}`);
+              //self.log(`  ${results[i].commandMatch}`);
             }
             self.log(' ');
+
+            let choices = [];
+            results.forEach(function (res) {
+              choices.push(res.commandMatch);
+            });
+
+            choices = choices.slice(0, 6);
+
+            self.prompt({
+              type: 'list',
+              message: 'Did you mean:',
+              choices: choices,
+              name: 'choice',
+            }, function(a, b) {
+              let pick = stripAnsi(a.choice);
+              const path = util.command.buildPath(pick, args.options, app.clerk.indexer.index());
+              execPath(path);
+              cb();
+            })
+            return;
+
           } else {
             self.log(chalk.yellow(`\n  Sorry, there's no command like that.\n`));
           }
