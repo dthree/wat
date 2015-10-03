@@ -22,7 +22,7 @@ var app = {
     this.autodocs = require('./autodocs/autodocs')(app);
     this.cosmetician = require('./cosmetician/cosmetician')(app);
 
-    vorpal.use(less).use(dir + '/vorpal/sigint.js', { app: app }).use(dir + '/vorpal/theme.js', { app: app }).use(dir + '/vorpal/indexer.js', { app: app }).use(dir + '/vorpal/updater.js', { app: app }).use(dir + '/vorpal/spider.js', { app: app }).use(dir + '/vorpal/catch.js', { app: app }).use(dir + '/vorpal/autodocs.js', { app: app }).use(dir + '/vorpal/hist.js', { app: app }).delimiter('?').show();
+    vorpal.use(less).use(dir + '/vorpal/sigint.js', { app: app }).use(dir + '/vorpal/theme.js', { app: app }).use(dir + '/vorpal/indexer.js', { app: app }).use(dir + '/vorpal/updater.js', { app: app }).use(dir + '/vorpal/spider.js', { app: app }).use(dir + '/vorpal/catch.js', { app: app }).use(dir + '/vorpal/autodocs.js', { app: app }).use(dir + '/vorpal/hist.js', { app: app }).use(dir + '/vorpal/tour.js', { app: app }).delimiter('?').show();
 
     this.clerk.start(options);
 

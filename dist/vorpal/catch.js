@@ -18,46 +18,70 @@ module.exports = function (vorpal, options) {
       return res;
     });
 
-    function draw(done, total) {
+    function draw(done, total, action) {
       // Add time on to the end of the
       // loader to compensate for building.
-      done = Math.floor(done * .7);
+      var doneString = done;
+      var multiple = .6;
+      if (action === 'parse') {
+        multiple = .65;
+      } else if (action === 'build') {
+        multiple = .70;
+      } else if (action === 'write') {
+        multiple = .75;
+      } else if (action === 'index') {
+        multiple = .80;
+      } else if (action === 'done') {
+        multiple = .85;
+      }
+      done = Math.floor(done * multiple);
       done = done < 0 ? 0 : done;
       var width = 40;
       var donesPerBar = total / width;
       var bars = Math.floor(donesPerBar * done);
-      var str = '';
+      var loader = '';
+      var message = ' you look good.';
       for (var i = 0; i < width; ++i) {
+        var char = message[i] || ' ';
         if (i <= done) {
-          str += chalk.bgGreen(' ');
+          loader += chalk.bgGreen(char);
         } else {
-          str += chalk.bgWhite(' ');
+          loader += chalk.bgWhite(' ');
         }
       }
-      var buildStr = total === 100 ? '' : chalk.grey('Building: ' + done + ' of ' + total + '\n');
-      return '  ' + str + '\n  ' + buildStr;
+      var buildStr = undefined;
+      if (total === 100) {
+        buildStr = 'Preparing...';
+      } else if (action === 'fetch') {
+        buildStr = 'Fetching ' + doneString + ' of ' + total + ' docs...';
+      } else if (['parse', 'build'].indexOf(action) > -1) {
+        buildStr = 'Housekeeping...';
+      } else if (['write', 'index', 'done'].indexOf(action) > -1) {
+        buildStr = 'Feng shui...';
+      }
+      buildStr = chalk.grey(buildStr);
+      var result = '\n  ' + buildStr + '\n\n  ' + loader;
+      return result;
     }
 
     if (result[0] === 'pre-build') {
-      vorpal.ui.rewrite('\n  ' + result[1] + '\n');
+      vorpal.ui.redraw('\n  ' + result[1]);
       cb(undefined, undefined);
     } else if (result[0] === 'build') {
       var command = String(result[1]).trim();
       var message = '';
-      vorpal.ui.rewrite(draw(0, 100));
+      vorpal.ui.redraw(draw(0, 100));
       app.autodocs.run(command, {
         progress: function progress(data) {
-          vorpal.ui.rewrite(draw(data.downloaded, data.total));
-          //vorpal.ui.rewrite(`  ${chalk.blue(`Building, please wait...${data.total} of ${data.downloaded}`)}\n`);
+          vorpal.ui.redraw(draw(data.downloaded, data.total, data.action));
         }
       }, function (err) {
+        vorpal.ui.redraw('\n\n  Done.\n');
+        vorpal.ui.redraw.done();
+        vorpal.ui.refresh();
         if (err) {
-          //self.log(`  ${err}\n`);
-        } else {
-            //self.log(`  ${chalk.blue(`Done.`)}\n`);
-          }
-        vorpal.ui.rewrite('\n\n\n\n');
-        vorpal.ui.print();
+          self.log('  ' + err + '\n');
+        }
         cb();
       });
       result = result = result[1];
@@ -141,6 +165,9 @@ module.exports = function (vorpal, options) {
           self.log(str);
         }
         self.log(' ');
+        setTimeout(function () {
+          vorpal.ui.input(String(command).trim() + ' ');
+        }, 10);
       } else {
         var results = app.clerk.search(args.commands.join(' '));
         if (results.length === 1 && results[0].points > 0) {
@@ -150,12 +177,6 @@ module.exports = function (vorpal, options) {
         } else if (results.length > 0) {
           var _ret = (function () {
             //self.log(chalk.yellow(`\n  Did you mean:`));
-            for (var i = 0; i < results.length; ++i) {
-              if (i > 7) {
-                break;
-              }
-              //self.log(`  ${results[i].commandMatch}`);
-            }
             self.log(' ');
 
             var choices = [];
@@ -163,7 +184,8 @@ module.exports = function (vorpal, options) {
               choices.push(res.commandMatch);
             });
 
-            choices = choices.slice(0, 6);
+            choices = choices.slice(0, 5);
+            choices.push(chalk.grey('Cancel') + '\n ');
 
             self.prompt({
               type: 'list',
@@ -171,10 +193,13 @@ module.exports = function (vorpal, options) {
               choices: choices,
               name: 'choice'
             }, function (a, b) {
-              var pick = stripAnsi(a.choice);
-              var path = util.command.buildPath(pick, args.options, app.clerk.indexer.index());
-              execPath(path);
-              cb();
+              var pick = stripAnsi(a.choice).replace('\n ', '');
+              if (pick !== 'Cancel') {
+                var _path2 = util.command.buildPath(pick, args.options, app.clerk.indexer.index());
+                execPath(_path2);
+              } else {
+                cb();
+              }
             });
             return {
               v: undefined

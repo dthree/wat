@@ -32,6 +32,7 @@ const app = {
       .use(`${dir}/vorpal/catch.js`, {app: app})
       .use(`${dir}/vorpal/autodocs.js`, {app: app})
       .use(`${dir}/vorpal/hist.js`, {app: app})
+      .use(`${dir}/vorpal/tour.js`, {app: app})
       .delimiter('?')
       .show();
 

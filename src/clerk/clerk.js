@@ -156,7 +156,7 @@ const clerk = {
         return;
       }
       const commands = util.parseCommandsFromPath(path);
-      let commandString = chalk.grey(commands.join(' '));
+      let commandString = commands.join(' ');
       let points = 0;
       let dirty = 0;
       for (let i = 0; i < search.length; ++i) {

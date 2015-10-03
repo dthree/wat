@@ -64,12 +64,12 @@ var util = {
           // lib that hasn't been downloaded yet, and has tabbed.
           // We tell the user what he can do.
           var msg = undefined;
-          if (iteration < 4) {
-            var times = 4 - iteration;
+          if (iteration < 3) {
+            var times = 3 - iteration;
             times = times > 1 ? times + ' more times' : times + ' more time';
             times = chalk.cyan(times);
-            msg = ['pre-build', chalk.blue('\n  This library has not been built. \n  To build, press ' + chalk.cyan('[tab]') + ' ' + times + ', or press ' + chalk.cyan('[enter]') + '.\n')];
-          } else if (iteration === 4) {
+            msg = ['pre-build', chalk.blue('\n  This library has not been built. \n  To build, press ' + chalk.cyan('[tab]') + ' ' + times + ', or press ' + chalk.cyan('[enter]') + '.')];
+          } else if (iteration === 3) {
             msg = ['build', original];
           } else {
             msg = original;

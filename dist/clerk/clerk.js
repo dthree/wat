@@ -156,7 +156,7 @@ var clerk = {
         return;
       }
       var commands = util.parseCommandsFromPath(path);
-      var commandString = chalk.grey(commands.join(' '));
+      var commandString = commands.join(' ');
       var points = 0;
       var dirty = 0;
       for (var i = 0; i < search.length; ++i) {

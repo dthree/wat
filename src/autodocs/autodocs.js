@@ -57,9 +57,7 @@ const autodocs = {
         aliases: data.aliases,
         static: data.static,
         crawl: false,
-        onFile: function(data) {
-          let total = data.total;
-          let downloaded = data.downloaded;
+        onProgress: function(data) {
           options.progress(data);
         },
       };
@@ -67,8 +65,10 @@ const autodocs = {
       let result = self.scaffold(libName, opt, function (err, data) {
         if (libs.length < 1) {
           if (options.rebuild) {
+            options.progress({action: 'index', total: 50, downloaded: 50});
             self.app.clerk.indexer.build(function(index, localIndex){
               self.app.clerk.indexer.write(index, localIndex);
+              options.progress({action: 'done', total: 50, downloaded: 50});
               callback();
             });
           } else {
@@ -135,10 +135,11 @@ const autodocs = {
     let total = Object.keys(tree).length;
     function doneHandler() {
       done++;
-      if (options.onFile) {
-        options.onFile.call(undefined, {
+      if (options.onProgress) {
+        options.onProgress({
           total: total,
-          downloaded: done
+          downloaded: done,
+          action: 'fetch'
         });
       }
       if (done >= total) {
@@ -179,8 +180,14 @@ const autodocs = {
     util.mkdirSafe(localAutodocPath);
 
     function parse() {
+      if (options.onProgress) {
+        options.onProgress({
+          total: 50,
+          downloaded: 50,
+          action: 'parse'
+        });
+      }
       for (const result in results) {
-
         let md = results[result];
         md = self.mdast.stripHTML(md);
 
@@ -211,8 +218,6 @@ const autodocs = {
           }];
         }
 
-        //console.log('hi', '|', repoName, '|', resultRoot, '|');
-
         let docs = self.mdast.buildDocPaths(headers, `/autodocs/${repoName}/${resultRoot}`);
 
 
@@ -227,6 +232,14 @@ const autodocs = {
         }
       }
 
+      if (options.onProgress) {
+        options.onProgress({
+          total: 50,
+          downloaded: 50,
+          action: 'build'
+        });
+      }
+
       let config = self.mdast.buildAPIConfig(finalAPI);
       let docSequence = self.mdast.buildDocConfig(finalDocs, repoName);
 
@@ -239,6 +252,14 @@ const autodocs = {
           //config.docsSequence[doc] = 0;
           self.writeDocSet(final[doc].docs, writeOptions);
         }
+      }
+
+      if (options.onProgress) {
+        options.onProgress({
+          total: 50,
+          downloaded: 50,
+          action: 'write'
+        });
       }
 
       if (writeOptions.static) {
@@ -346,7 +367,7 @@ const autodocs = {
         buildFolds(api[i])
       //}
 
-      for (let j = 0; j < items.length; ++j) {
+      for (let j = 1; j < items.length; ++j) {
         let item = items[j];
         let lines = item.position.end.line - item.position.start.line + 1;
         let content = mdast.stringify(item) + '\n\n';
