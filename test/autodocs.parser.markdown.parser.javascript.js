@@ -2,7 +2,7 @@
 
 require('assert');
 var should = require('should');
-var parser = require('../dist/autodocs/parser.javascript');
+var parser = require('../dist/autodocs/parser/markdown/parser.javascript');
 
 describe('autodocs.javascript', function () {
 
