@@ -4,425 +4,91 @@
  * Module dependencies.
  */
 
-const stripBadges = require('mdast-strip-badges');
-const util = require('../util');
-const chalk = require('chalk');
-const fs = require('fs');
-const pathx = require('path');
-const os = require('os');
-const _ = require('lodash');
 const rimraf = require('rimraf');
+const _ = require('lodash');
+const chalk = require('chalk');
 
-const javascript = require('./parser.javascript');
-const mdast = require('./parser.mdast');  
+const parsers = {};
 
 const autodocs = {
 
-  javascript,
-
-  mdast,
-
   run(name, options, callback) {
+    const self = this;
+    const config = self.app.clerk.autodocs.config();
+    const lib = String(name).trim();
+    let libs = [];
     options = options || {}
     options.rebuild = options.rebuild || true;
-    options.progress = options.progress || function () {};
-    const self = this;
-    let lib = String(name).trim();
-    let config = self.app.clerk.autodocs.config();
+    options.loader = options.loader || function () {};
+    options.done = options.done || function () {};
+    
+    const progress = function (data) {
+      options.loader(self.drawLoader(data.downloaded, data.total, data.action));
+    };
 
     if (!config) {
-      callback(`Wat had trouble reading "./config/config.auto.json".`);
+      options.done(`Wat had trouble reading "./config/config.auto.json".`);
       return;
     }
-
-    let libs = [];
     
     if (lib === 'all') {
       libs = Object.keys(config);
     } else {
       if (!config[lib]) {
-        callback(`${lib} is not on Wat's list of auto-updating libraries.\n  To include it, add it to ./config/config.auto.json and submit a PR.`);
+        options.done(`${lib} is not on Wat's list of auto-updating libraries.\n  To include it, add it to ./config/config.auto.json and submit a PR.`);
         return;
       }
       libs.push(lib);
     }
 
-    function handleLib(libName) {
-      let data = config[libName];
+    function runSingleLibrary(libName) {
+      const data = config[libName];
       data.urls = data.urls || [];
       data.language = data.language || 'javascript';
+      data.parser = data.parser || 'readme';
+
+      if (!libName) {
+        options.done('${libName} is not a valid autodoc library name.');
+        return;
+      }
+
+      // Load the appropriate parser.
+      const parser = parsers[data.parser];
+      if (parsers[data.parser] === undefined) {
+        options.done(`${libName} has an invalid autodoc parser: ${data.parser}.`);
+        return;
+      }
+
       const opt = {
         urls: data.urls,
         language: data.language,
         aliases: data.aliases,
+        parser: data.parser,
         static: data.static,
         crawl: false,
-        onProgress: function(data) {
-          options.progress(data);
-        },
+        progress: progress
       };
 
-      let result = self.scaffold(libName, opt, function (err, data) {
+      progress({action: 'fetch', total: 50, downloaded: 0});
+      let result = parser.run(libName, opt, function (err, data) {
         if (libs.length < 1) {
           if (options.rebuild) {
-            options.progress({action: 'index', total: 50, downloaded: 50});
-            self.app.clerk.indexer.build(function(index, localIndex){
+            progress({action: 'index', total: 50, downloaded: 50});
+            self.app.clerk.indexer.build(function (index, localIndex){
               self.app.clerk.indexer.write(index, localIndex);
-              options.progress({action: 'done', total: 50, downloaded: 50});
-              callback();
+              progress({action: 'done', total: 50, downloaded: 50});
+              options.done();
             });
           } else {
-            callback();
+            options.done();
           }
         } else {
-          let next = libs.shift();
-          handleLib(next);            
+          runSingleLibrary(libs.shift());
         }
       });
     }
 
-    let next = libs.shift();
-    handleLib(next);
-  },
-
-  scaffold(name, options, callback) {
-    callback = callback || {};
-    options = options || {}
-    const self = this;
-    const urls = options.urls;
-    const lang = options.language || 'javascript';
-    const isStatic = options.static || false;
-    const aliases = options.aliases || [];
-    const repoName = String(name).trim();
-    const allNames = aliases;
-    const results = {}
-    const errors = [];
-    const writeOptions = { static: isStatic }
-
-    allNames.push(repoName);
-
-    if (!repoName) {
-      throw new Error('No valid library name passed for autodocs.scaffold.');
-    }
-
-    // If crawl is set to true, the autodocs
-    // will crawl the given readme files for additional
-    // markdown urls.
-    const crawl = options.crawl || false;
-
-    // Set appropriate parsing language.
-    this.mdast.language(lang);
-
-    const tree = {}
-    const final = {}
-    let finalAPI = [];
-    let finalDocs = [];
-
-    function traverse(node, path) {
-      path = path || '';
-      for (const item in node) {
-        let fullPath = (path !== '') ? path + '/' + item : String(item);
-        if (_.isObject(node[item])) {
-          traverse(node[item], fullPath);
-        } else {
-          tree[fullPath] = node[item];
-        }
-      }
-    }
-    traverse(urls);
-
-    let done = 0;
-    let total = Object.keys(tree).length;
-    function doneHandler() {
-      done++;
-      if (options.onProgress) {
-        options.onProgress({
-          total: total,
-          downloaded: done,
-          action: 'fetch'
-        });
-      }
-      if (done >= total) {
-        parse();
-      }
-    }
-
-    function fetchOne(key, value) {
-      //console.log('Fetching', value);
-      util.fetchRemote(value, function (err, data) {
-        if (!err) {
-          results[key] = data;
-        } else {
-          errors.push(err);
-        }
-        doneHandler();
-      })
-    }
-
-    for (const url in tree) {
-      fetchOne(url, tree[url]);
-    }
-
-    const temp = this.app.clerk.paths.temp.root;
-
-    let autodocPath = `${self.app.clerk.paths.static.autodocs}${repoName}`;
-    let localAutodocPath = `${self.app.clerk.paths.temp.autodocs}${repoName}`;
-    try {
-      if (writeOptions.static) {
-        rimraf.sync(autodocPath);
-      }
-      rimraf.sync(localAutodocPath);
-    } catch(e) {}
-
-    if (writeOptions.static) {
-      util.mkdirSafe(autodocPath);
-    }
-    util.mkdirSafe(localAutodocPath);
-
-    function parse() {
-      if (options.onProgress) {
-        options.onProgress({
-          total: 50,
-          downloaded: 50,
-          action: 'parse'
-        });
-      }
-      for (const result in results) {
-        let md = results[result];
-        md = self.mdast.stripHTML(md);
-
-        let ast = self.mdast.parse(md);
-        ast = self.mdast.sequenceAst(ast);
-        const urls = self.mdast.getUrlsFromAst(ast);
-        const repoUrls = self.mdast.filterUrlsByGithubRepo(urls, undefined, repoName);
-        let headers = self.mdast.groupByHeaders(ast);
-
-        let pathParts = String(result).split('/');
-        let last = pathParts.pop();
-        let resultRoot = (pathParts.length > 0) ? pathParts.join('/') : '';
-
-        let api = self.mdast.filterAPINodes(headers, allNames);
-        api = self.mdast.buildAPIPaths(api, repoName);
-
-        // Make an index for that doc set.
-        if (headers.length === 1) {
-          headers[0].children = [{ type: 'text', value: last, position: {} }];
-        } else if (headers.length > 1) {
-          headers = [{
-            type: 'heading',
-            depth: 1,
-            children: [{ type: 'text', value: last, position: {} }],
-            position: {},
-            fold: headers,
-            junk: [],
-          }];
-        }
-
-        let docs = self.mdast.buildDocPaths(headers, `/autodocs/${repoName}/${resultRoot}`);
-
-
-        finalAPI = finalAPI.concat(api);
-        finalDocs = finalDocs.concat(docs);
-
-        final[result] = {
-          api: api,
-          docs: docs,
-          headers: headers,
-          urls: urls
-        }
-      }
-
-      if (options.onProgress) {
-        options.onProgress({
-          total: 50,
-          downloaded: 50,
-          action: 'build'
-        });
-      }
-
-      let config = self.mdast.buildAPIConfig(finalAPI);
-      let docSequence = self.mdast.buildDocConfig(finalDocs, repoName);
-
-      config.docs = [];
-      config.docSequence = docSequence;
-
-      for (const doc in final) {
-        if (final.hasOwnProperty(doc)) {
-          config.docs.push(doc);
-          //config.docsSequence[doc] = 0;
-          self.writeDocSet(final[doc].docs, writeOptions);
-        }
-      }
-
-      if (options.onProgress) {
-        options.onProgress({
-          total: 50,
-          downloaded: 50,
-          action: 'write'
-        });
-      }
-
-      if (writeOptions.static) {
-        self.writeConfig(autodocPath, config);
-      }
-      self.writeConfig(localAutodocPath, config);
-      self.writeAPI(finalAPI, writeOptions);
-      callback();
-    }
-  },
-
-  writeDocSet(docs, options) {
-    options = options || {}
-    let result = '';
-    for (let i = 0; i < docs.length; ++i) {
-      let local = '';
-      if (!docs[i].docPath) {
-        continue;
-      }
-
-      const temp = this.app.clerk.paths.temp.root;
-      let path = String(docs[i].docPath);
-      let parts = path.split('/');
-      let file = parts.pop();
-      let directory = parts.join('/');
-      let fileAddon = (docs[i].fold.length > 0) ? '/' + file : '';
-      let dir = __dirname + '/../..' + directory;
-      let tempDir = temp + directory;
-
-      if (options.static) {
-        util.mkdirSafe(dir + fileAddon);
-      }
-      util.mkdirSafe(tempDir + fileAddon);
-
-      docs[i].junk = docs[i].junk || [];
-
-      let fullPath = (docs[i].fold.length > 0)
-        ? '/' + file + '/' + 'index.md'
-        : '/' + file + '.md';
-      
-      let header = mdast.stringify(docs[i]);
-      let allJunk = header + '\n\n';
-      for (let j = 0; j < docs[i].junk.length; ++j) {
-        allJunk += mdast.stringify(docs[i].junk[j]) + '\n\n';
-      }
-
-      local += allJunk;
-
-      if (docs[i].fold.length > 0) {
-        local += this.writeDocSet(docs[i].fold, options);
-      }
-
-      if (options.static) {
-        fs.writeFileSync(dir + fullPath, local);
-      }
-      fs.writeFileSync(tempDir + fullPath, local);
-
-      result += local;
-    }
-    return result;
-  },
-
-  writeAPI(api, options) {
-
-    //console.log(api);
-
-    options = options || {}
-    for (var i = 0; i < api.length; ++i) {
-      if (!api[i].apiPath) {
-        continue;
-      }
-      const temp = this.app.clerk.paths.temp.root;
-      let path = String(api[i].apiPath);
-      let parts = path.split('/');
-      let file = parts.pop();
-      let directory = parts.join('/');
-      let dir = __dirname + '/../..' + directory;
-      let tempDir = temp + directory;
-
-      if (options.static) {
-        util.mkdirSafe(dir);
-      }
-      util.mkdirSafe(tempDir);
-
-      let codeSampleFound = false;
-      let basicText = `## ${api[i].formatted}\n\n`;
-      let detailText = basicText;
-      let lineX = 2;
-      let lineXBasic = 2;
-
-      let items = [];
-      function buildFolds(itm) {
-        var str = mdast.stringify(itm);
-        items.push(itm);
-        for (let j = 0; j < itm.junk.length; ++j) {
-          var junkie = mdast.stringify(itm.junk[j]);
-          items.push(itm.junk[j]);
-        }
-        for (let j = 0; j < itm.fold.length; ++j) {
-          buildFolds(itm.fold[j]);
-        }
-      }
-
-      //if (i === 0) {
-        buildFolds(api[i])
-      //}
-
-      for (let j = 1; j < items.length; ++j) {
-        let item = items[j];
-        let lines = item.position.end.line - item.position.start.line + 1;
-        let content = mdast.stringify(item) + '\n\n';
-        let isCode = (item.type === 'code');
-        lineX += lines;
-        let basic;
-        if (lineX <= 20) {
-          basic = true;
-        } else if ((lineX - lines) > 10 && codeSampleFound) {
-          basic = false;
-        } else if (lineX > 20 && !codeSampleFound && isCode && lineX < 40) {
-          basic = true;
-        }
-
-        if (basic) {
-          lineXBasic = lineX;
-          basicText += content;
-        }
-        detailText += content;
-
-        if (isCode) {
-          codeSampleFound = true;
-        }
-      }
-
-      // If detail has no more content than
-      // basic, just get rid of it.
-      if (lineX === lineXBasic) {
-        detailText = '';
-      }
-
-      try {
-        fs.writeFileSync(tempDir + '/' + file + '.md', basicText, 'utf-8');
-        if (options.static) {
-          fs.writeFileSync(dir + '/' + file + '.md', basicText, 'utf-8');
-        }
-        if (detailText !== '') {
-          fs.writeFileSync(tempDir + '/' + file + '.detail.md', detailText, 'utf-8');
-          if (options.static) {
-            fs.writeFileSync(dir + '/' + file + '.detail.md', detailText, 'utf-8');
-          }
-        }
-      } catch(e) {
-        throw new Error(e);
-      }
-    }
-  },
-
-  writeConfig(path, config) {
-    try {
-      fs.writeFileSync(`${path}/config.json`, JSON.stringify(config, null, '  '));
-    } catch(e) {
-      console.log(`\n\n${chalk.yellow(`  In building an autodoc, Wat couldn't write its config file.`)}\n`);
-      throw new Error(e);
-    }
+    runSingleLibrary(libs.shift());
   },
 
   delete(name, opt, callback) {
@@ -431,10 +97,8 @@ const autodocs = {
     const self = this;
     const lib = String(name).trim();
     const temp = this.app.clerk.paths.temp.root;
-
     let autodocPath = `${self.app.clerk.paths.static.autodocs}${name}`;
     let localAutodocPath = `${self.app.clerk.paths.temp.autodocs}${name}`;
-
     const config = self.app.clerk.autodocs.config();
 
     if (config[name] === undefined) {
@@ -455,7 +119,7 @@ const autodocs = {
     } catch(e) {}
 
     if (options.rebuild) {
-      self.app.clerk.indexer.build(function(index, localIndex){
+      self.app.clerk.indexer.build(function (index, localIndex){
         self.app.clerk.indexer.write(index, localIndex);
         callback();
       });
@@ -464,9 +128,114 @@ const autodocs = {
     }
   },
 
+  deleteAll(options, callback) {
+    const self = this;
+    const config = this.app.clerk.autodocs.config();
+    const index = this.app.clerk.indexer.index();
+    options = options || {}
+
+    if (config === undefined) {
+      callback(`\n  Trouble reading autodoc config.\n`);
+      return;
+    }
+
+    // Whip up all built autodoc libs.
+    const names = [];
+    for (const name in config) {
+      if (config[name].static === false) {
+        if (index[name] && index[name].__class === 'lib') {
+          names.push(name);
+        }
+      }
+    }
+
+    // Uh... what's the point.
+    if (names.length < 1) {
+      callback();
+      return;
+    }
+
+    // Handler is called on each delete.
+    // When all libs are deleted, we build the
+    // index again and callback.
+    const total = names.length;
+    let done = 0;
+    function handler() {
+      done++;
+      if (done === total) {
+        self.app.clerk.indexer.build(function (index, localIndex) {
+          self.app.clerk.indexer.write(index, localIndex);
+          callback();
+        });
+      } else {
+        go();
+      }
+    }
+
+    function go() {
+      if (names.length > 0) {
+        const name = names.shift();
+        if (options.progress) {
+          options.progress(name);
+        }
+        self.delete(name, {rebuild: false}, handler);
+      } else {
+        handler();
+      }
+    }
+
+    go();
+  },
+
+  drawLoader(done, total, action) {
+    // Add time on to the end of the
+    // loader to compensate for building.
+    const doneString = done;
+    let multiple = .55;
+    if (action === 'parse') {
+      multiple = .60;
+    } else if (action === 'build') {
+      multiple = .65;
+    } else if (action === 'write') {
+      multiple = .70;
+    } else if (action === 'index') {
+      multiple = .75;
+    } else if (action === 'done') {
+      multiple = .80;
+    }
+    done = Math.floor(done * multiple);
+    done = (done < 0) ? 0 : done;
+    let width = 40;
+    let donesPerBar = total / width;
+    let bars = Math.floor(donesPerBar * done);
+    let loader = '';
+    for (let i = 0; i < width; ++i) {
+      if (i <= done) {
+        loader += chalk.bgGreen(' ');
+      } else {
+        loader += chalk.bgWhite(' ');
+      }
+    }
+    let buildStr;
+    if (total === 100) {
+      buildStr = `Preparing...`;
+    } else if (action === 'fetch') {
+      buildStr = `Fetching ${doneString} of ${total} docs...`;
+    } else if (['parse', 'build'].indexOf(action) > -1) {
+      buildStr = `Housekeeping...`;
+    } else if (['write', 'index', 'done'].indexOf(action) > -1) {
+      buildStr = `Feng shui...`;
+    }
+    buildStr = chalk.grey(buildStr);
+    const result = `\n  ${buildStr}\n\n  ${loader}\n`;
+    return result;
+  }
+
+
 };
 
 module.exports = function (app) {
+  parsers.markdown = require('./parser/markdown/index')(app);
   autodocs.app = app;
   return autodocs;
 };

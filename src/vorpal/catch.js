@@ -16,85 +16,52 @@ module.exports = function (vorpal, options) {
       return str + ' | less -F';
     })
     .autocompletion(function (text, iteration, cb) {
+
       const self = this;
       const index = app.clerk.indexer.index();
+
       let result = util.autocomplete(text, iteration, index, function (word, options) {
         const res = self.match(word, options);
         return res;
       });
 
-      function draw(done, total, action) {
-        // Add time on to the end of the
-        // loader to compensate for building.
-        const doneString = done;
-        let multiple = .6;
-        if (action === 'parse') {
-          multiple = .65;
-        } else if (action === 'build') {
-          multiple = .70;
-        } else if (action === 'write') {
-          multiple = .75;
-        } else if (action === 'index') {
-          multiple = .80;
-        } else if (action === 'done') {
-          multiple = .85;
-        }
-        done = Math.floor(done * multiple);
-        done = (done < 0) ? 0 : done;
-        let width = 40;
-        let donesPerBar = total / width;
-        let bars = Math.floor(donesPerBar * done);
-        let loader = '';
-        let message = ' you look good.';
-        for (let i = 0; i < width; ++i) {
-          let char = message[i] || ' ';
-          if (i <= done) {
-            loader += chalk.bgGreen(char);
-          } else {
-            loader += chalk.bgWhite(' ');
-          }
-        }
-        let buildStr;
-        if (total === 100) {
-          buildStr = `Preparing...`;
-        } else if (action === 'fetch') {
-          buildStr = `Fetching ${doneString} of ${total} docs...`;
-        } else if (['parse', 'build'].indexOf(action) > -1) {
-          buildStr = `Housekeeping...`;
-        } else if (['write', 'index', 'done'].indexOf(action) > -1) {
-          buildStr = `Feng shui...`;
-        }
-        buildStr = chalk.grey(buildStr);
-        const result = `\n  ${buildStr}\n\n  ${loader}`;
-        return result;
-      }
+      const mode = result.mode;
+      const response = result.response;
 
-      if (result[0] === 'pre-build') {
-        vorpal.ui.redraw(`\n  ${result[1]}`);
-        cb(undefined, undefined);
-      } else if (result[0] === 'build') {
-        let command = String(result[1]).trim();
-        let message = '';
-        vorpal.ui.redraw(draw(0, 100));
+      if (mode === 'pre-build') {
+        vorpal.ui
+          .imprint()
+          .redraw(`\n\n\n\n`)
+          .redraw(`  ${response}\n\n`)
+          .refresh();
+        cb();
+      } else if (mode === 'build') {
+        vorpal.ui
+          .redraw(`\n\n\n\n`)
+          .refresh();
+        const command = String(response).trim();
         app.autodocs.run(command, {
-          progress: function(data) {
-            vorpal.ui.redraw(draw(data.downloaded, data.total, data.action));
+          loader: function(loader) {
+            vorpal.ui.redraw(loader).refresh();
           },
-        }, function(err){
-          vorpal.ui.redraw('\n\n  Done.\n');
-          vorpal.ui.redraw.done();
-          vorpal.ui.refresh();
-          if (err) {
-            self.log(`  ${err}\n`);
+          done: function (err) {
+            vorpal.ui
+              .redraw(`\n\n\n  ${chalk.blue(`Done. Press ${chalk.cyan(`[tab]`)} to explore ${command}.`)}\n`)
+              .redraw.done();
+            if (err) {
+              self.log(`  ${err}\n`);
+            }
           }
-          cb();
         });
-        result = result = result[1];
-        cb(undefined, undefined);
+        cb();
       } else {
-        cb(undefined, result);
+        //vorpal.log(response[0].length, process.stdout.columns);
+        //vorpal.log(require('util').inspect(response));
+        //vorpal.log(response[0]);
+        //vorpal.log(response[0]);
+        cb(undefined, response);
+        cb();
       }
-
     })
     .action(function (args, cb) {
       const self = this;
@@ -113,9 +80,7 @@ module.exports = function (vorpal, options) {
       }
 
       const command = args.commands.join(' ');
-
       const path = util.command.buildPath(command, args.options, app.clerk.indexer.index());
-      //console.log(path)
 
       function logResults(str) {
         if (String(str).split('\n').length > process.stdout.rows && 1 == 2) {
@@ -131,7 +96,27 @@ module.exports = function (vorpal, options) {
       function execPath(pathObj) {
         // If we are an unbuilt library, build it.
         if (pathObj.index && pathObj.index.__class === 'unbuilt-lib') {
-          self.log(`\n  ${chalk.blue(`Fetching ${command}...`)}`);
+          //self.log(`\n  ${chalk.blue(`Fetching ${command}...`)}`);
+
+          app.autodocs.run(command, {
+            loader: function(loader) {
+              vorpal.ui.redraw(loader).refresh();
+            },
+            done: function (err) {
+              vorpal.ui
+                .redraw(`\n\n\n  ${chalk.blue(`Done. Press ${chalk.cyan(`[tab]`)} to explore ${command}.`)}\n`)
+                .redraw.done();
+              if (err) {
+                self.log(`  ${err}\n`);
+              }
+              cb();
+              setTimeout(function(){
+                vorpal.ui.input(`${command} `);
+              }, 25);
+            }
+          });
+
+          /*
           app.autodocs.run(command, {}, function(err){
             if (err) {
               self.log(`\n\n  ${err}\n`);
@@ -140,6 +125,7 @@ module.exports = function (vorpal, options) {
             }
             cb();
           });
+          */
           return;
         }
 
@@ -166,12 +152,14 @@ module.exports = function (vorpal, options) {
 
       if (path.exists === false) {
         if (path.suggestions) {
-          self.log(chalk.yellow(`\n  Sorry, there's no cheat sheet for that command. However, you can try "${chalk.white(`${command} ...`)} ":\n`));
+          let log = '';
+          log += `${chalk.yellow(`\n  Sorry, there's no cheat sheet for that command. However, you can try "${chalk.white(`${command} ...`)} ":`)}\n\n`;
           for (let i = 0; i < path.suggestions.length; ++i) {
-            const str = `${path.suggestions[i]}`;
-            self.log(str);
+            log += `${path.suggestions[i]}`;
           }
-          self.log(' ');
+          // Ensure we don't double pad.
+          log = log.replace(/\n\n\n/g, '\n\n');
+          self.log(log);
           setTimeout(function(){
             vorpal.ui.input(`${String(command).trim()} `);
           }, 10);
@@ -195,7 +183,7 @@ module.exports = function (vorpal, options) {
 
             self.prompt({
               type: 'list',
-              message: 'Did you mean:',
+              message: chalk.yellow('Did you mean:'),
               choices: choices,
               name: 'choice',
             }, function(a, b) {

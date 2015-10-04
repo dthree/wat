@@ -22,7 +22,7 @@ const util = {
   * @param {String} text
   * @param {Integer} iteration
   * @param {Object} index
-  * @return {String or Array}
+  * @return {Array} [mode, data]
   * @api public
   */
 
@@ -31,8 +31,6 @@ const util = {
     const lastWord = String(commands[commands.length - 1]).trim();
     const otherWords = commands.slice(0, commands.length - 1);
     const poss = [];
-
-    let response;
 
     // Find the deepest point on the index that
     // matches the given commands. i.e. 
@@ -47,6 +45,9 @@ const util = {
     const formatted = this.formatAutocomplete(possibleObjects);
     const possibilities = Object.keys(possibleObjects);
     const match = matchFn(String(lastWord).trim(), possibilities);
+
+    let mode = 'default';
+    let response;
 
     if (match && levels !== otherWords.length + 1) {
       const space = (possibilities.indexOf(String(match).trim()) > -1) ? ' ' : '';
@@ -63,25 +64,26 @@ const util = {
           // In this scenario, the user has chosen an autodoc 
           // lib that hasn't been downloaded yet, and has tabbed.
           // We tell the user what he can do.
-          let msg;
           if (iteration < 3) {
-            let times = 3 - iteration;
-            times = (times > 1) ? `${times} more times` : `${times} more time`;
-            times = chalk.cyan(times);
-            msg = ['pre-build', chalk.blue(`\n  This library has not been built. \n  To build, press ${chalk.cyan(`[tab]`)} ${times}, or press ${chalk.cyan(`[enter]`)}.`)];
+            const times = chalk.cyan(`1 more time`);
+            mode = 'pre-build';
+            response = chalk.blue(`\n  This library has not been built. \n  To build, press ${chalk.cyan(`[tab]`)} ${times}, or press ${chalk.cyan(`[enter]`)}.`);
           } else if (iteration === 3) {
-            msg = ['build', original];
+            mode = 'build';
+            response = original;
           } else {
-            msg = original
+            response = original
           }
-          response = msg;
         } else {
           response = original;
         }
       }
     }
 
-    return response;
+    return ({
+      mode: mode,
+      response: response
+    });
   },
 
   /**
@@ -266,8 +268,8 @@ const util = {
           fnl += set;
         }
       }
+      fnl = String(fnl).trim();
       fnl = `\n  ${String(fnl).trim()}\n`;
-
     } else {
 
       // This takes a class, such as `method`,
@@ -655,7 +657,7 @@ const util = {
 
         let sugg = util.autocomplete(str, 2, index, function (word, options) {
           return options;
-        });
+        }).response;
         if (_.isArray(sugg)) {
           response.suggestions = sugg;
         } else {

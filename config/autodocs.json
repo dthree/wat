@@ -1,6 +1,7 @@
 {
   "chalk": {
     "language": "javascript",
+    "parser": "markdown",
     "static": false,
     "urls": {
       "readme": "https://raw.githubusercontent.com/chalk/chalk/master/readme.md"
@@ -8,6 +9,7 @@
   },
   "d3": {
     "language": "javascript",
+    "parser": "markdown",
     "static": false,
     "urls": {
       "readme": "https://raw.githubusercontent.com/mbostock/d3/master/README.md",
@@ -65,6 +67,7 @@
   },
   "node": {
     "language": "javascript",
+    "parser": "markdown",
     "static": false,
     "urls": {
       "api": {
@@ -111,6 +114,7 @@
   },
   "npm-mkdirp": {
     "language": "javascript",
+    "parser": "markdown",
     "aliases": ["mkdirp"], 
     "static": false,
     "urls": {
@@ -119,6 +123,7 @@
   },
   "pageres": {
     "language": "javascript",
+    "parser": "markdown",
     "static": false,
     "urls": {
       "readme": "https://raw.githubusercontent.com/sindresorhus/pageres/master/readme.md"
@@ -126,6 +131,7 @@
   },
   "robotjs": {
     "language": "javascript",
+    "parser": "markdown",
     "static": false,
     "urls": {
       "readme": "https://raw.githubusercontent.com/octalmage/robotjs/master/README.md",
@@ -137,6 +143,7 @@
   },
   "screenful": {
     "language": "javascript",
+    "parser": "markdown",
     "aliases": ["screenful.js"],
     "static": false,
     "urls": {
@@ -145,6 +152,7 @@
   },
   "vorpal": {
     "language": "javascript",
+    "parser": "markdown",
     "static": false,
     "urls": {
       "readme": "https://raw.githubusercontent.com/dthree/vorpal/master/README.md"
@@ -152,6 +160,7 @@
   },
   "vantage": {
     "language": "javascript",
+    "parser": "markdown",
     "static": false,
     "urls": {
       "readme": "https://raw.githubusercontent.com/dthree/vantage/master/README.md"

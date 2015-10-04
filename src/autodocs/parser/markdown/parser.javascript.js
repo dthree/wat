@@ -8,6 +8,10 @@ const chalk = require('chalk');
 
 const js = {
 
+  /**
+  * Regex rules for parsing Javascript syntax.
+  */
+
   rules: {
     links: /(\[(.*?)\]\()(.+?)(\))'/g,
     startHash: /^#+/g,
@@ -32,6 +36,20 @@ const js = {
     startPeriod: /^\./,
     startsWithWords: /^[a-zA-Z]+ +/
   },
+
+  /**
+  * Takes an API command string, such as 
+  * `## lib.foo(text[, bar...])`, and parses
+  * it into its component parts, noting any
+  * errors in the process.
+  *
+  * Returns a rich object with the syntax
+  * broken down.
+  *
+  * @param {String} str
+  * @return {Object}
+  * @api public
+  */
 
   parseCommandSyntax(str) {
 
@@ -89,15 +107,8 @@ const js = {
     let optionalMethods = syn.match(self.rules.orderedBrackets);
     syn = syn.replace(self.rules.orderedBrackets, '');
 
-    //console.log(str);
-    //console.log('Syntax: ', syn);
-    //console.log('Params: ', params);
-    //console.log('Optional Methods: ', optionalMethods);
-    //console.log(' ')
-
     let paramArray = [];
     let requiredParamEncountered = false;
-
     let orderedParams = [];
 
     if (params) {
@@ -140,7 +151,6 @@ const js = {
         }
 
         if (isOptional && !requiredParamEncountered) {
-
           for (let j = 0; j < orderedParams.length; ++j) {
             if (orderedParams[j] === param) {
               orderedParams[j] = `[${orderedParams[j]}]`;
@@ -194,15 +204,20 @@ const js = {
     result.errors = errors;
     result.isImplicitChild = isImplicitChild;
 
-    //if (name === 'new Agent') {
-      //console.log(result);
-    //}
-
     return result;
   },
 
-  stringifyCommandSyntax(obj) {
+  /**
+  * Takes an object returned by `.parseCommandSyntax`
+  * above, and converts it into a properly formatted
+  * Javascript syntax string.
+  *
+  * @param {Object} obj
+  * @return {String}
+  * @api public
+  */
 
+  stringifyCommandSyntax(obj) {
     const self = this;
     let params = obj.params;
 
@@ -237,6 +252,18 @@ const js = {
 
     return result;
   },
+
+  /**
+  * Reads a raw string (usually a markdown header)
+  * and determines whether it is Javascript or not.
+  * Used to determine which headers in a markdown
+  * document are API declarations.
+  *
+  * @param {String} str
+  * @param {Object} node
+  * @return {Boolean}
+  * @api public
+  */
 
   isCommandSyntax(str, node) {
     const self = this;
@@ -291,6 +318,8 @@ const js = {
     }
 
     /*
+    // Leaving this here for future
+    // debugging purposes.
     if (isSyntax) {
       console.log('|' + str);
       console.log('||' + cmdWithoutParens);

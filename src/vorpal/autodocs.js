@@ -23,14 +23,22 @@ module.exports = function (vorpal, options) {
     .option('-r, --rebuild', 'Rebuild index after complete. Defaults to true.')
     .action(function (args, cb) {
       const self = this;
-      let options = {}
-      //options.rebuild = args.options.rebuild || true;
-      app.autodocs.delete(args.lib, options, function(err) {
+
+      function progress(lib) {
+        self.log(`Deleting ${lib}.`);
+      }
+
+      function back(err) {
         if (err) { 
           self.log(chalk.yellow(err));
         }
         cb();
-      });
+      }      
+      if (args.lib === 'all') {
+        app.autodocs.deleteAll({ progress: progress }, back);
+      } else {
+        app.autodocs.delete(args.lib, {}, back);
+      }
     });
 
   vorpal
