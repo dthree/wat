@@ -144,6 +144,14 @@ const markdownParser = {
 
         let docs = self.mdast.buildDocPaths(headers, `/autodocs/${repoName}/${resultRoot}`);
 
+        if (result === 'readme') {
+          for (let j = 0; j < docs[0].fold.length; ++j) {
+            // let f = docs[0].fold[j];
+            // console.log(f.children);
+            // console.log(f.docPath);
+            // console.log(mdast.stringify(f));
+          }
+        }
 
         finalAPI = finalAPI.concat(api);
         finalDocs = finalDocs.concat(docs);

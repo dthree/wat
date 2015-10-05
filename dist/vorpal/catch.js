@@ -44,10 +44,10 @@ module.exports = function (vorpal, options) {
         cb();
       })();
     } else {
-      //vorpal.log(response[0].length, process.stdout.columns);
-      //vorpal.log(require('util').inspect(response));
-      //vorpal.log(response[0]);
-      //vorpal.log(response[0]);
+      // vorpal.log(response[0].length, process.stdout.columns);
+      // vorpal.log(require('util').inspect(response));
+      // vorpal.log(response[0]);
+      // vorpal.log(response[0]);
       cb(undefined, response);
       cb();
     }

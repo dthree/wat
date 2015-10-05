@@ -77,6 +77,7 @@ var autodocs = {
             self.app.clerk.indexer.build(function (index, localIndex) {
               self.app.clerk.indexer.write(index, localIndex);
               progress({ action: 'done', total: 50, downloaded: 50 });
+              self.app.vorpal.emit('wat_library_build', { name: libName });
               options.done();
             });
           } else {
@@ -220,7 +221,11 @@ var autodocs = {
     if (total === 100) {
       buildStr = 'Preparing...';
     } else if (action === 'fetch') {
-      buildStr = 'Fetching ' + doneString + ' of ' + total + ' docs...';
+      if (doneString === 0) {
+        buildStr = 'Fetching docs...';
+      } else {
+        buildStr = 'Fetching ' + doneString + ' of ' + total + ' docs...';
+      }
     } else if (['parse', 'build'].indexOf(action) > -1) {
       buildStr = 'Housekeeping...';
     } else if (['write', 'index', 'done'].indexOf(action) > -1) {

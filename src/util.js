@@ -105,6 +105,8 @@ const util = {
     const cats = ['method', 'property', 'object', 'doc', 'lib', 'unbuilt-lib'];
     const data = {};
     
+    //console.log(possibilities)
+
     let all = Object.keys(possibilities) || [];
 
     function filter(objs, type) {

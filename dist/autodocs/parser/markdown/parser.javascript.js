@@ -290,8 +290,15 @@ var js = {
 
     isHeader = node.depth === 1;
 
+    // To do: Have to deal with single-depth headers.
+    // D3, for example, defines all API items with
+    // single headers, but we don't wat the first item
+    // in a doc.
+    // If I properly pass in parent headers, I can
+    // check to see if it is at the root of the doc...
+
     // End early.
-    if (isExample || isHeader) {
+    if (isExample || isHeader && node.sequence === 0) {
       return false;
     }
 

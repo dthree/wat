@@ -105,6 +105,8 @@ var util = {
     var cats = ['method', 'property', 'object', 'doc', 'lib', 'unbuilt-lib'];
     var data = {};
 
+    //console.log(possibilities)
+
     var all = Object.keys(possibilities) || [];
 
     function filter(objs, type) {
