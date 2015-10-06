@@ -11,6 +11,7 @@ const fs = require('fs');
 const mkdirp = require('mkdirp');
 const chalk = require('chalk');
 const strip = require('strip-ansi');
+const path = require('path');
 
 const util = {
 
@@ -745,7 +746,22 @@ const util = {
       }
       return result;
     },
+
+  },
+
+  path: {
+
+    getDocRoot(pathString) {
+      const normalized = path.normalize(pathString);
+      const parts = String(normalized).split(`docs${path.sep}`);
+      if (parts[1] === undefined) {
+        console.log(parts, `docs${path.sep}`);
+        throw new Error(`Invalid path passed into util.getDocRoot: "${pathString}". Parsed path: ${normalized}.`);
+      }
+      return parts[1];
+    },
   }
+
 };
 
 module.exports = util;

@@ -11,6 +11,7 @@ var fs = require('fs');
 var mkdirp = require('mkdirp');
 var chalk = require('chalk');
 var strip = require('strip-ansi');
+var path = require('path');
 
 var util = {
 
@@ -739,7 +740,22 @@ var util = {
       }
       return result;
     }
+
+  },
+
+  path: {
+
+    getDocRoot: function getDocRoot(pathString) {
+      var normalized = path.normalize(pathString);
+      var parts = String(normalized).split('docs' + path.sep);
+      if (parts[1] === undefined) {
+        console.log(parts, 'docs' + path.sep);
+        throw new Error('Invalid path passed into util.getDocRoot: "' + pathString + '". Parsed path: ' + normalized + '.');
+      }
+      return parts[1];
+    }
   }
+
 };
 
 module.exports = util;

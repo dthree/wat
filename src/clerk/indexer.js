@@ -166,24 +166,16 @@ const indexer = {
       return;
     }
 
-    //console.log('exists!', exists, dir)
-
     const walker = walk.walk(dir, {});
     walker.on('file', function (root, fileStats, next) {
-      const parts = String(path.normalize(root)).split('docs');
-      if (parts[1] === undefined) {
-        console.log(`Invalid path passed into wat.indexer.build: ${root}. Parsed path: ${parts[0]}|${parts[1]}`);
-        next();
-        return;
-      }
       if (String(fileStats.name).indexOf('.json') > -1) {
         next();
         return;
       }
-      const parsed = path.parse(`${parts[1]}`);
-      const dirs = String(path.normalize(`${parsed.dir}/${parsed.base}`)).split('/');
-      dirs.shift();
+      const pathStr = util.path.getDocRoot(root);
+      const dirs = String(pathStr).split(path.sep);
       dirs.push(fileStats.name);
+      console.log('buildDir', pathStr, dirs);
       const remainder = _.clone(dirs);
       function build(idx, arr) {
         const item = String(arr.shift());
@@ -227,24 +219,24 @@ const indexer = {
     let configs = {};
     const walker = walk.walk(dir, {});
     walker.on('file', function (root, fileStats, next) {
-      let parts = String(path.normalize(root)).split('docs');
-      if (parts[1] === undefined) {
-        console.log(`Invalid path passed into wat.indexer.readConfigs: ${root}`);
-        next();
-        return;
-      }
+      //let parts = String(path.normalize(root)).split('docs');
       if (String(fileStats.name).indexOf('config.json') === -1) {
         next();
         return;
       }
-      const parsed = path.parse(`${parts[1]}`);
-      const dirParts = String(path.normalize(`${parsed.dir}/${parsed.base}`)).split('/');
-      dirParts.shift();
+
+      const pathStr = util.path.getDocRoot(root);
+      const dirs = String(pathStr).split(path.sep);
+
+      //const parsed = path.parse(`${parts[1]}`);
+      //const dirParts = String(path.normalize(`${parsed.dir}/${parsed.base}`)).split('/');
+      //dirParts.shift();
       //let dirParts = String(parts[1]).split('/');
-      let lib = dirParts.pop();
+      let lib = dirs.pop();
+      console.log('readconfigs', lib);
       let contents;
       try {
-        contents = fs.readFileSync(root + '/' + fileStats.name, {encoding: 'utf-8'});
+        contents = fs.readFileSync(`${path.normalize(root)}${path.sep}${fileStats.name}`, {encoding: 'utf-8'});
         contents = JSON.parse(contents);
       } catch(e) {}
       configs[lib] = contents;
