@@ -200,7 +200,7 @@ module.exports = function (vorpal) {
   var end4 = '\nNice. That last tab you did shows what\'s in Chalk. The green items are methods, blue are properties, and the rest are docs, such as Chalk\'s readme on Github.\n';
   var start5 = '\nTake a look at what\'s in "stripColor". You\'ve typed half of it already.\n';
   var end5 = '\nThe data you see here was automatically parsed from Chalk\'s readme when you downloaded it a second ago.\n';
-  var start6 = '\nThe tab key is your friend. Notice the "/" on "readme/"? That means you can drill down further into the readme, which is indexed by its main sections.\n\nUse your tab key to find and pull up the "Why" section of Chalk\'s readme.\n';
+  var start6 = '\nThe tab key is your friend. Type "' + chalk.white('chalk readme') + '" and then hit ' + chalk.white('[tab]') + ' twice. You\'ll now see the main sections of Chalk\'s readme.\n\nFind and pull up the "Why" section of Chalk\'s readme.\n';
   var start7 = '\nYou can also view the full readme. Run "' + chalk.white('chalk readme') + '"\n\nNote: As the readme is longer than your screen, wat is going to throw you into a "less" (linux) command automatically. If you are unfamiliar with how to use less, type "' + chalk.white('h') + '" as soon as the readme pulls up.\n\nWhen you\'re done viewing the readme, press "' + chalk.white('q') + '" to quit less.\n';
   var start8 = '\nOkay. Let\'s see what a really big libary looks like.\n\nDownload "node" using your tab keys, or by typing "' + chalk.white('node') + '" and pressing ' + chalk.white('[enter]') + '.\n';
   var start9 = '\nNice. Now press ' + chalk.white('[tab]') + ' twice to see Node\'s contents.\n';
@@ -213,7 +213,7 @@ module.exports = function (vorpal) {
   var start15 = '\nPick one that looks interesting, and then run "' + chalk.white('theme <name>') + '". \n';
   var end15 = '\nDid you know you can publish your own themes? If you\'re interested, check the out "Creating Themes" page on Wat\'s Github Wiki.\n';
   var start16 = '\nWat can also search Stack Overflow. Run "' + chalk.white('stackoverflow js splice an array') + '".\n';
-  var end16 = '\n"stackoverflow" is a really long word. You can also run it with "so ..." or "stack ...".\n';
+  var end16 = '\n"stackoverflow" is a really long word. You can also run it with "' + chalk.white('so ...') + '" or "' + chalk.white('stack ...') + '".\n';
   var conclusion = '\nThat concludes the tour!\n\nIf you like Wat, help spread the word! And remember, contributing is ridiculously easy. If you want to add content, check out the Wiki to get started.\n\nOver to you!\n';
 
   tour.color('magenta');

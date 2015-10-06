@@ -8,6 +8,7 @@ var _ = require('lodash');
 var chalk = require('chalk');
 var fs = require('fs');
 var hljs = require('highlight.js');
+var path = require('path');
 
 /**
  * Expose a function that passes in a Vantage
