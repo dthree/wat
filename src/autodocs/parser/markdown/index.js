@@ -5,6 +5,7 @@ const rimraf = require('rimraf');
 const fs = require('fs');
 const chalk = require('chalk');
 const util = require('../../../util');
+const path = require('path');
 
 const javascript = require('./parser.javascript');
 const mdast = require('./mdast');  
@@ -271,8 +272,8 @@ const markdownParser = {
         continue;
       }
       const temp = this.app.clerk.paths.temp.root;
-      let path = String(api[i].apiPath);
-      let parts = path.split('/');
+      let pathStr = String(api[i].apiPath);
+      let parts = pathStr.split('/');
       let file = parts.pop();
       let directory = parts.join('/');
       let dir = __dirname + '/../..' + directory;
@@ -339,14 +340,14 @@ const markdownParser = {
       }
 
       try {
-        fs.writeFileSync(tempDir + '/' + file + '.md', basicText, 'utf-8');
+        fs.writeFileSync(`${tempDir}${path.sep}${file}.md`, basicText, 'utf-8');
         if (options.static) {
-          fs.writeFileSync(dir + '/' + file + '.md', basicText, 'utf-8');
+          fs.writeFileSync(`${dir}${path.sep}${file}.md`, basicText, 'utf-8');
         }
         if (detailText !== '') {
-          fs.writeFileSync(tempDir + '/' + file + '.detail.md', detailText, 'utf-8');
+          fs.writeFileSync(`${tempDir}${path.sep}${file}.detail.md`, detailText, 'utf-8');
           if (options.static) {
-            fs.writeFileSync(dir + '/' + file + '.detail.md', detailText, 'utf-8');
+            fs.writeFileSync(`${dir}${path.sep}${file}.detail.md`, detailText, 'utf-8');
           }
         }
       } catch(e) {

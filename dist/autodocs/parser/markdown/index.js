@@ -5,6 +5,7 @@ var rimraf = require('rimraf');
 var fs = require('fs');
 var chalk = require('chalk');
 var util = require('../../../util');
+var path = require('path');
 
 var javascript = require('./parser.javascript');
 var mdast = require('./mdast');
@@ -222,8 +223,8 @@ var markdownParser = {
       }
 
       var temp = this.app.clerk.paths.temp.root;
-      var path = String(docs[i].docPath);
-      var parts = path.split('/');
+      var _path = String(docs[i].docPath);
+      var parts = _path.split('/');
       var file = parts.pop();
       var directory = parts.join('/');
       var fileAddon = docs[i].fold.length > 0 ? '/' + file : '';
@@ -286,8 +287,8 @@ var markdownParser = {
         return 'continue';
       }
       var temp = _this.app.clerk.paths.temp.root;
-      var path = String(api[i].apiPath);
-      var parts = path.split('/');
+      var pathStr = String(api[i].apiPath);
+      var parts = pathStr.split('/');
       var file = parts.pop();
       var directory = parts.join('/');
       var dir = __dirname + '/../..' + directory;
@@ -341,14 +342,14 @@ var markdownParser = {
       }
 
       try {
-        fs.writeFileSync(tempDir + '/' + file + '.md', basicText, 'utf-8');
+        fs.writeFileSync('' + tempDir + path.sep + file + '.md', basicText, 'utf-8');
         if (options['static']) {
-          fs.writeFileSync(dir + '/' + file + '.md', basicText, 'utf-8');
+          fs.writeFileSync('' + dir + path.sep + file + '.md', basicText, 'utf-8');
         }
         if (detailText !== '') {
-          fs.writeFileSync(tempDir + '/' + file + '.detail.md', detailText, 'utf-8');
+          fs.writeFileSync('' + tempDir + path.sep + file + '.detail.md', detailText, 'utf-8');
           if (options['static']) {
-            fs.writeFileSync(dir + '/' + file + '.detail.md', detailText, 'utf-8');
+            fs.writeFileSync('' + dir + path.sep + file + '.detail.md', detailText, 'utf-8');
           }
         }
       } catch (e) {

@@ -62,7 +62,7 @@ const highlighter = {
 
   getThemes() {
     const themes = [];
-    fs.readdirSync(highlighter.configPath).forEach(function (name) {
+    fs.readdirSync(path.normalize(highlighter.configPath)).forEach(function (name) {
       const parts = String(name).split('.');
       if (parts[parts.length - 1] === 'json') {
         parts.pop();

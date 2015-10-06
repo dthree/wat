@@ -569,7 +569,7 @@ const util = {
     levels = levels || 0;
     let dirExists;
     try {
-      dirExists = fs.statSync(dir);
+      dirExists = fs.statSync(path.normalize(dir));
     } catch(e) {
       if (levels > 20) {
         throw new Error(e);

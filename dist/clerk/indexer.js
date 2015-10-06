@@ -156,7 +156,7 @@ var indexer = {
     // Make sure dir exists.
     var exists = true;
     try {
-      exists = fs.statSync(dir);
+      exists = fs.statSync(path.normalize(dir));
     } catch (e) {
       exists = false;
     }
@@ -175,7 +175,7 @@ var indexer = {
       var pathStr = util.path.getDocRoot(root);
       var dirs = String(pathStr).split(path.sep);
       dirs.push(fileStats.name);
-      console.log('buildDir', pathStr, dirs);
+      // console.log('buildDir', pathStr, dirs);
       var remainder = _.clone(dirs);
       function build(idx, arr) {
         var item = String(arr.shift());
@@ -219,21 +219,13 @@ var indexer = {
     var configs = {};
     var walker = walk.walk(dir, {});
     walker.on('file', function (root, fileStats, next) {
-      //let parts = String(path.normalize(root)).split('docs');
       if (String(fileStats.name).indexOf('config.json') === -1) {
         next();
         return;
       }
-
       var pathStr = util.path.getDocRoot(root);
       var dirs = String(pathStr).split(path.sep);
-
-      //const parsed = path.parse(`${parts[1]}`);
-      //const dirParts = String(path.normalize(`${parsed.dir}/${parsed.base}`)).split('/');
-      //dirParts.shift();
-      //let dirParts = String(parts[1]).split('/');
       var lib = dirs.pop();
-      console.log('readconfigs', lib);
       var contents = undefined;
       try {
         contents = fs.readFileSync('' + path.normalize(root) + path.sep + fileStats.name, { encoding: 'utf-8' });
@@ -264,7 +256,7 @@ var indexer = {
         util.each(idx[lib], function (key, node, tree) {
           var newTree = _.clone(tree);
           newTree.push(key);
-          var treePath = newTree.join('/');
+          var treePath = newTree.join(path.sep);
           if (_.isObject(node[key])) {
             if (methods.indexOf(treePath) > -1) {
               node[key].__class = 'method';
@@ -287,7 +279,7 @@ var indexer = {
                 // an object, like `foo` in `foo/bar`.
                 var combined = methods.concat(properties);
                 for (var i = 0; i < combined.length; ++i) {
-                  var parts = combined[i].split('/');
+                  var parts = combined[i].split(path.sep);
                   var _idx = parts.indexOf(key);
                   if (_idx > -1 && _idx != parts.length - 1) {
                     node[key].__class = 'object';
@@ -370,8 +362,8 @@ var indexer = {
   */
 
   write: function write(idx, localIdx) {
-    fs.writeFileSync(this.app.clerk.paths['static'].root + 'config/index.json', JSON.stringify(idx, null));
-    fs.writeFileSync(this.app.clerk.paths.temp.autodocs + 'index.local.json', JSON.stringify(localIdx, null));
+    fs.writeFileSync(path.normalize(this.app.clerk.paths['static'].root + 'config/index.json'), JSON.stringify(idx, null));
+    fs.writeFileSync(path.normalize(this.app.clerk.paths.temp.autodocs + 'index.local.json'), JSON.stringify(localIdx, null));
     this._index = idx;
     this._localIndex = localIdx;
     this._mergedIndex = this.merge(this._index, this._localIndex);
@@ -392,12 +384,12 @@ var indexer = {
     var self = this;
     if (!this._index || !this._localIndex || !this._mergedIndex) {
       try {
-        this._index = JSON.parse(fs.readFileSync(__dirname + '/../../config/index.json', { encoding: 'utf-8' }));
+        this._index = JSON.parse(fs.readFileSync(path.normalize(__dirname + '/../../config/index.json'), { encoding: 'utf-8' }));
       } catch (e) {
         this._index = {};
       }
       try {
-        this._localIndex = JSON.parse(fs.readFileSync(this.app.clerk.paths.temp.autodocs + 'index.local.json', { encoding: 'utf-8' }));
+        this._localIndex = JSON.parse(fs.readFileSync(path.normalize(this.app.clerk.paths.temp.autodocs + 'index.local.json'), { encoding: 'utf-8' }));
       } catch (e) {
         this._localIndex = {};
       }
@@ -463,7 +455,7 @@ var indexer = {
     // If we can't read the file,
     // assume we just download it newly.
     try {
-      var stats = fs.statSync(path.join(__dirname, '/../../config/index.json'));
+      var stats = fs.statSync(path.normalize(path.join(__dirname, '/../../config/index.json')));
       sinceUpdate = Math.floor(new Date() - stats.mtime);
     } catch (e) {}
 
