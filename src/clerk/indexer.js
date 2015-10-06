@@ -227,9 +227,9 @@ const indexer = {
     let configs = {};
     const walker = walk.walk(dir, {});
     walker.on('file', function (root, fileStats, next) {
-      const parts = String(path.normalize(root)).split('docs/');
+      let parts = String(path.normalize(root)).split('docs');
       if (parts[1] === undefined) {
-        console.log(`Invalid path passed into wat.indexer.build: ${root}`);
+        console.log(`Invalid path passed into wat.indexer.readConfigs: ${root}`);
         next();
         return;
       }
@@ -237,7 +237,10 @@ const indexer = {
         next();
         return;
       }
-      let dirParts = String(parts[1]).split('/');
+      const parsed = path.parse(`${parts[1]}`);
+      const dirParts = String(path.normalize(`${parsed.dir}/${parsed.base}`)).split('/');
+      dirParts.shift();
+      //let dirParts = String(parts[1]).split('/');
       let lib = dirParts.pop();
       let contents;
       try {
