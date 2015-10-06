@@ -170,7 +170,7 @@ const indexer = {
 
     const walker = walk.walk(dir, {});
     walker.on('file', function (root, fileStats, next) {
-      const parts = String(path.normalize(root)).split('docs/');
+      const parts = String(path.normalize(root)).split(path.normalize('docs'));
       if (parts[1] === undefined) {
         console.log(`Invalid path passed into wat.indexer.build: ${root}`);
         next();
@@ -180,8 +180,9 @@ const indexer = {
         next();
         return;
       }
-      const file = parts[1];
-      const dirs = String(path.normalize(file)).split('/');
+      const parsed = path.parse(`${parts[1]}`);
+      const dirs = String(path.normalize(`${parsed.dir}/${parsed.base}`)).split('/');
+      dirs.shift();
       dirs.push(fileStats.name);
       const remainder = _.clone(dirs);
       function build(idx, arr) {
