@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/dthree/wat.svg)](https://travis-ci.org/dthree/wat) [![Build Status](https://img.shields.io/badge/gitter-join%20chat-brightgreen.svg)](https://gitter.im/dthree/wat?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge) [![Build Status](https://img.shields.io/npm/v/wat.svg)](https://www.npmjs.com/package/wat)
 
-> Mad Science meets Real World Practicality meets Documentation. Wat.
+> Real World Practicality meets Documentation. Wat.
 
 Finally, community-built cheat sheets for every coder, targeting any framework, in any language. At the tip of your fingers.
 
@@ -28,25 +28,33 @@ Made with :heart: and a little [secret sauce](https://github.com/dthree/vorpal).
 
 ## Introduction
 
-#### Wat is nearing its launch, and you can help
+#### Wat is nearing its launch, and you can help.
 
-##### Feel free to install and try Wat out. Wanted are suggestions on how to make Wat even more ridiculously easy to use and insanely helpful. All document contributions are welcome as well!
+##### Wat's tour is now available!
+
+```bash
+$ npm install -g wat
+$ wat tour
+```
+
+##### Feel free to take the tour! All feedback and contributions welcome.
 
 #### 1.0 targets:
 
 ##### To do
 
-- Manual-generated libraries completed: JS, HTML, CSS, Node
-- Automatic doc scaffolding
-- Auto-doc config and refactor.
-- Finish Github and Stack Overflow web searches.
+- Manual-generated libraries completed: JS, HTML, CSS
+- Github web search.
 - Spiffy GIF
-- Tour
 - Finish Tests.
 - *Suggestions? Wat is for you, and must be uncomprimisingly amazing.*
 
 ##### Done
 
+- <s>Stack Overflow web search.</s>
+- <s>Tour</s>
+- <s>Automatic doc scaffolding</s>
+- <s>Auto-doc config and refactor.</s>
 - <s>XO linting.</s>
 - <s>Search commands implemented.</s>
 - <s>Preference commands implemented (syntax highlighting flavor, etc.).</s>
@@ -56,8 +64,6 @@ Made with :heart: and a little [secret sauce](https://github.com/dthree/vorpal).
 - <s>Babel transpiling.</s>
 - <s>Pass args into initial app call (i.e. make `$ wat js array splice` start up the application and return the results.)</s>
 - <s>Graceful exiting with CONTROL + C.</s>
-
----
 
 #### Wat covers everything
 
@@ -105,11 +111,15 @@ Love Wat? Help spread the word. Every contribution helps the community even more
 
 ##### Languages
 
-> JS
+> JS (some of it), Node
 
-##### Node.js Frameworks
+##### Javascript Libraries
 
-> [Chalk](https://github.com/sindresorhus/chalk), [RobotJS](https://github.com/octalmage/robotjs), [Vantage](https://github.com/dthree/vantage), [Vorpal](https://github.com/dthree/vorpal)
+> [D3](https://github.com/mbostock/d3)
+
+##### Node.js Libraries
+
+> [Chalk](https://github.com/sindresorhus/chalk), [debug](https://github.com/visionmedia/debug), [download](https://github.com/kevva/download), [got](https://github.com/sindresorhus/got), [MDAST](https://github.com/wooorm/mdast), [mkdirp](https://github.com/substack/node-mkdirp), [Node HTTP Proxy](https://github.com/nodejitsu/node-http-proxy), [Node Inspector](https://github.com/node-inspector/node-inspector), [Pageres](https://github.com/sindresorhus/pageres), [request](https://github.com/request/request), [RobotJS](https://github.com/octalmage/robotjs), [Screenful](https://github.com/sindresorhus/screenful), [Vantage](https://github.com/dthree/vantage), [Vorpal](https://github.com/dthree/vorpal)
 
 ## FAQ
 

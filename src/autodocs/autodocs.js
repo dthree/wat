@@ -143,7 +143,7 @@ const autodocs = {
     // Whip up all built autodoc libs.
     const names = [];
     for (const name in config) {
-      if (config[name].static === false) {
+      if (config[name].static !== true) {
         if (index[name] && index[name].__class === 'lib') {
           names.push(name);
         }
