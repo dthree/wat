@@ -620,6 +620,7 @@ var util = {
       options = options || {};
       var all = [];
       var commands = _.isArray(str) ? str : String(str).trim().split(' ');
+      commands = commands.join(' ').replace(/\//g, ' ').replace(/\\/g, ' ').replace(/ +/g, ' ').split(' ');
       for (var i = 0; i < commands.length; ++i) {
         var parts = commands[i].split('.');
         for (var j = 0; j < parts.length; ++j) {

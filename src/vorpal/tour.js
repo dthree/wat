@@ -221,7 +221,7 @@ module.exports = function (vorpal) {
   tour.step(1)
     .begin(start1)
     .expect("command", function (data, cb) {
-      cb(data.command === 'js array slice');
+      cb(String(data.command).toLowerCase().indexOf('slice') > -1);
     })
     .reject('Err.. wrong command.')
     .wait(1000)

@@ -615,9 +615,14 @@ const util = {
     prepare(str, options, index) {
       options = options || {};
       const all = [];
-      const commands = (_.isArray(str))
+      let commands = (_.isArray(str))
         ? str
         : String(str).trim().split(' ');
+      commands = commands.join(' ')
+        .replace(/\//g, ' ')
+        .replace(/\\/g, ' ')
+        .replace(/ +/g, ' ')
+        .split(' ');
       for (let i = 0; i < commands.length; ++i) {
         const parts = commands[i].split('.');
         for (let j = 0; j < parts.length; ++j) {

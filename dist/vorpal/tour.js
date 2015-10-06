@@ -219,7 +219,7 @@ module.exports = function (vorpal) {
   tour.color('magenta');
 
   tour.step(1).begin(start1).expect("command", function (data, cb) {
-    cb(data.command === 'js array slice');
+    cb(String(data.command).toLowerCase().indexOf('slice') > -1);
   }).reject('Err.. wrong command.').wait(1000).end(end1);
 
   tour.step(2).begin(start2).expect("keypress", function (data, cb) {
