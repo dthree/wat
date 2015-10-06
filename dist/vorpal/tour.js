@@ -70,7 +70,6 @@ module.exports = function (vorpal) {
       event: event,
       fn: function fn(e) {
         function end() {
-          vorpal.removeListener(self._listener.event, self._listener.fn);
           if (typeof self._end === 'function') {
             self._end.call(vorpal);
           } else if (typeof self._end === 'string') {
@@ -83,6 +82,7 @@ module.exports = function (vorpal) {
 
         _fn.call(vorpal, e, function (valid) {
           if (valid) {
+            vorpal.removeListener(self._listener.event, self._listener.fn);
             if (self._wait) {
               setTimeout(end, self._wait);
             } else {
@@ -250,12 +250,12 @@ module.exports = function (vorpal) {
 
   tour.step(8).begin(start8).expect("wat_library_build", function (data, cb) {
     cb(data.name === 'node');
-  }).reject('Er.. wrong library.').wait(1000);
+  }).reject('Er.. wrong library.');
 
   tour.step(9).end(start9).expect("keypress", function (data, cb) {
     this._tabs2 = this._tabs2 || 0;
     this._tabs2 = data.key === 'tab' ? this._tabs2 + 1 : 0;
-    cb(this._tabs2 === 2);
+    cb(this._tabs2 > 0);
   }).wait(1000).end(end9);
 
   tour.step(10).begin(start10).expect("command", function (data, cb) {
