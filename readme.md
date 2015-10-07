@@ -14,6 +14,13 @@ Wat was designed for ease. It takes you:
 - [5 minutes to master](#learn)
 - [15 minutes to contribute](#contribute)
 
+I am currently looking for beta testers: if you want to help, simply run the following and follow the guides. Your suggestions now will greatly help influence the upcoming published product!
+
+```js
+$ npm install wat -g
+$ wat tour
+```
+
 ## Contents
 
 - [Introduction](#introduction)
@@ -24,7 +31,7 @@ Wat was designed for ease. It takes you:
 - [FAQ](#faq)
 - [License](#license)
 
-Made with :heart: and a little [secret sauce](https://github.com/dthree/vorpal).
+Made by [dthree](https://github.com/dthree) with :heart: and a little [secret sauce](https://github.com/dthree/vorpal).
 
 ## Introduction
 
