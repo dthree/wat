@@ -179,8 +179,12 @@ var clerk = {
       var dirty = 0;
       for (var i = 0; i < search.length; ++i) {
         var word = String(search[i]).toLowerCase().trim();
-        var reg = new RegExp('(' + word + ')');
-        commandString = commandString.replace(reg, chalk.blue('$1'));
+        // Unless we get funky regex exceptions (like "?"),
+        // try to make the matching strings blue.
+        try {
+          var reg = new RegExp('(' + word + ')');
+          commandString = commandString.replace(reg, chalk.blue('$1'));
+        } catch (e) {}
         var finds = 0;
         for (var j = 0; j < commands.length; ++j) {
           var cmd = String(commands[j]).toLowerCase().trim();

@@ -179,8 +179,12 @@ const clerk = {
       let dirty = 0;
       for (let i = 0; i < search.length; ++i) {
         const word = String(search[i]).toLowerCase().trim();
-        var reg = new RegExp(`(${word})`);
-        commandString = commandString.replace(reg, chalk.blue('$1'));
+        // Unless we get funky regex exceptions (like "?"),
+        // try to make the matching strings blue.
+        try {
+          const reg = new RegExp(`(${word})`);
+          commandString = commandString.replace(reg, chalk.blue('$1'));
+        } catch(e) {}
         let finds = 0;
         for (let j = 0; j < commands.length; ++j) {
           const cmd = String(commands[j]).toLowerCase().trim();
