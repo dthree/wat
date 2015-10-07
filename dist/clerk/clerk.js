@@ -87,11 +87,13 @@ var clerk = {
     // Compare the config that came with the
     // last NPM install to the local temp docs.
     // If there is no temp config (new install),
-    // use the static one. Otherwise, the temp
-    // one dominates.
+    // use the static one, but delete the index
+    // sizes. Otherwise, the temp one dominates.
     var staticConfig = this.config.getStatic();
     var localConfig = this.config.getLocal();
     if (!localConfig) {
+      delete staticConfig.docIndexSize;
+      delete staticConfig.remoteSize;
       this.config.writeLocal(staticConfig);
     }
   },

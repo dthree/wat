@@ -62,7 +62,8 @@ var indexer = {
       setInterval(this.update, 3600000);
       setTimeout(function () {
         self.update();
-      }, 6000);
+      }, 60000);
+      self.update();
     }
     return this;
   },
@@ -510,8 +511,12 @@ var indexer = {
                 console.log(err);
               } else {
                 self.write(index);
-                self.clerk.compareDocs();
-                callback(undefined, 'Successfully updated index.');
+                self.app.clerk.indexer.build(function (staticIndex, tempIndex) {
+                  self.app.clerk.indexer.write(staticIndex, tempIndex);
+                  // Huh? This compare function seems pointless.
+                  self.clerk.compareDocs();
+                  callback(undefined, 'Successfully updated index.');
+                });
               }
             });
           }
