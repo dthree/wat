@@ -51,9 +51,8 @@ const config = {
       try {
         config = JSON.parse(fs.readFileSync(this.app.clerk.paths.temp.config, {encoding: 'utf-8'}));
         this._config = config;
-      } catch(e) {
-        console.log(chalk.yellow(`\n\nHouston, we have a problem.\nWat can\'t read its local config file, which should be at ${this.app.clerk.paths.temp.config}. Without this, Wat can\'t do much. Try re-installing Wat from scratch.\n\nIf that doesn\'t work, please file an issue.\n`));
-        throw new Error(e);
+      } catch(e) {  
+        this._config = this.getStatic();
       }
     } else {
       config = this._config;
