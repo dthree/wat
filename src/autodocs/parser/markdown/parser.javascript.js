@@ -97,7 +97,7 @@ const js = {
     }
 
     // If we have params, we are a method.
-    const isMethod = (syn.match(self.rules.parameters)) ? true : false;
+    let isMethod = (syn.match(self.rules.parameters)) ? true : false;
 
     // Pull out parameters.
     let params = syn.match(self.rules.parameters);
@@ -181,17 +181,29 @@ const js = {
     }
 
     // Check for 'new Blah', meaning its an object.
+    const objects = ['new'];
+    const methods = ['function', 'method'];
+    const nonsense = ['var'];
     let isObject = false;
     let nameWords = String(name).split(' ');
     if (nameWords.length > 1) {
-      if (String(nameWords[0]).toLowerCase().trim() === 'new') {
+      const looseWord = String(nameWords[0]).toLowerCase().trim();
+      if (objects.indexOf(looseWord) > -1) {
         isObject = true;
+        name = nameWords.slice(1, nameWords.length).join(' ');
+      } else if (methods.indexOf(looseWord) > -1) {
+        isMethod = true;
+        name = nameWords.slice(1, nameWords.length).join(' ');
+      } else if (nonsense.indexOf(looseWord) > -1) {
         name = nameWords.slice(1, nameWords.length).join(' ');
       }
     }
 
     parents = parents.map(function (item) {
-      return String(item).trim();
+      item = String(item).trim();
+      let parts = item.split(' ');
+      parts = parts.pop();
+      return parts;
     }).filter(function (item) {
       return item !== '';
     });
@@ -203,6 +215,8 @@ const js = {
     result.parents = parents || [];
     result.errors = errors;
     result.isImplicitChild = isImplicitChild;
+
+    //console.log(result)
 
     return result;
   },
@@ -323,7 +337,6 @@ const js = {
     } else if (hasBrackets && hasLeftParen) {
       isSyntax = true;
     }
-
 
     /*
     // Leaving this here for future

@@ -185,17 +185,29 @@ var js = {
     }
 
     // Check for 'new Blah', meaning its an object.
+    var objects = ['new'];
+    var methods = ['function', 'method'];
+    var nonsense = ['var'];
     var isObject = false;
     var nameWords = String(name).split(' ');
     if (nameWords.length > 1) {
-      if (String(nameWords[0]).toLowerCase().trim() === 'new') {
+      var looseWord = String(nameWords[0]).toLowerCase().trim();
+      if (objects.indexOf(looseWord) > -1) {
         isObject = true;
+        name = nameWords.slice(1, nameWords.length).join(' ');
+      } else if (methods.indexOf(looseWord) > -1) {
+        isMethod = true;
+        name = nameWords.slice(1, nameWords.length).join(' ');
+      } else if (nonsense.indexOf(looseWord) > -1) {
         name = nameWords.slice(1, nameWords.length).join(' ');
       }
     }
 
     parents = parents.map(function (item) {
-      return String(item).trim();
+      item = String(item).trim();
+      var parts = item.split(' ');
+      parts = parts.pop();
+      return parts;
     }).filter(function (item) {
       return item !== '';
     });
@@ -207,6 +219,8 @@ var js = {
     result.parents = parents || [];
     result.errors = errors;
     result.isImplicitChild = isImplicitChild;
+
+    //console.log(result)
 
     return result;
   },

@@ -12,8 +12,8 @@ const os = require('os');
 const path = require('path');
 const util = require('../util');
 
-const tempRoot = path.join(os.tmpdir(), '/.wat/.local/');
-const staticRoot = `${__dirname}/../../`;
+const tempRoot = path.normalize(path.join(os.tmpdir(), '/.wat/.local/'));
+const staticRoot = path.normalize(`${__dirname}/../../`);
 
 const clerk = {
 
@@ -24,16 +24,19 @@ const clerk = {
       root: tempRoot,
       prefs: `${tempRoot}prefs.json`,
       cache: `${tempRoot}cache.json`,
+      config: `${tempRoot}config.json`,
       hist: `${tempRoot}hist.json`,
-      docs: `${tempRoot}docs/`,
-      autodocs: `${tempRoot}autodocs/`,
+      index: `${tempRoot}index.json`,
+      localIndex: `${tempRoot}index.local.json`,
+      docs: path.normalize(`${tempRoot}docs/`),
+      autodocs: path.normalize(`${tempRoot}autodocs/`),
     },
     static: {
       root: staticRoot,
-      config: `${staticRoot}config/config.json`,
-      autoConfig: `${staticRoot}config/autodocs.json`,
-      docs: `${staticRoot}docs/`,
-      autodocs: `${staticRoot}docs/`
+      config: path.normalize(`${staticRoot}config/config.json`),
+      autoConfig: path.normalize(`${staticRoot}config/autodocs.json`),
+      docs: path.normalize(`${staticRoot}docs/`),
+      autodocs: path.normalize(`${staticRoot}docs/`)
     },
     remote: {
       docs: '',
@@ -45,10 +48,10 @@ const clerk = {
     prefs: `${tempRoot}prefs.json`,
     cache: `${tempRoot}cache.json`,
     hist: `${tempRoot}hist.json`,
-    docs: `${tempRoot}docs/`,
-    autodocs: `${tempRoot}autodocs/`,
-    config: './config/config.json',
-    autoConfig: './config/config.auto.json',
+    docs: path.normalize(`${tempRoot}docs/`),
+    autodocs: path.normalize(`${tempRoot}autodocs/`),
+    config: path.normalize('./config/config.json'),
+    autoConfig: path.normalize('./config/config.auto.json'),
     remoteDocUrl: '',
     remoteConfigUrl: '',
     remoteArchiveUrl: ''
@@ -70,12 +73,27 @@ const clerk = {
     mkdirp.sync(this.paths.temp.root);
     mkdirp.sync(this.paths.temp.docs);
     mkdirp.sync(this.paths.temp.autodocs);
-    this.scaffoldDir(this.paths.static.docs, 'static');
-    this.scaffoldDir(this.paths.static.autodocs, 'auto');
+    // this.scaffoldDir(this.paths.static.docs, 'static');
+    // this.scaffoldDir(this.paths.static.autodocs, 'auto');
     fs.appendFileSync(this.paths.temp.prefs, '');
     fs.appendFileSync(this.paths.temp.cache, '');
     fs.appendFileSync(this.paths.temp.hist, '');
     return this;
+  },
+
+  load() {
+    this.history.getLocal();
+    
+    // Compare the config that came with the
+    // last NPM install to the local temp docs.
+    // If there is no temp config (new install),
+    // use the static one. Otherwise, the temp
+    // one dominates.
+    const staticConfig = this.config.getStatic();
+    const localConfig = this.config.getLocal();
+    if (!localConfig) {
+      this.config.writeLocal(staticConfig);
+    }
   },
 
   scaffoldDir(dir, dirType) {
@@ -266,17 +284,6 @@ const clerk = {
         }
       }
     }
-  },
-
-  load() {
-    let hist = fs.readFileSync(clerk.paths.temp.hist, {encoding: 'utf-8'});
-    try {
-      hist = JSON.parse(hist);
-      this.history._hist = hist;
-    } catch(e) {
-      this.history._hist = [];
-    }
-    this.config.getLocal();
   },
 
   fetch(path, type, cb) {

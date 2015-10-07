@@ -75,7 +75,7 @@ const autodocs = {
           if (options.rebuild) {
             progress({action: 'index', total: 50, downloaded: 50});
             self.app.clerk.indexer.build(function (index, localIndex){
-              self.app.clerk.indexer.write(index, localIndex);
+              self.app.clerk.indexer.write(undefined, localIndex);
               progress({action: 'done', total: 50, downloaded: 50});
               self.app.vorpal.emit('wat_library_build', {name: libName});
               options.done();
@@ -119,9 +119,9 @@ const autodocs = {
       rimraf.sync(localAutodocPath);
     } catch(e) {}
 
-    if (options.rebuild) {
+    if (options.rebuild === true) {
       self.app.clerk.indexer.build(function (index, localIndex){
-        self.app.clerk.indexer.write(index, localIndex);
+        self.app.clerk.indexer.write(undefined, localIndex);
         callback();
       });
     } else {
@@ -165,7 +165,7 @@ const autodocs = {
       done++;
       if (done === total) {
         self.app.clerk.indexer.build(function (index, localIndex) {
-          self.app.clerk.indexer.write(index, localIndex);
+          self.app.clerk.indexer.write(undefined, localIndex);
           callback();
         });
       } else {

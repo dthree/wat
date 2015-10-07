@@ -13,11 +13,16 @@ var chalk = require('chalk');
 
 var indexer = {
 
-  // The JSON of the index.
-  _index: undefined,
+  // The remote index.
+  _remoteIndex: undefined,
 
-  // The JSON of the local index.
-  _localIndex: undefined,
+  // The JSON of the local doc index.
+  _localDocIndex: undefined,
+
+  // The JSON of the local autodoc index.
+  _localAutodocIndex: undefined,
+
+  _localMergedIndex: undefined,
 
   // Last time the index was
   // pulled from online.
@@ -77,73 +82,92 @@ var indexer = {
     var autodocs = this.app.clerk.autodocs.config();
     var auto = undefined;
     var local = undefined;
-    var normal = undefined;
-    var autoConfigs = {};
-    var normalConfigs = {};
+    var staticf = undefined;
     var dones = 0;
     function checker() {
       dones++;
-      if (dones === 5) {
+      if (dones === 2) {
         // Merge docs and autodocs folders.
-        var idx = self.merge(normal, auto);
+        //let idx = self.merge(normal, auto);
 
         // Merge local /tmp docs.
         //idx = self.mergeLocal(idx, local);
 
         // Merge config files into index.
-        var configs = self.merge(normalConfigs, autoConfigs);
-        idx = self.applyConfigs(idx, configs);
+        //let configs = self.merge(normalConfigs, autoConfigs);
+        //idx = self.applyConfigs(idx, configs);
 
         // Add in unloaded autodoc hints into index.
-        idx = self.applyLibs(idx);
+        //idx = self.applyLibs(idx);
 
         // Add in unloaded autodoc hints into index.
-        idx = self.applyAutodocs(idx, autodocs);
+        // console.log(staticf, local);
 
-        callback(idx, local);
+        callback(staticf, local);
       }
     }
-    this.buildDir(path.normalize(__dirname + '/../../autodocs/'), 'auto', function (data) {
+    /*
+    this.buildDir(path.normalize(`${__dirname}/../../autodocs/`), 'auto', function (data) {
       auto = data;
       checker();
     });
-    this.buildDir(path.normalize(__dirname + '/../../docs/'), 'static', function (data) {
+    this.buildDir(path.normalize(`${__dirname}/../../docs/`), 'static', function (data) {
       normal = data;
       checker();
     });
-    this.readConfigs(path.normalize(__dirname + '/../../autodocs/'), function (data) {
+    this.readConfigs(path.normalize(`${__dirname}/../../autodocs/`), function (data) {
       autoConfigs = data || {};
       checker();
     });
-    this.readConfigs(path.normalize(__dirname + '/../../docs/'), function (data) {
+    this.readConfigs(path.normalize(`${__dirname}/../../docs/`), function (data) {
       normalConfigs = data || {};
       checker();
     });
-    this.buildLocal(function (localIdx) {
+    */
+    this.buildLocation('temp', function (localIdx) {
       local = localIdx;
+      checker();
+    });
+    this.buildLocation('static', function (localIdx) {
+      staticf = localIdx;
       checker();
     });
   },
 
-  buildLocal: function buildLocal(callback) {
+  buildLocation: function buildLocation(location, callback) {
     var self = this;
     var autodocs = this.app.clerk.autodocs.config();
+    var manual = undefined;
     var auto = undefined;
+    var manualConfigs = {};
     var autoConfigs = {};
     var dones = 0;
     function checker() {
       dones++;
-      if (dones === 2) {
-        var idx = self.applyConfigs(auto, autoConfigs);
-        idx = self.applyLibs(idx);
-        callback(idx);
+      if (dones === 4) {
+        var manualIdx = self.applyConfigs(manual, manualConfigs);
+        var autoIdx = self.applyConfigs(auto, autoConfigs);
+        manualIdx = self.applyLibs(manualIdx);
+        autoIdx = self.applyLibs(autoIdx);
+        if (location === 'temp') {
+          autoIdx = self.applyAutodocs(autoIdx, autodocs);
+        }
+        callback(self.merge(manualIdx, autoIdx));
       }
     }
-    this.buildDir(self.app.clerk.paths.temp.autodocs, 'auto', function (data) {
+    this.buildDir(self.app.clerk.paths[location].docs, 'static', function (data) {
+      manual = data;
+      checker();
+    });
+    this.readConfigs(self.app.clerk.paths[location].docs, function (data) {
+      manualConfigs = data || {};
+      checker();
+    });
+    this.buildDir(self.app.clerk.paths[location].autodocs, 'auto', function (data) {
       auto = data;
       checker();
     });
-    this.readConfigs(self.app.clerk.paths.temp.autodocs, function (data) {
+    this.readConfigs(self.app.clerk.paths[location].autodocs, function (data) {
       autoConfigs = data || {};
       checker();
     });
@@ -361,14 +385,27 @@ var indexer = {
   * @api public
   */
 
-  write: function write(idx, localIdx) {
-    fs.writeFileSync(path.normalize(this.app.clerk.paths['static'].root + 'config/index.json'), JSON.stringify(idx, null));
-    fs.writeFileSync(path.normalize(this.app.clerk.paths.temp.autodocs + 'index.local.json'), JSON.stringify(localIdx, null));
-    this._index = idx;
-    this._localIndex = localIdx;
-    this._mergedIndex = this.merge(this._index, this._localIndex);
-    indexer.clerk.config.setLocal('docIndexLastWrite', new Date());
-    indexer.clerk.config.setLocal('docIndexSize', String(JSON.stringify(idx)).length);
+  write: function write(remoteIdx, localIdx, options) {
+    var self = this;
+    options = options || {
+      'static': false
+    };
+    if (options['static'] === true && remoteIdx) {
+      fs.writeFileSync(path.normalize(this.app.clerk.paths['static'].root + 'config/index.json'), JSON.stringify(remoteIdx, null));
+      this._remoteIndex = remoteIdx;
+      self.app.clerk.config.setStatic('docIndexLastWrite', new Date());
+      self.app.clerk.config.setStatic('docIndexSize', String(JSON.stringify(remoteIdx)).length);
+    } else if (remoteIdx) {
+      fs.writeFileSync(this.app.clerk.paths.temp.index, JSON.stringify(remoteIdx, null));
+      self.app.clerk.config.setLocal('docIndexLastWrite', new Date());
+      self.app.clerk.config.setLocal('docIndexSize', String(JSON.stringify(remoteIdx)).length);
+      this._remoteIndex = remoteIdx;
+    }
+    if (localIdx) {
+      fs.writeFileSync(this.app.clerk.paths.temp.localIndex, JSON.stringify(localIdx, null));
+      this._localIndex = localIdx;
+    }
+    this._mergedIndex = this.merge(this._remoteIndex, this._localIndex);
     return this;
   },
 
@@ -382,18 +419,19 @@ var indexer = {
 
   index: function index() {
     var self = this;
-    if (!this._index || !this._localIndex || !this._mergedIndex) {
+    function readSafely(path) {
+      var result = undefined;
       try {
-        this._index = JSON.parse(fs.readFileSync(path.normalize(__dirname + '/../../config/index.json'), { encoding: 'utf-8' }));
+        result = JSON.parse(fs.readFileSync(path, { encoding: 'utf-8' }));
       } catch (e) {
-        this._index = {};
+        result = {};
       }
-      try {
-        this._localIndex = JSON.parse(fs.readFileSync(path.normalize(this.app.clerk.paths.temp.autodocs + 'index.local.json'), { encoding: 'utf-8' }));
-      } catch (e) {
-        this._localIndex = {};
-      }
-      this._mergedIndex = this.merge(this._index, this._localIndex) || {};
+      return result;
+    }
+    if (!this._remoteIndex || !this._localIndex || this._mergedIndex) {
+      this._localIndex = readSafely(this.app.clerk.paths.temp.localIndex);
+      this._remoteIndex = readSafely(this.app.clerk.paths.temp.index);
+      this._mergedIndex = this.merge(this._remoteIndex, this._localIndex) || {};
     }
     return this._mergedIndex;
   },
@@ -455,7 +493,7 @@ var indexer = {
     // If we can't read the file,
     // assume we just download it newly.
     try {
-      var stats = fs.statSync(path.normalize(path.join(__dirname, '/../../config/index.json')));
+      var stats = fs.statSync(this.app.clerk.paths.temp.index);
       sinceUpdate = Math.floor(new Date() - stats.mtime);
     } catch (e) {}
 
@@ -463,6 +501,7 @@ var indexer = {
       self.clerk.config.getRemote(function (err, remote) {
         if (!err) {
           var local = self.clerk.config.getLocal();
+          var staticConfig = self.clerk.config.getStatic();
           var localSize = parseFloat(local.docIndexSize || 0);
           var remoteSize = parseFloat(remote.docIndexSize || -1);
           if (localSize !== remoteSize || options.force === true) {

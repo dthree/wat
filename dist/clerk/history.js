@@ -23,7 +23,17 @@ var history = {
 
   _max: 600,
 
-  get: function get() {
+  getLocal: function getLocal() {
+    var hist = undefined;
+    if (!this._hist) {
+      try {
+        hist = fs.readFileSync(clerk.paths.temp.hist, { encoding: 'utf-8' });
+        hist = JSON.parse(hist);
+        this._hist = hist;
+      } catch (e) {
+        this._hist = [];
+      }
+    }
     return this._hist;
   },
 

@@ -20,7 +20,7 @@ module.exports = function (vorpal, options) {
     });
   });
 
-  vorpal.command('get updates', 'Shows what docs are mid being updated.').option('-m, --max', 'Maximum history items to show.').action(function (args, cb) {
+  vorpal.command('updates', 'Shows what docs are mid being updated.').option('-m, --max', 'Maximum history items to show.').action(function (args, cb) {
     var queue = app.clerk.updater.queue;
     var max = args.options.max || 30;
     var limit = queue.length - 1 - max;

@@ -88,6 +88,19 @@ describe('autodocs.javascript', function () {
       res.params[1].should.equal('[string...]');
     });
 
+    it('should remove text before a method.', function () {
+      var res = parser.parseCommandSyntax('Class Method: Buffer.byteLength(string[, encoding])');
+      res.parents[0].should.equal('Buffer');
+      res.name.should.equal('byteLength');
+    });
+
+    it('should remove "function " before a command.', function () {
+      var res = parser.parseCommandSyntax('## function attacher(mdast\[, options\]\[, fileSet\])');
+      res.type.should.equal('method');
+      res.name.should.equal('attacher');
+    });
+    
+
   });
 
   describe('.stringifyCommandSyntax', function () {
