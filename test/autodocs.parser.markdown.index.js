@@ -13,14 +13,14 @@ const md = app.autodocs.parsers.markdown;
 
 let chalk = {
   urls: { readme: 'https://raw.githubusercontent.com/chalk/chalk/master/readme.md' },
-  language: 'buillshit',
+  language: 'javascript',
   aliases: undefined,
   parser: 'markdown',
   static: undefined,
   crawl: false,
 };
 
-describe.only('markdownParser', function () {
+describe('markdownParser', function () {
 
   after(function (done) {
     done();
@@ -38,7 +38,7 @@ describe.only('markdownParser', function () {
       md.run.should.be.type('function');
     });
 
-    it.skip('should import a library', function (done) {
+    it('should import a library', function (done) {
       this.timeout(16000);
       md.run('chalk', chalk, function(err, data) {
         (typeof err).should.equal('undefined');
@@ -46,7 +46,7 @@ describe.only('markdownParser', function () {
       })
     });
 
-    it.skip('should call a progress method', function (done) {
+    it('should call a progress method', function (done) {
       this.timeout(16000);
       let opt = _.clone(chalk);
       let actions = {}
@@ -69,11 +69,10 @@ describe.only('markdownParser', function () {
       (function() {
         let opt = _.clone(chalk);
         opt.language = 'brainfuck';
-        md.run('chalk', chalk, function(err, data) {});
+        md.run('chalk', opt, function(err, data) {});
       }).should.throw(Error);
     });
 
   });
-
 });
 

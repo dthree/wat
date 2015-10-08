@@ -4,8 +4,8 @@
   "description": "Community-controlled cheat sheets for every coder.",
   "main": "./dist/index.js",
   "scripts": {
-    "test": "mocha",
-    "coverage": "nyc --reporter=text-lcov | coveralls"
+    "test": "nyc mocha",
+    "coverage": "nyc --reporter=text-lcov npm test | coveralls"
   },
   "repository": {
     "type": "git",
