@@ -1,10 +1,10 @@
 'use strict';
 
 require('assert');
-const should = require('should');
-const app = require('../');
+var should = require('should');
+var app = require('../');
 
-let _stdout = '';
+var _stdout = '';
 
 app.init({
   updateRemotely: false
@@ -16,7 +16,7 @@ app.vorpal.pipe(function(str) {
 });
 
 function stdout() {
-  const out = _stdout;
+  var out = _stdout;
   _stdout = '';
   return out;
 }

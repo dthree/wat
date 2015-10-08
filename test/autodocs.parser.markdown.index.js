@@ -1,17 +1,17 @@
 'use strict';
 
 require('assert');
-const _ = require('lodash');
-const should = require('should');
-const app = require('../dist/index');
+var _ = require('lodash');
+var should = require('should');
+var app = require('../dist/index');
 
 app.init({
   updateRemotely: false
 });
 
-const md = app.autodocs.parsers.markdown;
+var md = app.autodocs.parsers.markdown;
 
-let chalk = {
+var chalk = {
   urls: { readme: 'https://raw.githubusercontent.com/chalk/chalk/master/readme.md' },
   language: 'javascript',
   aliases: undefined,
@@ -48,8 +48,8 @@ describe('markdownParser', function () {
 
     it('should call a progress method', function (done) {
       this.timeout(16000);
-      let opt = _.clone(chalk);
-      let actions = {}
+      var opt = _.clone(chalk);
+      var actions = {}
       opt.progress = function(data) {
         actions[data.action] = actions[data.action] || 0;
         actions[data.action]++;
@@ -67,7 +67,7 @@ describe('markdownParser', function () {
     it('should error on an invalid language', function () {
       this.timeout(6000);
       (function() {
-        let opt = _.clone(chalk);
+        var opt = _.clone(chalk);
         opt.language = 'brainfuck';
         md.run('chalk', opt, function(err, data) {});
       }).should.throw(Error);
