@@ -109,7 +109,7 @@ var clerk = {
       }
       for (var key in idx) {
         if (idx.hasOwnProperty(key) && String(key).indexOf('__') === -1) {
-          if (idx[key]['__type'] && idx[key]['__type'] !== dirType) {
+          if (idx[key]['__type'] && idx[key]['__type'] !== dirType || !_.isObject(idx[key])) {
             return;
           }
           // Clean out all files with '__...'
@@ -136,6 +136,9 @@ var clerk = {
       for (var key in idx) {
         if (idx.hasOwnProperty(key)) {
           // Clean out all files with '__...'
+          if (!_.isObject(idx[key])) {
+            return;
+          }
           var content = Object.keys(idx[key]);
           var special = {};
           var nonSpecial = [];
