@@ -65,7 +65,7 @@ const clerk = {
       clerk: this,
       updateRemotely: options.updateRemotely
     });
-    setInterval(this.history.worker, 5000);
+    setInterval(this.history.worker.bind(this.history), 5000);
     setInterval(this.updater.nextQueueItem, 6000);
   },
 
@@ -100,7 +100,7 @@ const clerk = {
 
   scaffoldDir(dir, dirType) {
     const index = this.indexer.index() || {};
-    function traverse(idx, path) {
+    function traverse(idx, pathStr) {
       function rejectFn(str) {
         return (String(str).indexOf('__') > -1);
       }
@@ -116,10 +116,10 @@ const clerk = {
           let content = Object.keys(idx[key]);
           content = _.reject(content, rejectFn);
           if (content.length > 0) {
-            const fullPath = dir + path + key;
+            const fullPath = dir + pathStr + key;
             mkdirp.sync(fullPath);
             if (_.isObject(idx[key])) {
-              traverse(idx[key], `${path}${key}/`);
+              traverse(idx[key], `${pathStr}${key}/`);
             }
           }
         }
@@ -132,7 +132,7 @@ const clerk = {
     options = options || {}
     const index = this.indexer.index() || {};
     const dir = clerk.paths.temp.docs;
-    function traverse(idx, path) {
+    function traverse(idx, pathStr) {
       for (const key in idx) {
         if (idx.hasOwnProperty(key)) {
           // Clean out all files with '__...'
@@ -147,7 +147,7 @@ const clerk = {
               nonSpecial.push(content[i]);
             }
           }
-          const fullPath = `${dir}${path}${key}`;
+          const fullPath = `${dir}${pathStr}${key}`;
           let accept = true;
           if (options.filter) {
             accept = options.filter(special)
@@ -160,7 +160,7 @@ const clerk = {
             }
           }
           if (nonSpecial.length > 0 && _.isObject(idx[key])) {
-            traverse(idx[key], `${path}${key}/`);
+            traverse(idx[key], `${pathStr}${key}/`);
           }
         }
       }
@@ -171,11 +171,11 @@ const clerk = {
   search(str) {
     const search = String(str).split(' ');
     let matches = [];
-    this.forEachInIndex(function (path, key, data) {
+    this.forEachInIndex(function (pathStr, key, data) {
       if (key !== '__basic') {
         return;
       }
-      const commands = util.parseCommandsFromPath(path);
+      const commands = util.parseCommandsFromPath(pathStr);
       let commandString = commands.join(' ');
       let points = 0;
       let dirty = 0;
@@ -244,16 +244,19 @@ const clerk = {
   compareDocs() {
     const changes = [];
     const newDocs = [];
-    this.forEachInIndex(function (path, key, value) {
+    this.forEachInIndex(function (pathStr, key, value) {
       const exten = util.extensions[key] || key;
+      if (!util.extensions[key]) {
+        return;
+      }
       try {
-        const stat = fs.statSync(path + exten);
+        const stat = fs.statSync(pathStr + exten);
         if (parseFloat(stat.size) !== parseFloat(value)) {
-          changes.push(path + exten);
+          changes.push(pathStr + exten);
         }
       } catch(e) {
         if (e.code === 'ENOENT') {
-          newDocs.push(path + exten);
+          newDocs.push(pathStr + exten);
         }
       }
     });
@@ -282,7 +285,7 @@ const clerk = {
     // the person used this lib 3 or more times
     // recently, download all docs.
     for (let i = 0; i < newDocs.length; ++i) {
-      const parts = String(newDocs[i]).split('docs/');
+      const parts = String(newDocs[i]).split(`docs${path.sep}`);
       if (parts[1]) {
         const lang = String(parts[1]).split('/')[0];
         if (usage[lang] && usage[lang] > 2) {
@@ -292,14 +295,14 @@ const clerk = {
     }
   },
 
-  fetch(path, type, cb) {
+  fetch(pathStr, type, cb) {
     cb = cb || function () {};
     clerk.lastUserAction = new Date();
     const self = clerk;
-    const local = clerk.fetchLocal(path, type);
+    const local = clerk.fetchLocal(pathStr, type);
     this.history.push({
       type: 'command',
-      value: path
+      value: pathStr
     });
     if (local !== undefined) {
       const formatted = self.app.cosmetician.markdownToTerminal(local);
@@ -308,44 +311,44 @@ const clerk = {
       const remoteDir = (type === 'auto') 
         ? clerk.paths.remote.autodocs
         : clerk.paths.remote.docs;
-      util.fetchRemote(remoteDir + path, function (err, data) {
+      util.fetchRemote(remoteDir + pathStr, function (err, data) {
         if (err) {
           if (String(err).indexOf('Not Found') > -1) {
-            const response = `${chalk.yellow(`\n  Wat couldn\'t find the Markdown file for this command.\n  This probably means your index needs an update.\n\n`)}  File: ${remoteDir}${path}\n`;
+            const response = `${chalk.yellow(`\n  Wat couldn\'t find the Markdown file for this command.\n  This probably means your index needs an update.\n\n`)}  File: ${remoteDir}${pathStr}\n`;
             cb(undefined, response);
           } else {
             cb(err);
           }
         } else {
           const formatted = self.app.cosmetician.markdownToTerminal(data);
-          clerk.file(path, type, data);
+          clerk.file(pathStr, type, data);
           cb(undefined, formatted);
         }
       });
     }
   },
 
-  fetchLocal(path, type) {
+  fetchLocal(pathStr, type) {
     const directory = (type === 'auto') 
       ? clerk.paths.temp.autodocs
       : clerk.paths.temp.docs;
     let file;
     try {
-      file = fs.readFileSync(directory + path, {encoding: 'utf-8'});
+      file = fs.readFileSync(directory + pathStr, {encoding: 'utf-8'});
       return file;
     } catch(e) {
       return undefined;
     }
   },
 
-  file(path, type, data, retry) {
+  file(pathStr, type, data, retry) {
     const rootDir = (type === 'auto')
       ? clerk.paths.temp.autodocs
       : clerk.paths.temp.docs;
-    const file = rootDir + path;
-    let dir = String(file).split('/');
+    const file = rootDir + pathStr;
+    let dir = String(file).split(path.sep);
     dir.pop();
-    dir = dir.join('/');
+    dir = dir.join(path.sep);
     try {
       mkdirp.sync(dir);
       fs.appendFileSync(file, data, {flag: 'w'});

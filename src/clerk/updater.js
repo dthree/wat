@@ -26,8 +26,7 @@ const updater = {
       const url = (partial.length > 1) ? partial[1] : partial[0];
       util.fetchRemote(self.app.clerk.paths.remote.docs + url, function (err, data) {
         if (err) {
-          console.log('PROBLEM...');
-          console.log(err);
+          console.log(`Error fetching update for ${self.app.clerk.paths.remote.docs}${url}: ${err}`);
         } else {
           self.app.clerk.file(url, data);
           self.app.clerk.history.push({

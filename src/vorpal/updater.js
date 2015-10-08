@@ -6,23 +6,6 @@ module.exports = function (vorpal, options) {
   const app = options.app;
 
   vorpal
-    .command('update index', 'Forces an update of the document index.')
-    .action(function (args, cb) {
-      const self = this;
-      app.clerk.indexer.update({force: true}, function (err) {
-        if (!err) {
-          self.log(chalk.cyan('\n  Successfully updated index.'));
-          const amt = app.clerk.updater.queue.length;
-          if (amt > 1) {
-            self.log(`\n  ${amt} documents are queued for updating.`);
-          }
-          self.log(' ');
-          cb();
-        }
-      });
-    });
-
-  vorpal
     .command('updates', 'Shows what docs are mid being updated.')
     .option('-m, --max', 'Maximum history items to show.')
     .action(function (args, cb) {

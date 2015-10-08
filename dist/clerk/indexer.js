@@ -512,8 +512,9 @@ var indexer = {
               } else {
                 self.write(index);
                 self.app.clerk.indexer.build(function (staticIndex, tempIndex) {
-                  self.app.clerk.indexer.write(staticIndex, tempIndex);
-                  // Huh? This compare function seems pointless.
+                  self.app.clerk.indexer.write(staticIndex, tempIndex, options);
+                  // Check what docs we don't have locally,
+                  // and throw them into the updater.
                   self.clerk.compareDocs();
                   callback(undefined, 'Successfully updated index.');
                 });

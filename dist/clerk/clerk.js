@@ -65,7 +65,7 @@ var clerk = {
       clerk: this,
       updateRemotely: options.updateRemotely
     });
-    setInterval(this.history.worker, 5000);
+    setInterval(this.history.worker.bind(this.history), 5000);
     setInterval(this.updater.nextQueueItem, 6000);
   },
 
@@ -100,7 +100,7 @@ var clerk = {
 
   scaffoldDir: function scaffoldDir(dir, dirType) {
     var index = this.indexer.index() || {};
-    function traverse(idx, path) {
+    function traverse(idx, pathStr) {
       function rejectFn(str) {
         return String(str).indexOf('__') > -1;
       }
@@ -116,10 +116,10 @@ var clerk = {
           var content = Object.keys(idx[key]);
           content = _.reject(content, rejectFn);
           if (content.length > 0) {
-            var fullPath = dir + path + key;
+            var fullPath = dir + pathStr + key;
             mkdirp.sync(fullPath);
             if (_.isObject(idx[key])) {
-              traverse(idx[key], '' + path + key + '/');
+              traverse(idx[key], '' + pathStr + key + '/');
             }
           }
         }
@@ -132,7 +132,7 @@ var clerk = {
     options = options || {};
     var index = this.indexer.index() || {};
     var dir = clerk.paths.temp.docs;
-    function traverse(idx, path) {
+    function traverse(idx, pathStr) {
       for (var key in idx) {
         if (idx.hasOwnProperty(key)) {
           // Clean out all files with '__...'
@@ -147,7 +147,7 @@ var clerk = {
               nonSpecial.push(content[i]);
             }
           }
-          var fullPath = '' + dir + path + key;
+          var fullPath = '' + dir + pathStr + key;
           var accept = true;
           if (options.filter) {
             accept = options.filter(special);
@@ -160,7 +160,7 @@ var clerk = {
             }
           }
           if (nonSpecial.length > 0 && _.isObject(idx[key])) {
-            traverse(idx[key], '' + path + key + '/');
+            traverse(idx[key], '' + pathStr + key + '/');
           }
         }
       }
@@ -171,11 +171,11 @@ var clerk = {
   search: function search(str) {
     var search = String(str).split(' ');
     var matches = [];
-    this.forEachInIndex(function (path, key, data) {
+    this.forEachInIndex(function (pathStr, key, data) {
       if (key !== '__basic') {
         return;
       }
-      var commands = util.parseCommandsFromPath(path);
+      var commands = util.parseCommandsFromPath(pathStr);
       var commandString = commands.join(' ');
       var points = 0;
       var dirty = 0;
@@ -244,16 +244,19 @@ var clerk = {
   compareDocs: function compareDocs() {
     var changes = [];
     var newDocs = [];
-    this.forEachInIndex(function (path, key, value) {
+    this.forEachInIndex(function (pathStr, key, value) {
       var exten = util.extensions[key] || key;
+      if (!util.extensions[key]) {
+        return;
+      }
       try {
-        var stat = fs.statSync(path + exten);
+        var stat = fs.statSync(pathStr + exten);
         if (parseFloat(stat.size) !== parseFloat(value)) {
-          changes.push(path + exten);
+          changes.push(pathStr + exten);
         }
       } catch (e) {
         if (e.code === 'ENOENT') {
-          newDocs.push(path + exten);
+          newDocs.push(pathStr + exten);
         }
       }
     });
@@ -282,7 +285,7 @@ var clerk = {
     // the person used this lib 3 or more times
     // recently, download all docs.
     for (var i = 0; i < newDocs.length; ++i) {
-      var parts = String(newDocs[i]).split('docs/');
+      var parts = String(newDocs[i]).split('docs' + path.sep);
       if (parts[1]) {
         var lang = String(parts[1]).split('/')[0];
         if (usage[lang] && usage[lang] > 2) {
@@ -292,14 +295,14 @@ var clerk = {
     }
   },
 
-  fetch: function fetch(path, type, cb) {
+  fetch: function fetch(pathStr, type, cb) {
     cb = cb || function () {};
     clerk.lastUserAction = new Date();
     var self = clerk;
-    var local = clerk.fetchLocal(path, type);
+    var local = clerk.fetchLocal(pathStr, type);
     this.history.push({
       type: 'command',
-      value: path
+      value: pathStr
     });
     if (local !== undefined) {
       var formatted = self.app.cosmetician.markdownToTerminal(local);
@@ -307,17 +310,17 @@ var clerk = {
     } else {
       (function () {
         var remoteDir = type === 'auto' ? clerk.paths.remote.autodocs : clerk.paths.remote.docs;
-        util.fetchRemote(remoteDir + path, function (err, data) {
+        util.fetchRemote(remoteDir + pathStr, function (err, data) {
           if (err) {
             if (String(err).indexOf('Not Found') > -1) {
-              var response = chalk.yellow('\n  Wat couldn\'t find the Markdown file for this command.\n  This probably means your index needs an update.\n\n') + '  File: ' + remoteDir + path + '\n';
+              var response = chalk.yellow('\n  Wat couldn\'t find the Markdown file for this command.\n  This probably means your index needs an update.\n\n') + '  File: ' + remoteDir + pathStr + '\n';
               cb(undefined, response);
             } else {
               cb(err);
             }
           } else {
             var formatted = self.app.cosmetician.markdownToTerminal(data);
-            clerk.file(path, type, data);
+            clerk.file(pathStr, type, data);
             cb(undefined, formatted);
           }
         });
@@ -325,23 +328,23 @@ var clerk = {
     }
   },
 
-  fetchLocal: function fetchLocal(path, type) {
+  fetchLocal: function fetchLocal(pathStr, type) {
     var directory = type === 'auto' ? clerk.paths.temp.autodocs : clerk.paths.temp.docs;
     var file = undefined;
     try {
-      file = fs.readFileSync(directory + path, { encoding: 'utf-8' });
+      file = fs.readFileSync(directory + pathStr, { encoding: 'utf-8' });
       return file;
     } catch (e) {
       return undefined;
     }
   },
 
-  file: function file(path, type, data, retry) {
+  file: function file(pathStr, type, data, retry) {
     var rootDir = type === 'auto' ? clerk.paths.temp.autodocs : clerk.paths.temp.docs;
-    var file = rootDir + path;
-    var dir = String(file).split('/');
+    var file = rootDir + pathStr;
+    var dir = String(file).split(path.sep);
     dir.pop();
-    dir = dir.join('/');
+    dir = dir.join(path.sep);
     try {
       mkdirp.sync(dir);
       fs.appendFileSync(file, data, { flag: 'w' });

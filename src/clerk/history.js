@@ -25,9 +25,9 @@ const history = {
 
   getLocal() {
     let hist;
-    if (!this._hist) {
+    if (!this._hist || this._hist.length === 0) {
       try {
-        hist = fs.readFileSync(clerk.paths.temp.hist, {encoding: 'utf-8'});
+        hist = fs.readFileSync(this.app.clerk.paths.temp.hist, {encoding: 'utf-8'});
         hist = JSON.parse(hist);
         this._hist = hist;
       } catch(e) {

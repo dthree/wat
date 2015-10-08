@@ -11,8 +11,8 @@ module.exports = function (vorpal, options) {
     'update': 'Update'
   };
 
-  vorpal.command('get hist', 'Shows recent command history.').option('-m, --max', 'Maximum history items to show.').action(function (args, cb) {
-    var hist = app.clerk.history.get();
+  vorpal.command('hist', 'Shows recent command history.').option('-m, --max', 'Maximum history items to show.').action(function (args, cb) {
+    var hist = app.clerk.history.getLocal();
     var max = args.options.max || 20;
     var limit = hist.length - 1 - max;
     limit = limit < 0 ? 0 : limit;

@@ -5,21 +5,6 @@ var chalk = require('chalk');
 module.exports = function (vorpal, options) {
   var app = options.app;
 
-  vorpal.command('update index', 'Forces an update of the document index.').action(function (args, cb) {
-    var self = this;
-    app.clerk.indexer.update({ force: true }, function (err) {
-      if (!err) {
-        self.log(chalk.cyan('\n  Successfully updated index.'));
-        var amt = app.clerk.updater.queue.length;
-        if (amt > 1) {
-          self.log('\n  ' + amt + ' documents are queued for updating.');
-        }
-        self.log(' ');
-        cb();
-      }
-    });
-  });
-
   vorpal.command('updates', 'Shows what docs are mid being updated.').option('-m, --max', 'Maximum history items to show.').action(function (args, cb) {
     var queue = app.clerk.updater.queue;
     var max = args.options.max || 30;

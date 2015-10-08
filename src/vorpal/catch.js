@@ -83,14 +83,8 @@ module.exports = function (vorpal, options) {
       const path = util.command.buildPath(command, args.options, app.clerk.indexer.index());
 
       function logResults(str) {
-        if (String(str).split('\n').length > process.stdout.rows && 1 == 2) {
-          //console.log('doing less...');
-          //vorpal._dude = str;
-          cb();
-        } else {
-          self.log(str);
-          cb();
-        }
+        self.log(str);
+        cb();
       };
 
       function execPath(pathObj) {
