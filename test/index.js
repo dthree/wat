@@ -2,7 +2,7 @@
 
 require('assert');
 var should = require('should');
-var wat = require('../');
+var wat = require('./prepare');
 
 describe('wat', function () {
   before(function (done) {

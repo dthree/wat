@@ -67,8 +67,6 @@ const autodocs = {
         progress: progress
       };
 
-      console.log(opt);
-
       progress({action: 'fetch', total: 50, downloaded: 0});
       let result = parser.run(libName, opt, function (err, data) {
         if (libs.length < 1) {

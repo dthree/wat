@@ -3,12 +3,8 @@
 require('assert');
 var _ = require('lodash');
 var should = require('should');
-var app = require('../dist/index');
 
-app.init({
-  updateRemotely: false
-});
-
+var app = require('./prepare');
 var md = app.autodocs.parsers.markdown;
 
 var chalk = {
