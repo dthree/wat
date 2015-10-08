@@ -31,7 +31,7 @@ describe('vorpal.catch', function () {
     app.autodocs.delete('vorpal', {}, function () {
       app.autodocs.delete('node', {}, function () {
         app.stdout();
-        done();
+        app.ready(done);
       });
     });
   });

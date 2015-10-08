@@ -6,7 +6,8 @@ var app = require('./prepare');
  
 describe('vorpal.indexer', function () {
   before(function (done) {
-    done();
+    this.timeout(10000);
+    app.ready(done);
   });
 
   after(function (done) {

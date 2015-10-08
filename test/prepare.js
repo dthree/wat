@@ -14,12 +14,24 @@ app.vorpal.pipe(function(str) {
   return '';
 });
 
+app.isReady = false;
+
+app.ready = function(done) {
+  if (!app.isReady) {
+    app.clerk.indexer.update({force: true, static: false}, function (err) {
+      app.isReady = true;
+      console.log('Test: Autodocs built.');
+      done();
+    });
+  } else {
+    done();
+  }
+}
+
 app.stdout = function () {
   var out = _stdout;
   _stdout = '';
   return out;
 }
-
-console.log('Prepared');
 
 module.exports = app;
