@@ -8,8 +8,6 @@ const rimraf = require('rimraf');
 const _ = require('lodash');
 const chalk = require('chalk');
 
-const parsers = {};
-
 const autodocs = {
 
   run(name, options, callback) {
@@ -53,8 +51,8 @@ const autodocs = {
       }
 
       // Load the appropriate parser.
-      const parser = parsers[data.parser];
-      if (parsers[data.parser] === undefined) {
+      const parser = autodocs.parsers[data.parser];
+      if (autodocs.parsers[data.parser] === undefined) {
         options.done(`${libName} has an invalid autodoc parser: ${data.parser}.`);
         return;
       }
@@ -68,6 +66,8 @@ const autodocs = {
         crawl: false,
         progress: progress
       };
+
+      console.log(opt);
 
       progress({action: 'fetch', total: 50, downloaded: 0});
       let result = parser.run(libName, opt, function (err, data) {
@@ -240,7 +240,8 @@ const autodocs = {
 };
 
 module.exports = function (app) {
-  parsers.markdown = require('./parser/markdown/index')(app);
+  autodocs.parsers = {};
+  autodocs.parsers.markdown = require('./parser/markdown/index')(app);
   autodocs.app = app;
   return autodocs;
 };

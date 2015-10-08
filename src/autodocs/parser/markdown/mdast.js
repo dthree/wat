@@ -27,7 +27,11 @@ const exports = {
   },
 
   language(lang) {
-    parser = require(`./parser.${lang}`);
+    try {
+      parser = require(`./parser.${lang}`);
+    } catch(e) {
+      throw new Error(`Invalid language passed into ./autodocs/parser/markdown's .run command: ${lang}.`);
+    }
   },
 
   getUrlsFromAst(node, repo) {

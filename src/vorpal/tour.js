@@ -1,12 +1,12 @@
 'use strict';
 
 const chalk = require('chalk');
-const tour = require('./touri');
+const vtour = require('vorpal-tour');
 
 module.exports = function(vorpal, options) {
   const app = options.app;
 
-  vorpal.use(tour, {
+  vorpal.use(vtour, {
     command: 'tour',
     description: 'A tour through Wat.',
     tour: function(tour) {

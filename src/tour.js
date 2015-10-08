@@ -11,7 +11,7 @@ module.exports = function(tour, app) {
   const end5 = `\nThe data you see here was automatically parsed from Chalk's readme when you downloaded it a second ago.\n`;
   const start6 = `\nThe tab key is your friend. Type "${chalk.white(`chalk readme`)}" and then hit ${chalk.white(`[tab]`)} twice. You'll now see the main sections of Chalk's readme.\n\nFind and pull up the "Why" section of Chalk's readme.\n`;
   const start7 = `\nYou can also view the full readme. Run "${chalk.white(`chalk readme`)}"\n\nNote: As the readme is longer than your screen, wat is going to throw you into a "less" (linux) command automatically. If you are unfamiliar with how to use less, type "${chalk.white(`h`)}" as soon as the readme pulls up.\n\nWhen you're done viewing the readme, press "${chalk.white(`q`)}" to quit less.\n`;
-  const start8 = `\nOkay. Let\'s see what a really big libary looks like.\n\nDownload "node" using your tab keys, or by typing "${chalk.white(`node`)}" and pressing ${chalk.white(`[enter]`)}.\n`;
+  const start8 = `\nOkay. Let\'s see what a really big library looks like.\n\nDownload "node" using your tab keys, or by typing "${chalk.white(`node`)}" and pressing ${chalk.white(`[enter]`)}.\n`;
   const start9 = `\nNice. Now press ${chalk.white(`[tab]`)} twice to see Node\'s contents.\n`;
   const end9 = `\nBecause Node\'s API is so large, wat broke it into digestible chunks.\n`; 
   const start10 = `\nUse the tab key to look into the "os" (Operating System) object and find a method that has to do with what platform you are running. Run that command.\n`; 
@@ -23,7 +23,7 @@ module.exports = function(tour, app) {
   const end15 = `\nDid you know you can publish your own themes? If you're interested, check the out "Creating Themes" page on Wat's Github Wiki.\n`;
   const start16 = `\nWat can also search Stack Overflow. Run "${chalk.white(`stackoverflow js splice an array`)}".\n`;
   const end16 = `\n"stackoverflow" is a really long word. You can also run it with "${chalk.white(`so ...`)}" or "${chalk.white(`stack ...`)}".\n`;
-  const conclusion = `\nThat concludes the tour!\n\nIf you like Wat, help spread the word! And remember, contributing is ridiculously easy. If you want to add content, check out the Wiki to get started.\n\nOver to you!\n`;
+  const conclusion = `\nThat concludes the tour!\n\nIf you like Wat, help spread the word! And remember, contributing is ridiculously easy.\nIf you want to add content, check out the Wiki to get started.\n\nOver to you!\n`;
 
   tour.color('cyan');
 
