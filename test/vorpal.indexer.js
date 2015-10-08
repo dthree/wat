@@ -20,7 +20,7 @@ describe('vorpal.indexer', function () {
     this.timeout(10000);
     app.vorpal.exec('index', function (err, data) {
       (typeof err).should.equal('undefined');
-      let std = app.stdout();
+      var std = app.stdout();
       std.should.containEql('Successfully updated index.');
       done();
     })
