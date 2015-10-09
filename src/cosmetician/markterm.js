@@ -4,7 +4,7 @@
  * Copyright (c) 2015, David Caccavella
  */
 
-
+/* istanbul ignore next */
 ;(function() {
 
 var chalk = require('chalk');
@@ -794,9 +794,9 @@ Renderer.prototype.blockquote = function(quote) {
 };
 
 Renderer.prototype.html = function(html) {
-  console.log('-------------------------');
-  console.log(html)
-  console.log('-------------------------');
+  //console.log('-------------------------');
+  //console.log(html)
+  //console.log('-------------------------');
   return html;
 };
 
@@ -826,7 +826,6 @@ Renderer.prototype.hr = function() {
   for (var i = 0; i < width; ++i) {
     str += '-';
   }
-
   return '' + str + '  \n';
 };
 
@@ -1175,6 +1174,25 @@ function markterm(src, opt, callback) {
       , tokens
       , pending
       , i = 0;
+
+    var anchors = /<a\b[^>]*>((.|\n|\r\n)*?)<\/a>/gi;
+    var bolds = /<b>(.*?)<\/b>/gi;
+    var spans = /<span>((.|\n|\r\n)*?)<\/span>/gi;
+    var strikethroughs = /<s>((.|\n|\r\n)*?)<\/s>/gi;
+    var breaks = /<br>/gi;
+    var comments = /<!--((.|\n|\r\n)*?)-->/gi;
+    var mdlink = /\[(.*?)\]\((.*?)\)/g;
+    var images = /<img ((.|\n|\r\n)*?)>/gi;
+    var italics = /<i>((.|\n|\r\n)*?)<\/i>/gi;
+    src = src.replace(anchors, '$1');
+    src = src.replace(spans, '$1');
+    src = src.replace(bolds, '**$1**');
+    src = src.replace(images, '');
+    src = src.replace(mdlink, '$1');
+    src = src.replace(breaks, '');
+    src = src.replace(comments, '');
+    src = src.replace(strikethroughs, '$1');
+    src = src.replace(italics, '*$1*');
 
     try {
       tokens = Lexer.lex(src, opt)

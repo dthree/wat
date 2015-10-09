@@ -4,7 +4,8 @@
   "description": "Community-controlled cheat sheets for every coder.",
   "main": "./dist/index.js",
   "scripts": {
-    "test": "./node_modules/istanbul/lib/cli.js cover _mocha -- -R spec"
+    "test": "./node_modules/istanbul/lib/cli.js cover -x '**/**/markterm.js' _mocha -- -R spec",
+    "nyc": "nyc -x '**/**/markterm.js' mocha"
   },
   "repository": {
     "type": "git",
