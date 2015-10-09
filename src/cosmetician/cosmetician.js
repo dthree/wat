@@ -17,8 +17,11 @@ const highlighter = require('./highlighter');
 const cosmetician = {
 
   theme(theme) {
-    this.app.clerk.prefs.set('theme', theme);
-    return highlighter.theme(theme);
+    const result = highlighter.theme(theme);
+    if (result !== false) {
+      this.app.clerk.prefs.set('theme', theme);
+    }
+    return result;
   },
 
   getThemes: highlighter.getThemes,

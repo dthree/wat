@@ -20,7 +20,6 @@ app.ready = function(done) {
   if (!app.isReady) {
     app.clerk.indexer.update({force: true, static: false}, function (err) {
       app.isReady = true;
-      console.log('Test: Autodocs built.');
       done();
     });
   } else {

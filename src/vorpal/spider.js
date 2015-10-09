@@ -6,6 +6,7 @@ module.exports = function (vorpal, options) {
   const app = options.app;
   const spider = app.spider;
 
+  /*
   vorpal
     .command('search [command...]', 'Searches for a command.')
     .action(function (args, cb) {
@@ -14,13 +15,19 @@ module.exports = function (vorpal, options) {
       this.log(matches);
       cb();
     });
+*/
 
   vorpal
     .command('stackoverflow [command...]', 'Searches Stack Overflow.')
     .alias('so')
     .alias('stack')
+    .option('--less', 'Pipe into less. Defaults to true.')
     .parse(function (str) {
-      return `${str} | less -F`;
+      let res = `${str} | less -F`;
+      if (String(str).indexOf('--no-less') > -1) {
+        res = str;
+      }
+      return res;
     })
     .action(function (args, cb) {
       const self = this;

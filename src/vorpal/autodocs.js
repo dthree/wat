@@ -11,11 +11,9 @@ module.exports = function (vorpal, options) {
     .action(function (args, cb) {
       const self = this;
       let options = {}
-      //self.delimiter(origDelimiter);
       options.rebuild = args.options.rebuild || true;
-      app.autodocs.run(args.lib, options, function() {
-        cb();
-      });
+      options.done = cb;
+      app.autodocs.run(args.lib, options);
     });
 
   vorpal

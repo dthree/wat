@@ -10,7 +10,7 @@ var chalk = require('chalk');
 
 var autodocs = {
 
-  run: function run(name, options, callback) {
+  run: function run(name, options) {
     var self = this;
     var config = self.app.clerk.autodocs.config();
     var lib = String(name).trim();

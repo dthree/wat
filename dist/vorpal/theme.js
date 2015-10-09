@@ -8,10 +8,11 @@ module.exports = function (vorpal, options) {
   vorpal.command('set theme <name>', 'Sets the syntax highlighting theme.').action(function (args, cb) {});
 
   vorpal.command('theme [name]', 'Gets or sets the syntax highlighting theme.').action(function (args, cb) {
+    var theme = undefined;
     if (args.name) {
-      var theme = app.cosmetician.theme(args.name);
+      theme = app.cosmetician.theme(args.name);
       if (theme === false) {
-        this.log('\n  ' + chalk.yellow('Er... That\'s not a valid theme.') + '\n  What about one of these?\n');
+        this.log('\n  ' + chalk.yellow('Er... that\'s not a valid theme.') + '\n  What about one of these?\n');
         var themes = app.cosmetician.getThemes() || [];
         this.log('  ' + themes.join('\n  ') + '\n');
       } else {
@@ -19,10 +20,10 @@ module.exports = function (vorpal, options) {
       }
     } else {
       var prefs = app.clerk.prefs.get();
-      var theme = prefs.theme || 'default';
-      this.log('\n  ' + prefs.theme + '\n');
+      theme = prefs.theme || 'default';
+      this.log('\n  ' + theme + '\n');
     }
-    cb();
+    cb(undefined, theme);
   });
 
   vorpal.command('themes', 'Displays the current syntax highlighting theme.').action(function (args, cb) {

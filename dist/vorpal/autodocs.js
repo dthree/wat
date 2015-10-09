@@ -8,11 +8,9 @@ module.exports = function (vorpal, options) {
   vorpal.command('fetch <lib>', 'Automatically downloads and builds a given library.').option('-r, --rebuild', 'Rebuild index after complete. Defaults to true.').action(function (args, cb) {
     var self = this;
     var options = {};
-    //self.delimiter(origDelimiter);
     options.rebuild = args.options.rebuild || true;
-    app.autodocs.run(args.lib, options, function () {
-      cb();
-    });
+    options.done = cb;
+    app.autodocs.run(args.lib, options);
   });
 
   vorpal.command('delete <lib>', 'Delete an auto-built library.').option('-r, --rebuild', 'Rebuild index after complete. Defaults to true.').action(function (args, cb) {

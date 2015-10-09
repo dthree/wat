@@ -6,15 +6,23 @@ module.exports = function (vorpal, options) {
   var app = options.app;
   var spider = app.spider;
 
-  vorpal.command('search [command...]', 'Searches for a command.').action(function (args, cb) {
-    var command = (args.command || []).join(' ');
-    var matches = app.clerk.search(command);
-    this.log(matches);
-    cb();
-  });
+  /*
+  vorpal
+    .command('search [command...]', 'Searches for a command.')
+    .action(function (args, cb) {
+      const command = (args.command || []).join(' ');
+      const matches = app.clerk.search(command);
+      this.log(matches);
+      cb();
+    });
+  */
 
-  vorpal.command('stackoverflow [command...]', 'Searches Stack Overflow.').alias('so').alias('stack').parse(function (str) {
-    return str + ' | less -F';
+  vorpal.command('stackoverflow [command...]', 'Searches Stack Overflow.').alias('so').alias('stack').option('--less', 'Pipe into less. Defaults to true.').parse(function (str) {
+    var res = str + ' | less -F';
+    if (String(str).indexOf('--no-less') > -1) {
+      res = str;
+    }
+    return res;
   }).action(function (args, cb) {
     var self = this;
     var command = (args.command || []).join(' ');

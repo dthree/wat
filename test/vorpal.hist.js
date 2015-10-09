@@ -4,7 +4,7 @@ require('assert');
 var should = require('should');
 var app = require('./prepare');
  
-describe('vorpal.indexer', function () {
+describe('vorpal.hist', function () {
   before(function (done) {
     this.timeout(10000);
     app.ready(done);
@@ -13,11 +13,13 @@ describe('vorpal.indexer', function () {
   it('should run', function (done) {
     app.stdout();
     this.timeout(10000);
-    app.vorpal.exec('index', function (err, data) {
-      (typeof err).should.equal('undefined');
+    app.vorpal.exec('hist', function (err, data) {
       var std = app.stdout();
-      std.should.containEql('Successfully updated index.');
+      std.should.containEql('Date');
+      std.should.containEql('Type');
+      std.should.containEql('Value');
       done();
     })
   });
+
 });
