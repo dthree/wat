@@ -8,7 +8,7 @@ var stripAnsi = require('strip-ansi');
 module.exports = function (vorpal, options) {
   var app = options.app;
 
-  vorpal['catch']('[commands...]').option('-d, --detail', 'View detailed markdown on item.').option('-i, --install', 'View installation instructions.').parse(function (str) {
+  vorpal['catch']('[commands...]').option('-v, --version', 'View the current version of Wat.').option('-d, --detail', 'View detailed markdown on item.').option('-i, --install', 'View installation instructions.').parse(function (str) {
     return str + ' | less -F';
   }).autocompletion(function (text, iteration, cb) {
 
@@ -56,6 +56,12 @@ module.exports = function (vorpal, options) {
     args = args || {};
     args.options = args.options || {};
 
+    if (args.options.version) {
+      this.log(app.clerk.version() || 'Unknown version');
+      cb();
+      return;
+    }
+
     // Get rid of any piped commands.
     if (args.commands.indexOf('|') > -1) {
       args.commands = args.commands.slice(0, args.commands.indexOf('|'));
@@ -68,6 +74,11 @@ module.exports = function (vorpal, options) {
 
     var command = args.commands.join(' ');
     var path = util.command.buildPath(command, args.options, app.clerk.indexer.index());
+
+    if (String(command).trim() === '') {
+      cb();
+      return;
+    }
 
     function logResults(str) {
       self.log(str);

@@ -81,6 +81,14 @@ var clerk = {
     return this;
   },
 
+  version: function version() {
+    var ver = undefined;
+    try {
+      ver = JSON.parse(fs.readFileSync(this.paths['static'].root + 'package.json')).version;
+    } catch (e) {}
+    return ver;
+  },
+
   load: function load() {
     this.history.getLocal();
 
