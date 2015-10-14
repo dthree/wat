@@ -1,7 +1,7 @@
 const chalk = require('chalk');
 
 module.exports = function(tour, app) {
-  const start1 = `\nWelcome to Wat. Let\'s look up how to use Javascript\'s "array.slice()" method.\n\nType "${chalk.white(`js array slice`)}" and press ${chalk.white(`[enter]`)}.\n`;
+  const start1 = `\nWelcome to Wat. Let\'s look up how to use Javascript\'s "array.slice()" method.\n\nType "${chalk.white(`js array slice`)}" and press ${chalk.white(`[enter]`)}.\n\n(You can exit using ${chalk.white(`[control] + c`)} at any time.)\n`;
   const end1  = `\nThis pulled up a rapid description of the ".slice" command, and a usage example.\nThis is the hallmark of wat - just the data you need, and nothing more.\n`;
   const start2 = `\nNow, let\'s see what content wat has. Press ${chalk.white(`[tab]`)} twice.\n`;
   const end2 = `\nThis shows a list of all of wat\'s currently supported libraries.\n\nThe bolded libraries are already built, while the faded ones can be automatically generated.\n`;
