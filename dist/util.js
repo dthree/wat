@@ -387,6 +387,25 @@ var util = {
     return fnl;
   },
 
+  autocompletionHelper: function autocompletionHelper(root, array, text, iteration) {
+    var txt = String(text).trim();
+    var arr = array.filter(function (itm) {
+      return itm.slice(0, txt.length) === txt;
+    });
+    arr.unshift('\n');
+    arr.push('\n');
+    var match = this.match(txt, array);
+    if (iteration > 1) {
+      return arr;
+    } else {
+      if (match) {
+        return 'theme ' + match;
+      } else {
+        return undefined;
+      }
+    }
+  },
+
   /**
   * Takes an existing array of words
   * and matches it against the index.
@@ -707,7 +726,6 @@ var util = {
       }
       return result;
     }
-
   },
 
   path: {

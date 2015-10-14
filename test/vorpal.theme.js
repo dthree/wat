@@ -24,17 +24,6 @@ describe('vorpal.theme', function () {
 
   var currentTheme;  
 
-  it('should run "theme"', function (done) {
-    this.timeout(10000);
-    app.vorpal.exec('theme', function (err, data) {
-      var std = app.stdout();
-      String(std).trim().should.not.equal('');
-      currentTheme = data;
-      (typeof currentTheme).should.not.equal('undefined');
-      done();
-    })
-  });
-
   it('should run "theme nocolor"', function (done) {
     this.timeout(10000);
     app.vorpal.exec('theme nocolor', function (err, data) {
