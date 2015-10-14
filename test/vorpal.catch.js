@@ -82,6 +82,25 @@ describe('vorpal.catch', function () {
     })
   });
 
+  it('should auto-correct a typo', function (done) {
+    this.timeout(10000);
+    app.vorpal.exec('js object creatd', function (err, data) {
+      (typeof err).should.equal('undefined');
+      done();
+    });
+  });
+
+  it('should ask for a choice on multiple results', function (done) {
+    this.timeout(10000);
+    app.vorpal.exec('array', function (err, data) {
+      (typeof err).should.equal('undefined');
+      done();
+    });
+    setTimeout(function() {
+      app.vorpal.ui._activePrompt.rl.emit('line');
+    }, 1000)
+  });
+
   it('should shift wat if included', function (done) {
     this.timeout(10000);
     app.vorpal.exec('js array slice', function (err, data) {

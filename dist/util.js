@@ -564,39 +564,6 @@ var util = {
 
   mkdirSafe: function mkdirSafe(dir, levels) {
     return mkdirp.sync(dir);
-
-    dir = String(dir).trim();
-    if (dir === '') {
-      return;
-    }
-
-    levels = levels || 0;
-    var dirExists = undefined;
-    try {
-      dirExists = fs.statSync(path.normalize(dir));
-    } catch (e) {
-      if (levels > 20) {
-        throw new Error(e);
-      }
-      dirExists = false;
-    }
-    if (!dirExists) {
-      var success = true;
-      try {
-        fs.mkdirSync(dir);
-      } catch (e) {
-        success = false;
-      }
-
-      if (!success) {
-        var parts = dir.split('/');
-        parts.pop();
-        var parentDir = parts.join('/');
-        this.mkdirSafe(parentDir, levels++);
-        this.mkdirSafe(dir, levels++);
-      }
-    }
-    return this;
   },
 
   extensions: {
@@ -749,7 +716,6 @@ var util = {
       var normalized = path.normalize(pathString);
       var parts = String(normalized).split('docs' + path.sep);
       if (parts[1] === undefined) {
-        console.log(parts, 'docs' + path.sep);
         throw new Error('Invalid path passed into util.getDocRoot: "' + pathString + '". Parsed path: ' + normalized + '.');
       }
       return parts[1];
