@@ -10,9 +10,9 @@ describe('vorpal.theme', function () {
     app.ready(done);
   });
 
-  it('should run "themes"', function (done) {
+  it('should run "theme"', function (done) {
     this.timeout(10000);
-    app.vorpal.exec('themes', function (err, data) {
+    app.vorpal.exec('theme', function (err, data) {
       var std = app.stdout();
       std.should.containEql('default');
       std.should.containEql('nocolor');
@@ -22,7 +22,16 @@ describe('vorpal.theme', function () {
     })
   });
 
-  var currentTheme;  
+  var currentTheme = 'github';  
+
+  it('should run "theme github"', function (done) {
+    this.timeout(10000);
+    app.vorpal.exec('theme github', function (err, data) {
+      var std = app.stdout();
+      std.should.containEql('Successfully set theme to github.');
+      done();
+    })
+  });
 
   it('should run "theme nocolor"', function (done) {
     this.timeout(10000);
