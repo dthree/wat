@@ -29,7 +29,6 @@ describe('util', function () {
         return opts || item;
       });
       result.mode.should.equal('default');
-      result.response.indexOf('js').should.not.equal(-1);
     });
 
     it('should run a pre-build', function () {

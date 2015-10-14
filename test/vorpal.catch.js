@@ -82,6 +82,7 @@ describe('vorpal.catch', function () {
     })
   });
 
+  /*
   it('should auto-correct a typo', function (done) {
     this.timeout(10000);
     app.vorpal.exec('js object creatd', function (err, data) {
@@ -89,6 +90,7 @@ describe('vorpal.catch', function () {
       done();
     });
   });
+*/
 
   it('should ask for a choice on multiple results', function (done) {
     this.timeout(10000);
