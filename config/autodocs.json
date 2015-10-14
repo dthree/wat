@@ -218,7 +218,20 @@
     "language": "javascript",
     "parser": "markdown",
     "urls": {
-      "readme": "https://raw.githubusercontent.com/dthree/vorpal/master/README.md"
+      "readme": "https://raw.githubusercontent.com/dthree/vorpal/master/README.md",
+      "api": {
+        "vorpal": "https://raw.githubusercontent.com/wiki/dthree/vorpal/API-|-vorpal.md",
+        "catch": "https://raw.githubusercontent.com/wiki/dthree/vorpal/API-|-vorpal.catch.md",
+        "command": "https://raw.githubusercontent.com/wiki/dthree/vorpal/API-|-vorpal.command.md",
+        "mode": "https://raw.githubusercontent.com/wiki/dthree/vorpal/API-|-vorpal.mode.md",
+        "ui": "https://raw.githubusercontent.com/wiki/dthree/vorpal/API-|-vorpal.ui.md",
+        "commandInstance": "https://raw.githubusercontent.com/wiki/dthree/vorpal/API-|-CommandInstance.md",
+        "events": "https://raw.githubusercontent.com/wiki/dthree/vorpal/Events.md"
+      },
+      "wiki": {
+        "creating-extensions": "https://raw.githubusercontent.com/wiki/dthree/vorpal/Creating-Extensions.md",
+        "faq": "https://raw.githubusercontent.com/wiki/dthree/vorpal/FAQ.md"
+      }
     }
   },
   "vantage": {

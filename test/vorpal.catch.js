@@ -82,6 +82,15 @@ describe('vorpal.catch', function () {
     })
   });
 
+  it('should shift wat if included', function (done) {
+    this.timeout(10000);
+    app.vorpal.exec('js array slice', function (err, data) {
+      (typeof err).should.equal('undefined');
+      app.stdout().should.containEql('catnip');
+      done();
+    })
+  });
+
   it('build a library that doesn\'t exist', function (done) {
     this.timeout(20000);
     app.vorpal.exec('vorpal', function (err, data) {

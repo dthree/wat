@@ -13,6 +13,7 @@
 
 const markterm = require('./markterm');
 const highlighter = require('./highlighter');
+const chalk = require('chalk');
 
 const cosmetician = {
 
@@ -93,7 +94,7 @@ module.exports = function (app) {
       try {
         results = highlighter.highlight(code, lang, {});
         results = self.tab(results, 2, ' ');
-        results = self.tab(results, 1, '|');
+        results = self.tab(results, 1, chalk.bgWhite(' '));
       } catch(e) {
         console.log(e.stack);
       }
@@ -103,3 +104,4 @@ module.exports = function (app) {
   highlighter.theme('default');
   return cosmetician;
 };
+

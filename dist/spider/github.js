@@ -11,8 +11,6 @@ var mdast = require('mdast');
 var stripBadges = require('mdast-strip-badges');
 var util = require('../util');
 
-var currentRepo = undefined;
-
 var github = {
 
   testPage: function testPage(path) {},
@@ -24,8 +22,6 @@ var github = {
     var details = this.parseSearchLink(searchResult.link);
     var readmeUrl = this.getRepoReadmeUrl(details);
 
-    currentRepo = details;
-
     function request(urls, cb) {
       var url = urls.shift();
       if (url) {
@@ -33,10 +29,14 @@ var github = {
           var results = undefined;
           if (!err) {
 
-            var md = mdast().use(stripBadges).use(attacher);
+            var md = mdast().use(stripBadges);
             results = md.process(data);
-            //results = self.app.cosmetician.markdownToTerminal(data, {lineWidth: (process.stdout.columns - 2)});
-            cb(undefined, String(results).slice(0, 0));
+            results = self.app.cosmetician.markdownToTerminal(data, {
+              lineWidth: function lineWidth() {
+                return process.stdout.columns - 2;
+              }
+            });
+            cb(undefined, results);
           } else {
             request(urls, cb);
           }

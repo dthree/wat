@@ -29,3 +29,5 @@ build/Release
 node_modules
 
 .nyc_output
+
+*mess*.js

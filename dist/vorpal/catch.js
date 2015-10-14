@@ -53,7 +53,6 @@ module.exports = function (vorpal, options) {
     }
   }).action(function (args, cb) {
     var self = this;
-
     args = args || {};
     args.options = args.options || {};
 
