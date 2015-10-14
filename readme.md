@@ -157,9 +157,9 @@ Installation is easy and you won't regret it: there's hundreds of incredible app
 
 Node installation links:
 
-- [Mac Install](https://nodejs.org/dist/v0.12.7/node-v0.12.7.pkg)
-- [Linux Install](https://nodejs.org/dist/v0.12.7/node-v0.12.7-linux-x64.tar.gz): [64 bit](https://nodejs.org/dist/v0.12.7/node-v0.12.7-linux-x64.tar.gz), [32 bit](https://nodejs.org/dist/v0.12.7/node-v0.12.7-linux-x86.tar.gz)
-- [Windows Install](https://nodejs.org/dist/v0.12.7/x64/node-v0.12.7-x64.msi): [64 bit](https://nodejs.org/dist/v0.12.7/x64/node-v0.12.7-x64.msi), [32 bit](https://nodejs.org/dist/v0.12.7/node-v0.12.7-x86.msi)
+- [Mac Install](https://nodejs.org/dist/v4.2.1/node-v4.2.1.pkg)
+- [Linux Install](https://nodejs.org/dist/v4.2.1/node-v4.2.1-linux-x64.tar.gz): [64 bit](https://nodejs.org/dist/v4.2.1/node-v4.2.1-linux-x64.tar.gz), [32 bit](https://nodejs.org/dist/v4.2.1/node-v4.2.1-linux-x86.tar.gz)
+- [Windows Install](https://nodejs.org/dist/v4.2.1/node-v4.2.1-x64.msi): [64 bit](https://nodejs.org/dist/v4.2.1/node-v4.2.1-x64.msi), [32 bit](https://nodejs.org/dist/v4.2.1/node-v4.2.1-x86.msi)
 
 Once installed, open a terminal and type:
 
