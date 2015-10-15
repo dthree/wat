@@ -6,7 +6,7 @@ var babel = require('gulp-babel');
 var changed = require('gulp-changed');
 var chalk = require('chalk');
 
-var clerk;
+var app;
 
 gulp.task('lint', function(){
   return gulp.src(['lib/*.js', './*.js', './bin/*.js'])
@@ -16,15 +16,15 @@ gulp.task('lint', function(){
 });
 
 gulp.task('initClerk', function(){
-  clerk = require('./dist/clerk/clerk');
-  clerk.start({
+  app = require('./');
+  app.init({
     updateRemotely: false
   });
 })
 
 gulp.task('buildIndex', function(done) {
-  clerk.indexer.build(function(index){
-    clerk.indexer.write(index);
+  app.clerk.indexer.build(function(index){
+    app.clerk.indexer.write(index);
     console.log(chalk.cyan('\n           Wat: Rebuilt index.\n'));
     done();
   });

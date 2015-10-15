@@ -270,6 +270,11 @@ var clerk = {
           newDocs.push(pathStr + exten);
         }
       }
+    }, {
+      filter: function filter(item) {
+        var okay = item.__type === 'static';
+        return okay;
+      }
     });
 
     var usage = {};

@@ -230,6 +230,7 @@ const indexer = {
     });
 
     walker.on('errors', function (root, nodeStatsArray) {
+      /* istanbul ignore next */
       console.log(root, nodeStatsArray);
       throw new Error(root);
     });
@@ -421,6 +422,7 @@ const indexer = {
       try {
         result = JSON.parse(fs.readFileSync(path, {encoding: 'utf-8'}));
       } catch(e) {
+        /* istanbul ignore next */
         result = {};
       }
       return result;
@@ -450,6 +452,7 @@ const indexer = {
         try {
           json = JSON.parse(data);
         } catch(e) {
+          /* istanbul ignore next */
           err2 = true;
           callback(`Error parsing remote index json: ${data}, Error: ${e}, url: ${self.clerk.paths.remote.config}index.json`);
         }
@@ -457,6 +460,7 @@ const indexer = {
           callback(undefined, json);
         }
       } else {
+        /* istanbul ignore next */
         callback(err);
       }
     });
@@ -504,7 +508,8 @@ const indexer = {
           if (localSize !== remoteSize || options.force === true) {
             self.getRemoteIndex(function (err, index) {
               if (err) {
-                console.log(err);
+                /* istanbul ignore next */
+                throw new Error(err);
               } else {
                 self.write(index);
                 self.app.clerk.indexer.build(function(staticIndex, tempIndex){
@@ -517,18 +522,22 @@ const indexer = {
               }
             });
           }
+        /* istanbul ignore next */
         } else if (String(err).indexOf('Not Found') > -1) {
           const lellow = chalk.yellow(`\nWat could not locate the remote config directory and so does not know where to pull docs from.\nRe-installing your instance of Wat through NPM should solve this problem.`);
           const error = `${lellow}\n\nUrl Attempted: ${self.clerk.paths.remote.config}config.json`;
           console.log(error);
           throw new Error(err);
+        /* istanbul ignore next */
         } else if (err.code === 'EAI_AGAIN') {
           const error = chalk.yellow(`\n\nEr, Wat\'s having DNS resolution errors. Are you sure you\'re connected to the internet?`);
           console.log(error);
           throw new Error(err);
+        /* istanbul ignore next */
         } else if (err.code === 'ETIMEDOUT') {
           const error = chalk.yellow(`\n\nHmm.. Wat had a connection timeout when trying to fetch its index. \nHow\'s that internet connection looking?`);
           console.log(error);
+        /* istanbul ignore next */
         } else {
           console.log(chalk.yellow(`\nWat had an unexpected error while requesting the remote index:\n`));
           console.log(err);
