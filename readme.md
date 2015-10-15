@@ -8,7 +8,7 @@
 
 Finally, community-built cheat sheets for every coder, targeting any framework, in any language. At the tip of your fingers.
 
-Wat is an interactive app built to drastically reduce time spent searching for syntax and code usage questions. Wat aggregates project APIs, readmes, code snippits, usage samples and practical documentation across any language or libary, and makes this data ridiculously accessible from a single, instant source.
+Wat is an interactive app built to drastically reduce time spent searching for syntax and code usage questions. Wat aggregates project APIs, readmes, code snippits, usage samples and practical documentation across any language or libary, and makes this data ridiculously accessible from the one tool every developer uses: the CLI.
 
 Wat was designed for ease. It takes you:
 
@@ -60,7 +60,7 @@ If you're building a web browser, refer to [W3C](http://www.w3.org/) for specifi
 ```bash
 npm install -g wat
 ```
-[np-what? Oh, isn't that Node? I don't do Node.](#sorry-i-dont-speak-node)
+[np-what? Oh, isn't that Node? I don't do Node.](https://github.com/dthree/wat/wiki/FAQ#sorry-i-dont-speak-node)
 
 ## Learn
 
