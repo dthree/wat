@@ -15,7 +15,8 @@ gulp.task('lint', function(){
     //.pipe(eslint.failOnError());
 });
 
-gulp.task('initClerk', function(){
+gulp.task('initClerk', function () {
+  process.argv.pop();
   app = require('./');
   app.init({
     updateRemotely: false
@@ -24,8 +25,9 @@ gulp.task('initClerk', function(){
 
 gulp.task('buildIndex', function(done) {
   app.clerk.indexer.build(function(index){
-    app.clerk.indexer.write(index);
+    app.clerk.indexer.write(index, undefined, {static: true});
     console.log(chalk.cyan('\n           Wat: Rebuilt index.\n'));
+    process.exit();
     done();
   });
 });
@@ -59,6 +61,6 @@ gulp.task('babel', function() {
 gulp.task('default', ['babel', 'watch']);
 
 gulp.task('all', ['babel', 'initClerk', 'buildIndex', 'watch']);
-gulp.task('index', ['initClerk', 'buildIndex', 'watch']);
+gulp.task('index', ['initClerk', 'buildIndex']);
 
 

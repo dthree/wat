@@ -41,6 +41,7 @@
     "boolean/valueOf"
   ],
   "properties": [
+    "test/testify",
     "object/length",
     "object/prototype",
     "array/length"

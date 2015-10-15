@@ -12,7 +12,7 @@ module.exports = function (vorpal, options) {
     .action(function (args, cb) {
       const self = this;
       const isStatic = args.options.static || false;
-      app.clerk.indexer.update({force: true, static: isStatic}, function (err) {
+      app.clerk.indexer.update({force: true, static: isStatic}, function (err, data) {
         if (!err) {
           self.log(chalk.cyan('\n  Successfully updated index.'));
           const amt = app.clerk.updater.queue.length;
@@ -20,6 +20,10 @@ module.exports = function (vorpal, options) {
             self.log(`\n  ${amt} documents are queued for updating.`);
           }
           self.log(' ');
+          cb();
+        } else {
+          self.log('Error');
+          self.log(err, data);
           cb();
         }
       });

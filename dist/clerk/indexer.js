@@ -518,11 +518,15 @@ var indexer = {
                 throw new Error(err);
               } else {
                 self.write(index);
-                self.app.clerk.indexer.build(function (staticIndex, tempIndex) {
-                  self.app.clerk.indexer.write(staticIndex, tempIndex, options);
+                self.app.clerk.indexer.build(function (remoteIndex, tempIndex) {
+                  self.app.clerk.indexer.write(undefined, tempIndex, options);
                   // Check what docs we don't have locally,
                   // and throw them into the updater.
-                  self.clerk.compareDocs();
+                  try {
+                    self.clerk.compareDocs();
+                  } catch (e) {
+                    console.log('HI', e);
+                  }
                   callback(undefined, 'Successfully updated index.');
                 });
               }
