@@ -31,6 +31,7 @@ const util = {
     const commands = util.command.prepare(text, {}, index);
     const lastWord = String(commands[commands.length - 1]).trim();
     const otherWords = commands.slice(0, commands.length - 1);
+    const words = String(text).trim().split(' ').length;
     const poss = [];
 
     // Find the deepest point on the index that
@@ -61,7 +62,7 @@ const util = {
       } else if (iteration > 1 && possibilities.length === 1 && (otherWords.length !== levels)) {
         response = `${String(`${original}${possibilities[0]}`).trim()} `;
       } else {
-        if (levels === 1 && Object.keys(possibleObjects).length === 0 && iteration > 1) {
+        if (levels === 1 && words === 1 && Object.keys(possibleObjects).length === 0 && iteration > 1) {
           // In this scenario, the user has chosen an autodoc 
           // lib that hasn't been downloaded yet, and has tabbed.
           // We tell the user what he can do.

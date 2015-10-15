@@ -33,7 +33,6 @@ gulp.task('buildIndex', function(done) {
 });
 
 gulp.task('watch', function() {
-  gulp.watch('docs/**/*.md', ['buildIndex']);
   gulp.watch('src/**/*.js', ['babel']);
 });
 

@@ -22,7 +22,7 @@ Wat uses an index file that keeps data on all of its documents. When you have fi
 
 ```bash
 $ npm install -g gulp
-$ gulp
+$ gulp index
 ```
 This action will also "lint" all of the document content and ensure it meets standards. Correct anything it notes and run `gulp` again until it passes.
 
