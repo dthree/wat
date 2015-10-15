@@ -33,6 +33,7 @@ const config = {
     try {
       config = JSON.parse(fs.readFileSync(self.app.clerk.paths.static.config, {encoding: 'utf-8'}));
       this._staticConfig = config;
+    /* istanbul ignore next */
     } catch(e) {
       console.log(chalk.yellow(`\n\nHouston, we have a problem.\nWat can\'t read its static config file, which should be at ${this.app.clerk.paths.static.config}. Without this, Wat can\'t do much. Try re-installing Wat from scratch.\n\nIf that doesn\'t work, please file an issue.\n`));
       throw new Error(e);
@@ -52,6 +53,7 @@ const config = {
         config = JSON.parse(fs.readFileSync(this.app.clerk.paths.temp.config, {encoding: 'utf-8'}));
         this._config = config;
       } catch(e) {  
+        /* istanbul ignore next */
         this._config = this.getStatic();
       }
     } else {
@@ -69,10 +71,12 @@ const config = {
         try {
           const json = JSON.parse(data);
           callback(undefined, json);
+        /* istanbul ignore next */
         } catch(e) {
           callback(`Error parsing json: ${data}, Error: ${e}, url: ${url}`);
         }
       } else {
+        /* istanbul ignore next */
         callback(err);
       }
     });

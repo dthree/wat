@@ -229,8 +229,8 @@ const indexer = {
       next();
     });
 
+    /* istanbul ignore next */
     walker.on('errors', function (root, nodeStatsArray) {
-      /* istanbul ignore next */
       console.log(root, nodeStatsArray);
       throw new Error(root);
     });
@@ -261,6 +261,7 @@ const indexer = {
       next();
     });
 
+    /* istanbul ignore next */
     walker.on('errors', function (root, nodeStatsArray) {
       console.log(root, nodeStatsArray);
       throw new Error(root);
@@ -454,6 +455,7 @@ const indexer = {
         } catch(e) {
           /* istanbul ignore next */
           err2 = true;
+          /* istanbul ignore next */
           callback(`Error parsing remote index json: ${data}, Error: ${e}, url: ${self.clerk.paths.remote.config}index.json`);
         }
         if (!err2) {
