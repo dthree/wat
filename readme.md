@@ -1,12 +1,17 @@
 
 # Wat
 
-[![Build Status](https://travis-ci.org/dthree/wat.svg)](https://travis-ci.org/dthree/wat) [![Build Status](https://img.shields.io/badge/gitter-join%20chat-brightgreen.svg)](https://gitter.im/dthree/wat?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge) [![NPM Version](https://img.shields.io/npm/v/wat.svg)](https://www.npmjs.com/package/wat)
+[![Build Status](https://travis-ci.org/dthree/wat.svg)](https://travis-ci.org/dthree/wat) 
 [![Coverage Status](https://coveralls.io/repos/dthree/wat/badge.svg?branch=master&service=github)](https://coveralls.io/github/dthree/wat?branch=master)
+[![Gitter, Dude](https://img.shields.io/badge/gitter-join%20chat-brightgreen.svg)](https://gitter.im/dthree/wat?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge) 
+[![XO: Linted](https://img.shields.io/badge/xo-linted-blue.svg)](https://github.com/sindresorhus/xo)
+[![NPM Version](https://img.shields.io/npm/v/wat.svg)](https://www.npmjs.com/package/wat)
 
 > Rebelliously practical docs. For and by the community. Wat.
 
-Finally, community-built cheat sheets for every coder, targeting any framework, in any language. At the tip of your fingers.
+Finally, community-built cheat sheets for every coder, targeting any framework, in any language. 
+
+At the tip of your fingers.
 
 Wat is an interactive app built to drastically reduce time spent searching for syntax and code usage questions. Wat aggregates project APIs, readmes, code snippits, usage samples and practical documentation across any language or libary, and makes this data ridiculously accessible from the one tool every developer uses: the CLI.
 
@@ -43,17 +48,17 @@ $ wat tour
 
 #### Wat covers everything
 
-Wat provides the only centralized source of syntax cheat sheets for every language and every major framework and library. If it has an API and is used by the community, it's supported here; be it [jQuery](https://jquery.com), [Go](https://golang.org/), [React](http://facebook.github.io/react/), [Dragula](https://github.com/bevacqua/dragula) or [Rails](http://rubyonrails.org/).
+Wat provides the only community-based, centralized source of syntax cheat sheets for every language and every major framework and library. If it has an API and is used by the community, it's supported here!
 
 #### It's smart
 
-Wat combines a document index, edit-distance algorithms, tabbed auto-completion and common sense to make sure you get what you asked for. It auto-updates when the community adds content, and optimizes its performance based on the content you use most.
+Wat combines indexes, edit-distance algorithms, auto-completion and common sense to make sure you get what you asked for. It auto-updates when the community adds content, and optimizes its performance based on the content you use most.
 
 #### It shreds red tape like a frisky cat
 
 Wat's content is not perfect, it isn't formal and it isn't pedantic. Wat doesn't aim to provide letter-perfect, offical documentation for languages. Work like that [is in good hands](https://developer.mozilla.org/en-US/).
 
-If you're building a web browser, refer to [W3C](http://www.w3.org/) for specifications. Wat is targeted for the 99.99% of us who have the basic familiarity with a Library and simply need to look up API or usage samples. 
+If you're building a web browser, refer to [W3C](http://www.w3.org/) for specifications. Wat is targeted for the 99.99% of us who have the basic familiarity with a Library and simply need to look up API or usage samples.
 
 ## Install
 
@@ -71,11 +76,18 @@ wat tour
 
 Contributing is *easy*!
 
-[Get started here](https://github.com/dthree/wat/wiki/Docs-|-Contributing), and help spread the word! Wat's like a giant, friendly snowball. The more users, the larger and more ridiculously useful it gets.
+[Get started here](https://github.com/dthree/wat/wiki/Docs-|-Contributing), and help spread the word! 
 
-This is not my project - it's the community's. *If Wat gets sufficiently adopted, I'll make a web-based version as well.*
+Wat is like a giant, friendly snowball that's somehow caught fire. The bigger the community, the better it gets. :snowflake: :fire:
+
+## Future
+
+If Wat gets sufficiently adopted by the community, I'll make a web-based version as well: same data, new fancy interface.
 
 ## Projects now documented on Wat
+
+[![2 Languages](https://img.shields.io/badge/languages-2-brightgreen.svg)](#)
+[![15 Libraries](https://img.shields.io/badge/libraries-15-blue.svg)](#)
 
 ##### Languages
 
