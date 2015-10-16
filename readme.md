@@ -1,4 +1,3 @@
-
 # Wat
 
 [![Build Status](https://travis-ci.org/dthree/wat.svg)](https://travis-ci.org/dthree/wat) 
@@ -76,7 +75,7 @@ wat tour
 
 Contributing is *easy*!
 
-[Get started here](https://github.com/dthree/wat/wiki/Docs-|-Contributing), and help spread the word! 
+[Get started here](https://github.com/dthree/wat/wiki/Docs-|-101), and help spread the word! 
 
 Wat is like a giant, friendly snowball that's somehow caught fire. The bigger the community, the better it gets. :snowflake: :fire:
 
