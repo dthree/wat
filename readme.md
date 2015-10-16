@@ -37,7 +37,7 @@ Made by [dthree](https://github.com/dthree) with :heart: and a little [secret sa
 
 #### Wat is scheduled for imminent release!
 
-Want to contribute and make it happen? [Email me](threedeecee@gmail.com) or join the [Gitter channel](https://gitter.im/dthree/wat?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge).
+Want to contribute and make it happen? [Email me](mailto:threedeecee@gmail.com) or join the [Gitter channel](https://gitter.im/dthree/wat?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge).
 
 Want to try it **right now**?
 
@@ -58,7 +58,7 @@ Wat combines indexes, edit-distance algorithms, auto-completion and common sense
 
 Wat's content is not perfect, it isn't formal and it isn't pedantic. Wat doesn't aim to provide letter-perfect, offical documentation for languages. Work like that [is in good hands](https://developer.mozilla.org/en-US/).
 
-If you're building a web browser, refer to [W3C](http://www.w3.org/) for specifications. Wat is targeted for the 99.99% of us who have the basic familiarity with a Library and simply need to look up API or usage samples.
+If you're building a web browser, refer to [W3C](http://www.w3.org/) for specifications. Wat is targeted for the 99.99% of us who have the basic familiarity with a library and simply need to look up API or usage samples.
 
 ## Install
 
@@ -82,7 +82,9 @@ Wat is like a giant, friendly snowball that's somehow caught fire. The bigger th
 
 ## Future
 
-If Wat gets sufficiently adopted by the community, I'll make a web-based version as well: same data, new fancy interface.
+If Wat gets sufficiently adopted by the community, I'll make a web-based version as well.
+
+Same data, new fancy interface.
 
 ## Projects now documented on Wat
 
