@@ -94,6 +94,7 @@ module.exports = function (vorpal, options) {
       }
 
       function logResults(str) {
+        str = util.separator(str);
         self.log(str);
         cb();
       };
@@ -159,8 +160,10 @@ module.exports = function (vorpal, options) {
         if (path.suggestions) {
           let log = '';
           log += `${chalk.yellow(`\n  Sorry, there's no cheat sheet for that command. However, you can try "${chalk.white(`${command} ...`)} ":`)}\n\n`;
-          for (let i = 0; i < path.suggestions.length; ++i) {
-            log += `${path.suggestions[i]}`;
+          if (path.suggestions.length > 1) {
+            log += `${path.suggestions.join('  ')}\n`;
+          } else {
+            log += path.suggestions[0];
           }
           // Ensure we don't double pad.
           log = log.replace(/\n\n\n/g, '\n\n');

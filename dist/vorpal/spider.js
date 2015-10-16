@@ -3,6 +3,7 @@
 var chalk = require('chalk');
 var stripAnsi = require('strip-ansi');
 var wrapAnsi = require('wrap-ansi');
+var util = require('../util');
 
 function pickSearchResult(results, opts, cbk) {
   var self = this;
@@ -55,6 +56,9 @@ module.exports = function (vorpal, options) {
 
     function end() {
       if (stripAnsi(results).replace(/\n/g, '').trim() !== '') {
+        if (String(results).split('\n').length > 4) {
+          results = util.separator(results);
+        }
         self.log(results);
       }
       cb();
@@ -93,7 +97,7 @@ module.exports = function (vorpal, options) {
     });
   });
 
-  vorpal.command('github [command...]', 'Searches Github.').alias('gh').option('-l, --lucky', 'Have Wat pick the best result for you.').option('--less', 'Pipe into less. Defaults to true.').parse(function (str) {
+  vorpal.command('github [command...]', 'Searches Github.').alias('gh', 'readme').option('-l, --lucky', 'Have Wat pick the best result for you.').option('--less', 'Pipe into less. Defaults to true.').parse(function (str) {
     var res = str + ' | less -F';
     if (String(str).indexOf('--no-less') > -1) {
       res = str;
@@ -112,6 +116,9 @@ module.exports = function (vorpal, options) {
 
     function end() {
       if (stripAnsi(results).replace(/\n/g, '').trim() !== '') {
+        if (String(results).split('\n').length > 4) {
+          results = util.separator(results);
+        }
         self.log(results);
       }
       cb();

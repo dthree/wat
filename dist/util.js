@@ -12,6 +12,7 @@ var mkdirp = require('mkdirp');
 var chalk = require('chalk');
 var strip = require('strip-ansi');
 var path = require('path');
+var os = require('os');
 
 var util = {
 
@@ -574,6 +575,16 @@ var util = {
     return str + Array(len + 1).join(delimiter);
   },
 
+  separator: function separator(str) {
+    var windows = os.platform() === 'win32';
+    var hl = windows ? '-' : '─';
+    if (str.split('\n').length <= process.stdout.rows) {
+      var padding = util.pad('', process.stdout.columns, chalk.blue(hl));
+      str = '\n' + padding + '\n' + str;
+    }
+    return str;
+  },
+
   /** 
    * Kind of like mkdirp, but without another depedency.
    *
@@ -643,19 +654,19 @@ var util = {
       if (!indexObject) {
         response.exists = false;
       } else if (_.isArray(indexObject)) {
-
         var sugg = util.autocomplete(str, 2, index, function (word, options) {
           return options;
         }).response;
         if (_.isArray(sugg)) {
           response.suggestions = sugg;
         } else {
-          response.suggestions = indexObject;
+          response.suggestions = ['', sugg];
+          //response.suggestions = indexObject;
         }
       } else {
-        response.index = indexObject;
-        response.exists = true;
-      }
+          response.index = indexObject;
+          response.exists = true;
+        }
       var path = all.join('/');
       response.path = path;
       return response;

@@ -18,11 +18,13 @@ module.exports = function(tour, app) {
   const start11 = `\nDon't worry, you don't have to type a million words to pull up a command. If you type part of a command, wat will pull up the best results.\n\nType "${chalk.white(`slice`)}" and press ${chalk.white(`[enter]`)}. You'll be prompted to choose between two matches. Pull up the Javascript one.\n`;
   const start12 = `\nUm... what if you downloaded a library you don't use and you don't want it polluting your search results?.\n\nType "${chalk.white(`delete node`)}" to forever banish it.\n`;
   const start13 = `\nIt's gone. Now run "${chalk.white(`slice`)}" again. It should pull up the best result with no questions asked.\n`;
-  const start14 = `\nBy the way, did you notice the syntax highlighting on the code samples? If you don't like the color theme, you can pick your own!\n\nRun "${chalk.white(`themes`)}" to see what's available.\n`;
+  const start14 = `\nBy the way, did you notice the syntax highlighting on the code samples? If you don't like the color theme, you can pick your own!\n\nRun "${chalk.white(`theme`)}" to see what's available.\n`;
   const start15 = `\nPick one that looks interesting, and then run "${chalk.white(`theme <name>`)}". \n`;
   const end15 = `\nDid you know you can publish your own themes? If you're interested, check the out "Creating Themes" page on Wat's Github Wiki.\n`;
   const start16 = `\nWat can also search Stack Overflow. Run "${chalk.white(`stackoverflow js splice an array`)}".\n`;
-  const end16 = `\n"stackoverflow" is a really long word. You can also run it with "${chalk.white(`so ...`)}" or "${chalk.white(`stack ...`)}".\n`;
+  const end16 = `\n"stackoverflow" is a really long word. You can also run it with "${chalk.white(`so ...`)}" or "${chalk.white(`stack ...`)}".\n\nAdditionally, if you're feeling --lucky, add "${chalk.white(`-l`)}" to your search to automatically pick the first result.\n`;
+  const start17 = `\nWant to read a project's readme that isn't on Wat yet? You can pull up any Github repo's readme.\n\nRun "${chalk.white(`github dthree wat`)}" and pull up Wat's readme.\n`;
+  const end17 = `\nYou can also run this with "${chalk.white(`gh ...`)}" or "${chalk.white(`readme ...`)}".\n`;
   const conclusion = `\nThat concludes the tour!\n\nIf you like Wat, help spread the word! And remember, contributing is ridiculously easy.\nIf you want to add content, check out the Wiki to get started.\n\nOver to you!\n`;
 
   tour.color('cyan');
@@ -140,7 +142,7 @@ module.exports = function(tour, app) {
   tour.step(14)
     .begin(start14)
     .expect("command", function (data, cb) {
-      cb(String(data.command).toLowerCase().indexOf("themes") > -1);
+      cb(String(data.command).toLowerCase().indexOf("theme") > -1);
     })
     .wait(1000)
 
@@ -159,6 +161,14 @@ module.exports = function(tour, app) {
     })
     .wait(1000)
     .end(end16);
+
+  tour.step(17)
+    .begin(start17)
+    .expect("command", function (data, cb) {
+      cb(String(data.command).toLowerCase().indexOf("dthree wat") > -1);
+    })
+    .wait(1000)
+    .end(end17);
 
   tour.end(conclusion);
 

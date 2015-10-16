@@ -7,12 +7,8 @@ module.exports = function (vorpal, options) {
   const app = options.app;
 
   vorpal
-    .command('set theme <name>', 'Sets the syntax highlighting theme.')
-    .action(function (args, cb) {
-    });
-
-  vorpal
     .command('theme [name]', 'Gets or sets the syntax highlighting theme.')
+    .alias('themes')
     .autocompletion(function(text, iteration, cb) {
       const themes = app.cosmetician.getThemes() || [];
       cb(void 0, util.autocompletionHelper.call(this, 'theme ', themes, text, iteration));

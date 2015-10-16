@@ -3,6 +3,7 @@
 const chalk = require('chalk');
 const stripAnsi = require('strip-ansi');
 const wrapAnsi = require('wrap-ansi');
+const util = require('../util');
 
 function pickSearchResult(results, opts, cbk) {
   const self = this;
@@ -63,6 +64,9 @@ module.exports = function (vorpal, options) {
 
       function end() {
         if (stripAnsi(results).replace(/\n/g, '').trim() !== '') {
+          if (String(results).split('\n').length > 4) {
+            results = util.separator(results);
+          }
           self.log(results);
         }
         cb();
@@ -103,7 +107,7 @@ module.exports = function (vorpal, options) {
 
     vorpal
       .command('github [command...]', 'Searches Github.')
-      .alias('gh')
+      .alias('gh', 'readme')
       .option('-l, --lucky', 'Have Wat pick the best result for you.')
       .option('--less', 'Pipe into less. Defaults to true.')
       .parse(function (str) {
@@ -126,6 +130,9 @@ module.exports = function (vorpal, options) {
 
         function end() {
           if (stripAnsi(results).replace(/\n/g, '').trim() !== '') {
+            if (String(results).split('\n').length > 4) {
+              results = util.separator(results);
+            }
             self.log(results);
           }
           cb();

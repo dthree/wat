@@ -28,7 +28,7 @@ var app = {
 
     var help = vorpal.find('help');
     if (help) {
-      help.remove();
+      //help.remove();
     }
 
     if (process.argv.length > 2) {

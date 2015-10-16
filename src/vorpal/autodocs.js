@@ -39,18 +39,4 @@ module.exports = function (vorpal, options) {
       }
     });
 
-  vorpal
-    .command('get fetchable', 'Lists libraries able to be be auto-built.')
-    .option('-m, --max <amt>', 'Maximum libraries items to show.')
-    .alias('get fetch')
-    .action(function (args, cb) {
-      const self = this;
-      const max = args.options.max || 30;
-      const config = app.clerk.updater.config();
-      let items = `\n  ${Object.keys(config).join('\n  ')}\n`;
-      this.log(items);
-      cb();
-    });
-
-
 };

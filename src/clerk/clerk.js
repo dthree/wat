@@ -66,7 +66,7 @@ const clerk = {
       updateRemotely: options.updateRemotely
     });
     setInterval(this.history.worker.bind(this.history), 5000);
-    setInterval(this.updater.nextQueueItem, 6000);
+    setInterval(this.updater.nextQueueItem, 2000);
   },
 
   scaffold() {

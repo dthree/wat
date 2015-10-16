@@ -32,13 +32,4 @@ module.exports = function (vorpal, options) {
       app.autodocs['delete'](args.lib, {}, back);
     }
   });
-
-  vorpal.command('get fetchable', 'Lists libraries able to be be auto-built.').option('-m, --max <amt>', 'Maximum libraries items to show.').alias('get fetch').action(function (args, cb) {
-    var self = this;
-    var max = args.options.max || 30;
-    var config = app.clerk.updater.config();
-    var items = '\n  ' + Object.keys(config).join('\n  ') + '\n';
-    this.log(items);
-    cb();
-  });
 };

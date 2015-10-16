@@ -40,7 +40,7 @@ const app = {
 
     const help = vorpal.find('help');
     if (help) {
-      help.remove();
+      //help.remove();
     }
 
     if (process.argv.length > 2) {

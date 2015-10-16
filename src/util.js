@@ -12,6 +12,8 @@ const mkdirp = require('mkdirp');
 const chalk = require('chalk');
 const strip = require('strip-ansi');
 const path = require('path');
+const os = require('os');
+
 
 const util = {
 
@@ -570,6 +572,16 @@ const util = {
     return str + Array(len + 1).join(delimiter);
   },
 
+  separator(str) {
+    const windows = os.platform() === 'win32';
+    const hl = windows ? '-' : '─';
+    if (str.split('\n').length <= process.stdout.rows) {
+      const padding = util.pad('', process.stdout.columns, chalk.blue(hl));
+      str = `\n${padding}\n${str}`; 
+    }
+    return str;
+  },
+
   /** 
    * Kind of like mkdirp, but without another depedency.
    *
@@ -649,14 +661,14 @@ const util = {
       if (!indexObject) {
         response.exists = false;
       } else if (_.isArray(indexObject)) {
-
         let sugg = util.autocomplete(str, 2, index, function (word, options) {
           return options;
         }).response;
         if (_.isArray(sugg)) {
           response.suggestions = sugg;
         } else {
-          response.suggestions = indexObject;
+          response.suggestions = ['', sugg];
+          //response.suggestions = indexObject;
         }
       } else {
         response.index = indexObject;
