@@ -7,6 +7,7 @@
 const Vorpal = require('vorpal');
 const vorpal = new Vorpal();
 const less = require('vorpal-less');
+const grep = require('vorpal-grep');
 
 const app = {
 
@@ -24,6 +25,7 @@ const app = {
 
     vorpal
       .use(less)
+      .use(grep)
       .use(`${dir}/vorpal/sigint.js`, {app: app})
       .use(`${dir}/vorpal/theme.js`, {app: app})
       .use(`${dir}/vorpal/indexer.js`, {app: app})

@@ -56,6 +56,7 @@
     "strip-ansi": "^3.0.0",
     "tmp": "0.0.27",
     "vorpal": "*",
+    "vorpal-grep": "0.0.5",
     "vorpal-less": "*",
     "vorpal-tour": "0.0.3",
     "walk": "^2.3.9",
