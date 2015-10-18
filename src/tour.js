@@ -25,6 +25,8 @@ module.exports = function(tour, app) {
   const end16 = `\n"stackoverflow" is a really long word. You can also run it with "${chalk.white(`so ...`)}" or "${chalk.white(`stack ...`)}".\n\nAdditionally, if you're feeling --lucky, add "${chalk.white(`-l`)}" to your search to automatically pick the first result.\n`;
   const start17 = `\nWant to read a project's readme that isn't on Wat yet? You can pull up any Github repo's readme.\n\nRun "${chalk.white(`github dthree wat`)}" and pull up Wat's readme.\n`;
   const end17 = `\nYou can also run this with "${chalk.white(`gh ...`)}" or "${chalk.white(`readme ...`)}".\n`;
+  const start18 = `\nWat can also grep things! Let's have some fun:\n\nRun "${chalk.white(`gh awesome node -l | grep simple | less`)}" to find some simply awesome things.\n`;
+  const end18 = `\nYou can grep any content in Wat: wikis, readmes, Stack Overflow, you name it.\n`;
   const conclusion = `\nThat concludes the tour!\n\nIf you like Wat, help spread the word! And remember, contributing is ridiculously easy.\nIf you want to add content, check out the Wiki to get started.\n\nOver to you!\n`;
 
   tour.color('cyan');
@@ -169,6 +171,14 @@ module.exports = function(tour, app) {
     })
     .wait(1000)
     .end(end17);
+
+  tour.step(18)
+    .begin(start18)
+    .expect("command", function (data, cb) {
+      cb(String(data.command).toLowerCase().indexOf("awesome") > -1);
+    })
+    .wait(1000)
+    .end(end18);
 
   tour.end(conclusion);
 
