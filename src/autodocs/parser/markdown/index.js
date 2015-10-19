@@ -120,7 +120,11 @@ const markdownParser = {
         ast = self.mdast.sequenceAst(ast);
         const urls = self.mdast.getUrlsFromAst(ast);
         const repoUrls = self.mdast.filterUrlsByGithubRepo(urls, undefined, repoName);
+
+        //console.log(ast);
+
         let headers = self.mdast.groupByHeaders(ast);
+        const orphans = headers.orphans;
 
         let pathParts = String(result).split('/');
         let last = pathParts.pop();
@@ -135,6 +139,7 @@ const markdownParser = {
         } else if (headers.length > 1) {
           headers = [{
             type: 'heading',
+            ignore: true,
             depth: 1,
             children: [{ type: 'text', value: last, position: {} }],
             position: {},
@@ -145,21 +150,13 @@ const markdownParser = {
 
         let docs = self.mdast.buildDocPaths(headers, `/autodocs/${repoName}/${resultRoot}`);
 
-        if (result === 'readme') {
-          for (let j = 0; j < docs[0].fold.length; ++j) {
-            // let f = docs[0].fold[j];
-            // console.log(f.children);
-            // console.log(f.docPath);
-            // console.log(mdast.stringify(f));
-          }
-        }
-
         finalAPI = finalAPI.concat(api);
         finalDocs = finalDocs.concat(docs);
 
         final[result] = {
           api: api,
           docs: docs,
+          orphans: orphans || [],
           headers: headers,
           urls: urls
         }
@@ -183,7 +180,7 @@ const markdownParser = {
         if (final.hasOwnProperty(doc)) {
           config.docs.push(doc);
           //config.docsSequence[doc] = 0;
-          self.writeDocSet(final[doc].docs, writeOptions);
+          self.writeDocSet(final[doc].docs, final[doc].orphans, writeOptions);
         }
       }
 
@@ -213,9 +210,15 @@ const markdownParser = {
     }
   },
 
-  writeDocSet(docs, options) {
+  writeDocSet(docs, orphans, options) {
     options = options || {}
     let result = '';
+
+    let orphanString = '';
+    for (let i = 0; i < orphans.length; ++i) {
+      orphanString += mdast.stringify(orphans[i]) + '\n\n';
+    }
+
     for (let i = 0; i < docs.length; ++i) {
       let local = '';
       if (!docs[i].docPath) {
@@ -242,8 +245,8 @@ const markdownParser = {
         ? '/' + file + '/' + 'index.md'
         : '/' + file + '.md';
       
-      let header = mdast.stringify(docs[i]);
-      let allJunk = header + '\n\n';
+      let header = (docs[i].ignore !== true) ? mdast.stringify(docs[i]) + '\n\n' : '';
+      let allJunk = header;
       for (let j = 0; j < docs[i].junk.length; ++j) {
         allJunk += mdast.stringify(docs[i].junk[j]) + '\n\n';
       }
@@ -251,8 +254,10 @@ const markdownParser = {
       local += allJunk;
 
       if (docs[i].fold.length > 0) {
-        local += this.writeDocSet(docs[i].fold, options);
+        local += this.writeDocSet(docs[i].fold, [], options);
       }
+
+      local = orphanString + local;
 
       if (options.static) {
         fs.writeFileSync(dir + fullPath, local);

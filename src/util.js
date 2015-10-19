@@ -6,13 +6,16 @@
 
 const _ = require('lodash');
 const lev = require('leven');
-const request = require('request');
 const fs = require('fs');
 const mkdirp = require('mkdirp');
 const chalk = require('chalk');
 const strip = require('strip-ansi');
 const path = require('path');
 const os = require('os');
+
+const app = require('../');
+
+let request = require('request');
 
 
 const util = {
@@ -109,8 +112,6 @@ const util = {
     const cats = ['method', 'property', 'object', 'doc', 'lib', 'unbuilt-lib'];
     const data = {};
     
-    //console.log(possibilities)
-
     let all = Object.keys(possibilities) || [];
 
     function filter(objs, type) {
@@ -382,7 +383,6 @@ const util = {
 
     }
 
-    //console.log(require('util').inspect(fnl));
     return fnl;
   }, 
 
@@ -552,7 +552,23 @@ const util = {
   },
 
   fetchRemote(path, cb) {
-    request(path, function (err, response, body) {
+    let proxy;
+    if (app.clerk.prefs.get('proxy') === 'on') {
+      const address = app.clerk.prefs.get('proxy-address');
+      const port = app.clerk.prefs.get('proxy-port');
+      const user = String(app.clerk.prefs.get('proxy-user') || '').trim();
+      const pass = String(app.clerk.prefs.get('proxy-pass') || '').trim();
+      if (user === '' || pass === '') {
+        proxy = `http://${address}:${port}`;
+      } else {
+        proxy = `http://${user}:${pass}@${address}:${port}`;
+      }
+    } 
+    const opts = {
+      url: path,
+      proxy: proxy
+    }
+    request(opts, function (err, response, body) {
       if (!err) {
         if (body === 'Not Found') {
           cb('Not Found', undefined);
@@ -560,6 +576,7 @@ const util = {
           cb(undefined, body, response);
         }
       } else {
+        console.log(err, response, body);
         cb(err, '');
       }
     });

@@ -63,6 +63,13 @@
       }
     }
   },
+  "inquirer": {
+    "language": "javascript",
+    "parser": "markdown",
+    "urls": {
+      "readme": "https://raw.githubusercontent.com/SBoudrias/Inquirer.js/master/README.md"
+    }
+  },
   "mdast": {
     "language": "javascript",
     "parser": "markdown",

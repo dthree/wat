@@ -6,13 +6,16 @@
 
 var _ = require('lodash');
 var lev = require('leven');
-var request = require('request');
 var fs = require('fs');
 var mkdirp = require('mkdirp');
 var chalk = require('chalk');
 var strip = require('strip-ansi');
 var path = require('path');
 var os = require('os');
+
+var app = require('../');
+
+var request = require('request');
 
 var util = {
 
@@ -107,8 +110,6 @@ var util = {
     var self = this;
     var cats = ['method', 'property', 'object', 'doc', 'lib', 'unbuilt-lib'];
     var data = {};
-
-    //console.log(possibilities)
 
     var all = Object.keys(possibilities) || [];
 
@@ -385,7 +386,6 @@ var util = {
       })();
     }
 
-    //console.log(require('util').inspect(fnl));
     return fnl;
   },
 
@@ -555,7 +555,23 @@ var util = {
   },
 
   fetchRemote: function fetchRemote(path, cb) {
-    request(path, function (err, response, body) {
+    var proxy = undefined;
+    if (app.clerk.prefs.get('proxy') === 'on') {
+      var address = app.clerk.prefs.get('proxy-address');
+      var port = app.clerk.prefs.get('proxy-port');
+      var user = String(app.clerk.prefs.get('proxy-user') || '').trim();
+      var pass = String(app.clerk.prefs.get('proxy-pass') || '').trim();
+      if (user === '' || pass === '') {
+        proxy = 'http://' + address + ':' + port;
+      } else {
+        proxy = 'http://' + user + ':' + pass + '@' + address + ':' + port;
+      }
+    }
+    var opts = {
+      url: path,
+      proxy: proxy
+    };
+    request(opts, function (err, response, body) {
       if (!err) {
         if (body === 'Not Found') {
           cb('Not Found', undefined);
@@ -563,6 +579,7 @@ var util = {
           cb(undefined, body, response);
         }
       } else {
+        console.log(err, response, body);
         cb(err, '');
       }
     });

@@ -1,9 +1,5 @@
 'use strict';
 
-/**
- * Module dependencies.
- */
-
 const Vorpal = require('vorpal');
 const vorpal = new Vorpal();
 const less = require('vorpal-less');
@@ -23,27 +19,18 @@ const app = {
     this.autodocs = require('./autodocs/autodocs')(app);
     this.cosmetician = require('./cosmetician/cosmetician')(app);
 
+    const modules = ['sigint', 'theme', 'indexer', 'updater', 'spider', 'catch', 'autodocs', 'hist', 'tour', 'proxy'];
+    for (let i = 0; i < modules.length; ++i) {
+      vorpal.use(`${dir}/vorpal/${modules[i]}.js`, {app: app});
+    }
+
     vorpal
       .use(less)
       .use(grep)
-      .use(`${dir}/vorpal/sigint.js`, {app: app})
-      .use(`${dir}/vorpal/theme.js`, {app: app})
-      .use(`${dir}/vorpal/indexer.js`, {app: app})
-      .use(`${dir}/vorpal/updater.js`, {app: app})
-      .use(`${dir}/vorpal/spider.js`, {app: app})
-      .use(`${dir}/vorpal/catch.js`, {app: app})
-      .use(`${dir}/vorpal/autodocs.js`, {app: app})
-      .use(`${dir}/vorpal/hist.js`, {app: app})
-      .use(`${dir}/vorpal/tour.js`, {app: app})
       .delimiter('?')
       .show();
 
     this.clerk.start(options);
-
-    const help = vorpal.find('help');
-    if (help) {
-      //help.remove();
-    }
 
     if (process.argv.length > 2) {
       vorpal.parse(process.argv);
@@ -52,4 +39,3 @@ const app = {
 };
 
 module.exports = app;
-

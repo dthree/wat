@@ -75,12 +75,30 @@ var _exports = {
     return result;
   },
 
+  newHeading: function newHeading(depth) {
+    var heading = {
+      type: 'heading',
+      depth: depth,
+      children: [], /*[{ 
+                    type: 'text',
+                    value: '',
+                    position: {}
+                    }]*/
+      position: {},
+      sequence: 0,
+      fold: [],
+      junk: []
+    };
+    return heading;
+  },
+
   groupByHeaders: function groupByHeaders(node) {
     var curr = {};
     var res = [];
     var items = node.children;
     var depth = 100;
     var last = undefined;
+    var beginning = [];
 
     function getParentI(dpth) {
       // 1 (needs 0)
@@ -137,6 +155,8 @@ var _exports = {
           // header, we're just throwing it away...
           if (last) {
             last.junk.push(item);
+          } else {
+            beginning.push(item);
           }
         }
     }
@@ -155,6 +175,7 @@ var _exports = {
       assignParents(res[_i]);
     }
 
+    res.orphans = beginning;
     return res;
   },
 
@@ -233,17 +254,23 @@ var _exports = {
     var anchors = /<a\b[^>]*>((.|\n|\r\n)*?)<\/a>/gi;
     var bolds = /<b>(.*?)<\/b>/gi;
     var strikethroughs = /<s>((.|\n|\r\n)*?)<\/s>/gi;
+    var wrappedHeaders = /<h(.*?)>((.|\n|\r\n)*?)<\/h1>/gi;
     var breaks = /<br>/gi;
     var comments = /<!--((.|\n|\r\n)*?)-->/gi;
+    var imagelink = /\!\[\]\((.*?)\)/g;
     var mdlink = /\[(.*?)\]\((.*?)\)/g;
     var images = /<img ((.|\n|\r\n)*?)>/gi;
+    var tooManyBreaks = /\n\n\n/g;
     var italics = /<i>((.|\n|\r\n)*?)<\/i>/gi;
     md = md.replace(anchors, '$1');
     md = md.replace(bolds, '**$1**');
     md = md.replace(images, '');
+    md = md.replace(imagelink, '');
     md = md.replace(mdlink, '$1');
     md = md.replace(breaks, '');
     md = md.replace(comments, '');
+    md = md.replace(tooManyBreaks, '\n\n');
+    md = md.replace(wrappedHeaders, '$2');
     md = md.replace(strikethroughs, '$1');
     md = md.replace(italics, '*$1*');
     return md;
