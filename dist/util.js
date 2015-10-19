@@ -576,7 +576,6 @@ var util = {
           cb(undefined, body, response);
         }
       } else {
-        console.log(err, opts, response, body);
         throw new Error(err);
         cb(err, '');
       }

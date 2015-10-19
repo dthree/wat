@@ -24,7 +24,7 @@ describe('vorpal.spider', function () {
       })
       setTimeout(function () {
         app.vorpal.ui._activePrompt.rl.emit('line');
-      }, 3000);
+      }, 5000);
     });
 
     it('should run with -l', function (done) {
