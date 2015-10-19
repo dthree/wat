@@ -567,11 +567,8 @@ var util = {
         proxy = 'http://' + user + ':' + pass + '@' + address + ':' + port;
       }
     }
-    var opts = {
-      url: path,
-      proxy: proxy
-    };
-    request(opts, function (err, response, body) {
+    var r = request.defaults({ 'proxy': proxy });
+    request.get(path, function (err, response, body) {
       if (!err) {
         if (body === 'Not Found') {
           cb('Not Found', undefined);
@@ -579,7 +576,8 @@ var util = {
           cb(undefined, body, response);
         }
       } else {
-        console.log(err, response, body);
+        console.log(err, opts, response, body);
+        throw new Error(err);
         cb(err, '');
       }
     });
