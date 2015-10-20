@@ -1,9 +1,5 @@
 'use strict';
 
-/**
- * Module dependencies.
- */
-
 var _ = require('lodash');
 var google = require('google');
 
@@ -12,8 +8,8 @@ var spider = {
   google: google,
 
   sites: {
-    'stackoverflow': '//stackoverflow.com/',
-    'github': '//github.com/'
+    stackoverflow: '//stackoverflow.com/',
+    github: '//github.com/'
   },
 
   filterGoogle: function filterGoogle(links, sites) {

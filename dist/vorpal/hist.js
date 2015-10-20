@@ -7,8 +7,8 @@ var moment = require('moment');
 module.exports = function (vorpal, options) {
   var app = options.app;
   var histTypes = {
-    'command': 'Command',
-    'update': 'Update'
+    command: 'Command',
+    update: 'Update'
   };
 
   vorpal.command('hist', 'Shows recent command history.').option('-m, --max', 'Maximum history items to show.').action(function (args, cb) {

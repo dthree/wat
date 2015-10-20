@@ -16,7 +16,7 @@ const prefs = {
       let prefs = fs.readFileSync(self.app.clerk.paths.temp.prefs, {encoding: 'utf-8'});
       prefs = JSON.parse(prefs);
       self._prefs = prefs;
-    } catch(e) {}
+    } catch (e) {}
     if (key === undefined) {
       return self._prefs;
     }

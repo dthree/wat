@@ -1,9 +1,5 @@
 'use strict';
 
-/**
- * Module dependencies.
- */
-
 var _ = require('lodash');
 var mkdirp = require('mkdirp');
 var fs = require('fs');
@@ -112,12 +108,12 @@ var clerk = {
       function rejectFn(str) {
         return String(str).indexOf('__') > -1;
       }
-      if (idx['__type'] && idx['__type'] !== dirType) {
+      if (idx.__type && idx.__type !== dirType) {
         return;
       }
       for (var key in idx) {
         if (idx.hasOwnProperty(key) && String(key).indexOf('__') === -1) {
-          if (idx[key]['__type'] && idx[key]['__type'] !== dirType || !_.isObject(idx[key])) {
+          if (idx[key].__type && idx[key].__type !== dirType || !_.isObject(idx[key])) {
             return;
           }
           // Clean out all files with '__...'
@@ -182,7 +178,7 @@ var clerk = {
   search: function search(str) {
     var search = String(str).split(' ');
     var matches = [];
-    this.forEachInIndex(function (pathStr, key, data) {
+    this.forEachInIndex(function (pathStr, key) {
       if (key !== '__basic') {
         return;
       }
@@ -206,10 +202,10 @@ var clerk = {
             finds++;
             newPoints += 1;
           } else if (cmd.indexOf(word) > -1) {
-            newPoints += Math.round(word.length / cmd.length * 100) / 100;;
+            newPoints += Math.round(word.length / cmd.length * 100) / 100;
             finds++;
           }
-          points += i === j ? newPoints * 2 : newPoints * 1;
+          points += i === j ? Number(newPoints) * 2 : Number(newPoints) * 1;
         }
         if (finds === 0) {
           dirty++;
@@ -355,7 +351,7 @@ var clerk = {
     }
   },
 
-  file: function file(pathStr, type, data, retry) {
+  file: function file(pathStr, type, data) {
     var rootDir = type === 'auto' ? clerk.paths.temp.autodocs : clerk.paths.temp.docs;
     var file = rootDir + pathStr;
     var dir = String(file).split(path.sep);

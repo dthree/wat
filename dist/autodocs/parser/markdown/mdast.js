@@ -1,17 +1,60 @@
 'use strict';
 
-/**
- * Module dependencies.
- */
-
 var _ = require('lodash');
 var mdast = require('mdast');
-var stripBadges = require('mdast-strip-badges');
-var chalk = require('chalk');
 var slug = require('sluggin').Sluggin;
 
 // Default to parsing javascript.
 var parser = require('./parser.javascript');
+
+var util = {
+
+  parseGithubLink: function parseGithubLink(url) {
+    var res = String(url).split('//github.com/')[1];
+    var result = {};
+    if (res) {
+      var parts = String(res).split('/') || [];
+      var owner = parts[0];
+      var _name = parts[1];
+      if (owner && _name) {
+        result = { owner: owner, name: _name };
+      }
+    }
+    return result;
+  },
+
+  isMarkdownLink: function isMarkdownLink(str) {
+    var parts = String(str).split('.');
+    var last = parts[parts.length - 1];
+    return last.toLowerCase() === 'md';
+  },
+
+  isLocalLink: function isLocalLink(str) {
+    var keywords = ['https://', 'http://', '.com', '.net', '.io'];
+    var local = true;
+    var url = String(str).toLowerCase();
+    for (var i = 0; i < keywords.length; ++i) {
+      if (url.indexOf(keywords[i]) > -1) {
+        local = false;
+        break;
+      }
+    }
+    return local;
+  },
+
+  cleanLink: function cleanLink(str) {
+    var url = String(str);
+    var hashIdx = String(url).indexOf('#');
+    if (hashIdx > -1) {
+      url = url.slice(0, hashIdx);
+    }
+    var qIdx = String(url).indexOf('?');
+    if (qIdx > -1) {
+      url = url.slice(0, qIdx);
+    }
+    return String(url).trim();
+  }
+};
 
 var _exports = {
 
@@ -44,7 +87,6 @@ var _exports = {
           if (href === '') {
             continue;
           }
-          //urls.push(href);
         }
         if (nodes[i].children && nodes[i].children.length > 0) {
           getURLs(nodes[i].children);
@@ -79,11 +121,7 @@ var _exports = {
     var heading = {
       type: 'heading',
       depth: depth,
-      children: [], /*[{ 
-                    type: 'text',
-                    value: '',
-                    position: {}
-                    }]*/
+      children: [],
       position: {},
       sequence: 0,
       fold: [],
@@ -101,7 +139,6 @@ var _exports = {
     var beginning = [];
 
     function getParentI(dpth) {
-      // 1 (needs 0)
       for (var i = dpth - 1; i > -1; i--) {
         if (curr[i]) {
           return i;
@@ -146,19 +183,13 @@ var _exports = {
           curr[depth] = item;
           if (curr[parentI]) {
             curr[parentI].fold.push(item);
-          } else {
-            //console.log('WTF');
           }
         }
+      } else if (last) {
+        last.junk.push(item);
       } else {
-          // Warning: if an item isn't under a
-          // header, we're just throwing it away...
-          if (last) {
-            last.junk.push(item);
-          } else {
-            beginning.push(item);
-          }
-        }
+        beginning.push(item);
+      }
     }
 
     // Assign parent nodes to the end.
@@ -166,13 +197,13 @@ var _exports = {
       if (parent) {
         nd.parent = parent;
       }
-      for (var _j = 0; _j < nd.fold.length; ++_j) {
-        assignParents(nd.fold[_j], nd);
+      for (var j = 0; j < nd.fold.length; ++j) {
+        assignParents(nd.fold[j], nd);
       }
     }
 
-    for (var _i = 0; _i < res.length; ++_i) {
-      assignParents(res[_i]);
+    for (var i = 0; i < res.length; ++i) {
+      assignParents(res[i]);
     }
 
     res.orphans = beginning;
@@ -203,9 +234,8 @@ var _exports = {
           _x2 = arr;
           _again = true;
           continue _function;
-        } else {
-          return arr;
         }
+        return arr;
       }
     }
 
@@ -219,7 +249,7 @@ var _exports = {
 
         if (item.type === 'heading') {
           var headerString = mdast.stringify(item);
-          var content = ''; //(item.junk.length > 0) ? mdast.stringify(item.junk) : '';
+          var content = '';
           var isAPI = parser.isCommandSyntax(headerString, item);
           if (isAPI) {
             var syntax = parser.parseCommandSyntax(headerString);
@@ -280,17 +310,15 @@ var _exports = {
     // Make sure we don't end with a '/',
     // as that would wind up with '//' later on.
     rootName = rootName[rootName.length - 1] === '/' ? rootName.slice(0, rootName.length - 1) : rootName;
-    var tree = {};
     for (var i = 0; i < nodes.length; ++i) {
-      var fold = nodes[i].fold;
       var dir = '' + rootName;
-      var _name = undefined;
+      var _name2 = undefined;
       if (nodes[i].syntax) {
-        _name = nodes[i].syntax.name;
+        _name2 = nodes[i].syntax.name;
       } else {
-        _name = String(slug(mdast.stringify(nodes[i]))).trim();
+        _name2 = String(slug(mdast.stringify(nodes[i]))).trim();
       }
-      var path = dir + '/' + _name;
+      var path = dir + '/' + _name2;
       nodes[i].docPath = path;
       if (nodes[i].fold.length > 0) {
         nodes[i].fold = this.buildDocPaths(nodes[i].fold, path);
@@ -302,17 +330,6 @@ var _exports = {
   buildAPIPaths: function buildAPIPaths(api, repoName) {
     var tree = {};
     for (var i = 0; i < api.length; ++i) {
-      var _parent = undefined;
-      if (api[i].parent) {
-        try {
-          _parent = mdast.stringify(api[i].parent);
-        } catch (e) {
-          console.log('Error parsing parent.', api[i].parent);
-          console.log(e);
-        }
-      }
-      var children = api[i].children;
-
       var parentPath = (api[i].syntax.parents || []).join('/');
       parentPath = parentPath !== '' ? '/' + parentPath : parentPath;
 
@@ -323,29 +340,25 @@ var _exports = {
 
       tree[parentPath] = tree[parentPath] || 0;
       tree[parentPath]++;
-
-      for (var j = 0; j < api[i].junk.length; ++j) {
-        var it = mdast.stringify(api[i].junk[j]);
-      }
     }
     return api;
   },
 
   /**
-   * Builds a JSON object defining 
+   * Builds a JSON object defining
    * properties and methods based on the
    * API AST nodes.
-   * 
+   *
    * @param {Array} api
    * @return {Object} config
-   * @api public 
+   * @api public
    */
 
   buildAPIConfig: function buildAPIConfig(api) {
     var config = {};
     var map = {
-      'method': 'methods',
-      'property': 'properties'
+      method: 'methods',
+      property: 'properties'
     };
     for (var i = 0; i < api.length; ++i) {
       var cmd = api[i];
@@ -363,12 +376,12 @@ var _exports = {
   },
 
   /**
-   * Builds a JSON object defining 
+   * Builds a JSON object defining
    * the sequencing of all doc sets.
-   * 
+   *
    * @param {Array} api
    * @return {Object} config
-   * @api public 
+   * @api public
    */
 
   buildDocConfig: function buildDocConfig(api, repoName) {
@@ -399,56 +412,6 @@ var _exports = {
     });
 
     return obj;
-  }
-
-};
-
-var util = {
-
-  parseGithubLink: function parseGithubLink(url) {
-    var res = String(url).split('//github.com/')[1];
-    var result = {};
-    if (res) {
-      var parts = String(res).split('/') || [];
-      var owner = parts[0];
-      var _name2 = parts[1];
-      if (owner && _name2) {
-        result = { owner: owner, name: _name2 };
-      }
-    }
-    return result;
-  },
-
-  isMarkdownLink: function isMarkdownLink(str) {
-    var parts = String(str).split('.');
-    var last = parts[parts.length - 1];
-    return last.toLowerCase() === 'md';
-  },
-
-  isLocalLink: function isLocalLink(str) {
-    var keywords = ['https://', 'http://', '.com', '.net', '.io'];
-    var local = true;
-    var url = String(str).toLowerCase();
-    for (var i = 0; i < keywords.length; ++i) {
-      if (url.indexOf(keywords[i]) > -1) {
-        local = false;
-        break;
-      }
-    }
-    return local;
-  },
-
-  cleanLink: function cleanLink(str) {
-    var url = String(str);
-    var hashIdx = String(url).indexOf('#');
-    if (hashIdx > -1) {
-      url = url.slice(0, hashIdx);
-    }
-    var qIdx = String(url).indexOf('?');
-    if (qIdx > -1) {
-      url = url.slice(0, qIdx);
-    }
-    return String(url).trim();
   }
 
 };

@@ -1,12 +1,7 @@
 'use strict';
 
-/**
- * Module dependencies.
- */
-
 var _ = require('lodash');
 var lev = require('leven');
-var fs = require('fs');
 var mkdirp = require('mkdirp');
 var chalk = require('chalk');
 var strip = require('strip-ansi');
@@ -16,6 +11,28 @@ var os = require('os');
 var app = require('../');
 
 var request = require('request');
+
+// Colors by class.
+var colors = {
+  'method': 'green',
+  'property': 'blue',
+  'object': 'yellow',
+  'doc': 'white',
+  'lib': 'white',
+  'unbuilt-lib': 'gray',
+  'remainder': 'gray'
+};
+
+// Fancy names by class.
+var names = {
+  'method': 'Methods',
+  'property': 'Properties',
+  'object': 'Objects',
+  'doc': 'Docs',
+  'lib': 'Libraries',
+  'unbuilt-lib': 'Downloadable Libraries',
+  'remainder': 'Other'
+};
 
 var util = {
 
@@ -36,7 +53,6 @@ var util = {
     var lastWord = String(commands[commands.length - 1]).trim();
     var otherWords = commands.slice(0, commands.length - 1);
     var words = String(text).trim().split(' ').length;
-    var poss = [];
 
     // Find the deepest point on the index that
     // matches the given commands. i.e.
@@ -65,24 +81,22 @@ var util = {
         response = [formatted];
       } else if (iteration > 1 && possibilities.length === 1 && otherWords.length !== levels) {
         response = String('' + original + possibilities[0]).trim() + ' ';
-      } else {
-        if (levels === 1 && words === 1 && Object.keys(possibleObjects).length === 0 && iteration > 1) {
-          // In this scenario, the user has chosen an autodoc
-          // lib that hasn't been downloaded yet, and has tabbed.
-          // We tell the user what he can do.
-          if (iteration < 3) {
-            var times = chalk.cyan('1 more time');
-            mode = 'pre-build';
-            response = chalk.blue('\n  This library has not been built. \n  To build, press ' + chalk.cyan('[tab]') + ' ' + times + ', or press ' + chalk.cyan('[enter]') + '.');
-          } else if (iteration === 3) {
-            mode = 'build';
-            response = original;
-          } else {
-            response = original;
-          }
+      } else if (levels === 1 && words === 1 && Object.keys(possibleObjects).length === 0 && iteration > 1) {
+        // In this scenario, the user has chosen an autodoc
+        // lib that hasn't been downloaded yet, and has tabbed.
+        // We tell the user what he can do.
+        if (iteration < 3) {
+          var times = chalk.cyan('1 more time');
+          mode = 'pre-build';
+          response = chalk.blue('\n  This library has not been built. \n  To build, press ' + chalk.cyan('[tab]') + ' ' + times + ', or press ' + chalk.cyan('[enter]') + '.');
+        } else if (iteration === 3) {
+          mode = 'build';
+          response = original;
         } else {
           response = original;
         }
+      } else {
+        response = original;
       }
     }
 
@@ -126,7 +140,9 @@ var util = {
         // and then sort them by that.
         var res = [];
         for (var item in results) {
-          res.push([item, results[item].__seq]);
+          if (results.hasOwnProperty(item)) {
+            res.push([item, results[item].__seq]);
+          }
         }
         res = res.sort(function (a, b) {
           return a[1] - b[1];
@@ -134,22 +150,23 @@ var util = {
           return itm[0];
         });
         return res;
-      } else {
-        return Object.keys(results);
       }
+      return Object.keys(results);
     }
 
     // If the object has children, add a slash.
     var newPoss = {};
     for (var item in possibilities) {
-      var keys = Object.keys(possibilities[item]);
-      keys = keys.filter(function (key) {
-        return String(key).slice(0, 2) !== '__';
-      });
-      if (keys.length > 0) {
-        newPoss[item + '/'] = _.clone(possibilities[item]);
-      } else {
-        newPoss[item] = possibilities[item];
+      if (possibilities.hasOwnProperty(item)) {
+        var keys = Object.keys(possibilities[item]);
+        keys = keys.filter(function (key) {
+          return String(key).slice(0, 2) !== '__';
+        });
+        if (keys.length > 0) {
+          newPoss[item + '/'] = _.clone(possibilities[item]);
+        } else {
+          newPoss[item] = possibilities[item];
+        }
       }
     }
 
@@ -164,7 +181,7 @@ var util = {
     // Data.remainer takes care of any items that don't
     // have a `__class` attribute in the index.
     data.remainder = all.filter(function (item) {
-      return matches.indexOf(item) > -1 || matches.indexOf(item + '/') > -1 ? false : true;
+      return !(matches.indexOf(item) > -1 || matches.indexOf(item + '/') > -1);
     });
 
     // All has been made inconsistent due to adding in '/'es
@@ -183,7 +200,7 @@ var util = {
       var width = String(item).length;
       maxWidth = width > maxWidth ? width : maxWidth;
     });
-    maxWidth = maxWidth + 3;
+    maxWidth += 3;
 
     // The headers aren't measured for width, and
     // so if the thinnest property is less than the
@@ -211,7 +228,7 @@ var util = {
     // top over the max column amount.
     var columnOverflow = totalAllocated - numColumns;
     if (columnOverflow > 0) {
-      dataColumns[maxItem] = dataColumns[maxItem] - columnOverflow;
+      dataColumns[maxItem] -= columnOverflow;
     }
 
     var types = Object.keys(dataColumns);
@@ -222,28 +239,6 @@ var util = {
     data.method.sort();
     data.property.sort();
 
-    // Colors by class.
-    var colors = {
-      'method': 'green',
-      'property': 'blue',
-      'object': 'yellow',
-      'doc': 'white',
-      'lib': 'white',
-      'unbuilt-lib': 'gray',
-      'remainder': 'gray'
-    };
-
-    // Fancy names by class.
-    var names = {
-      'method': 'Methods',
-      'property': 'Properties',
-      'object': 'Objects',
-      'doc': 'Docs',
-      'lib': 'Libraries',
-      'unbuilt-lib': 'Downloadable Libraries',
-      'remainder': 'Other'
-    };
-
     // Final formatting section.
     var fnl = '';
 
@@ -251,34 +246,35 @@ var util = {
     // line. If we otherwise fit on one line, roll
     // with that. Otherwise, do fancy columns.
     if (onlyDocs) {
-      var docs = data['doc'];
+      var docs = data.doc;
       var _max = process.stdout.rows - 5;
       var total = docs.length;
       docs = docs.slice(0, _max);
       if (docs.length > 0) {
-        var clr = colors['doc'];
+        var clr = colors.doc;
         var set = '\n  ' + docs.join('\n  ') + '\n';
         set = clr ? chalk[clr](set) : set;
         fnl += set;
       }
       if (total !== docs.length) {
-        fnl += chalk.grey('  ' + (total - docs.length) + ' more...\n');
+        fnl += chalk.grey('  ' + (total - docs.length)) + ' more...\n';
       }
     } else if (totalWidth <= process.stdout.columns) {
       for (var item in data) {
-        var arr = data[item];
-        if (arr.length > 0) {
-          var clr = colors[item];
-          var set = arr.join('  ') + '  ';
-          set = clr ? chalk[clr](set) : set;
-          fnl += set;
+        if (data.hasOwnProperty(item)) {
+          var arr = data[item];
+          if (arr.length > 0) {
+            var clr = colors[item];
+            var set = arr.join('  ') + '  ';
+            set = clr ? chalk[clr](set) : set;
+            fnl += set;
+          }
         }
       }
       fnl = String(fnl).trim();
       fnl = '\n  ' + String(fnl).trim() + '\n';
     } else {
       (function () {
-
         // This takes a class, such as `method`,
         // and draws x number of columns for that
         // item based on the allocated number of
@@ -291,7 +287,6 @@ var util = {
           var columns = dataColumns[item];
           var width = maxWidth - 2;
           var color = colors[item];
-          var fullWidth = (width + 2) * columns;
           var lines = '';
           var line = '';
           var longestLine = 0;
@@ -319,7 +314,7 @@ var util = {
             return self.pad(ln, longestLine);
           }).join('\n');
           var title = self.pad(names[item], longestLine);
-          var divider = chalk.gray(self.pad('', longestLine - 2, '-') + '  ');
+          var divider = chalk.gray(self.pad('', longestLine - 2, '-')) + '  ';
           lines = chalk.white(chalk.bold(title)) + '\n' + divider + '\n' + lines;
           return lines;
         }
@@ -332,9 +327,11 @@ var util = {
         var combined = [];
         var longest = 0;
         for (var item in dataColumns) {
-          var lines = drawClassBlock(item).split('\n');
-          longest = lines.length > longest ? lines.length : longest;
-          combined.push(lines);
+          if (dataColumns.hasOwnProperty(item)) {
+            var lines = drawClassBlock(item).split('\n');
+            longest = lines.length > longest ? lines.length : longest;
+            combined.push(lines);
+          }
         }
 
         var maxHeight = process.stdout.rows - 4;
@@ -380,9 +377,9 @@ var util = {
 
         // Interject a two-space pad to the left of
         // the blocks, and do some cleanup at the end.
-        fnl = fnl.split('\n').map(function (ln) {
+        fnl = String(fnl.split('\n').map(function (ln) {
           return '  ' + ln;
-        }).join('\n').replace(/ +$/, '').replace(/\n$/g, '') + '';
+        }).join('\n').replace(/ +$/, '').replace(/\n$/g, ''));
       })();
     }
 
@@ -399,13 +396,11 @@ var util = {
     var match = this.match(txt, array);
     if (iteration > 1) {
       return arr;
-    } else {
-      if (match) {
-        return 'theme ' + match;
-      } else {
-        return undefined;
-      }
     }
+    if (match) {
+      return 'theme ' + match;
+    }
+    return undefined;
   },
 
   /**
@@ -545,11 +540,13 @@ var util = {
     var self = this;
     parents = parents || [];
     for (var node in nodes) {
-      fn(node, nodes, parents);
-      if (_.isObject(nodes[node])) {
-        var _parent = _.clone(parents);
-        _parent.push(node);
-        self.each(nodes[node], fn, _parent);
+      if (nodes.hasOwnProperty(node)) {
+        fn(node, nodes, parents);
+        if (_.isObject(nodes[node])) {
+          var _parent = _.clone(parents);
+          _parent.push(node);
+          self.each(nodes[node], fn, _parent);
+        }
       }
     }
   },
@@ -567,7 +564,7 @@ var util = {
         proxy = 'http://' + user + ':' + pass + '@' + address + ':' + port;
       }
     }
-    var r = request.defaults({ 'proxy': proxy });
+    request.defaults({ proxy: proxy });
     request.get(path, function (err, response, body) {
       if (!err) {
         if (body === 'Not Found') {
@@ -576,8 +573,8 @@ var util = {
           cb(undefined, body, response);
         }
       } else {
-        throw new Error(err);
         cb(err, '');
+        throw new Error(err);
       }
     });
   },
@@ -599,7 +596,7 @@ var util = {
     return str;
   },
 
-  /** 
+  /**
    * Kind of like mkdirp, but without another depedency.
    *
    * @param {String} dir
@@ -607,14 +604,14 @@ var util = {
    * @api public
    */
 
-  mkdirSafe: function mkdirSafe(dir, levels) {
+  mkdirSafe: function mkdirSafe(dir) {
     return mkdirp.sync(dir);
   },
 
   extensions: {
-    '__basic': '.md',
-    '__detail': '.detail.md',
-    '__install': '.install.md'
+    __basic: '.md',
+    __detail: '.detail.md',
+    __install: '.install.md'
   },
 
   command: {
@@ -675,12 +672,11 @@ var util = {
           response.suggestions = sugg;
         } else {
           response.suggestions = ['', sugg];
-          //response.suggestions = indexObject;
         }
       } else {
-          response.index = indexObject;
-          response.exists = true;
-        }
+        response.index = indexObject;
+        response.exists = true;
+      }
       var path = all.join('/');
       response.path = path;
       return response;

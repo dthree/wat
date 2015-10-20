@@ -95,7 +95,7 @@ module.exports = function (app) {
         results = highlighter.highlight(code, lang, {});
         results = self.tab(results, 2, ' ');
         results = self.tab(results, 1, chalk.bgWhite(' '));
-      } catch(e) {
+      } catch (e) {
         console.log(e.stack);
       }
       return results;

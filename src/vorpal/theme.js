@@ -9,9 +9,9 @@ module.exports = function (vorpal, options) {
   vorpal
     .command('theme [name]', 'Gets or sets the syntax highlighting theme.')
     .alias('themes')
-    .autocompletion(function(text, iteration, cb) {
+    .autocompletion(function (text, iteration, cb) {
       const themes = app.cosmetician.getThemes() || [];
-      cb(void 0, util.autocompletionHelper.call(this, 'theme ', themes, text, iteration));
+      cb(undefined, util.autocompletionHelper.call(this, 'theme ', themes, text, iteration));
     })
     .action(function (args, cb) {
       let theme;
@@ -29,15 +29,14 @@ module.exports = function (vorpal, options) {
         const prefs = app.clerk.prefs.get();
         const theme = prefs.theme || 'default';
         const themes = app.cosmetician.getThemes() || [];
-        themes.sort(function(a, b) {
+        themes.sort(function (a, b) {
           if (a === theme) {
             return -1;
           } else if (b === theme) {
             return 1;
-          } else {
-            return 0;
           }
-        })
+          return 0;
+        });
         let stdout = `  ${themes.join(`\n  `)}\n`;
         const regex = new RegExp(`(${theme})`);
         stdout = stdout.replace(regex, chalk.blue(`$1 (active)`));
@@ -45,5 +44,4 @@ module.exports = function (vorpal, options) {
       }
       cb(undefined, theme);
     });
-
 };

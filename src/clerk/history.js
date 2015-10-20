@@ -30,7 +30,7 @@ const history = {
         hist = fs.readFileSync(this.app.clerk.paths.temp.hist, {encoding: 'utf-8'});
         hist = JSON.parse(hist);
         this._hist = hist;
-      } catch(e) {
+      } catch (e) {
         this._hist = [];
       }
     }

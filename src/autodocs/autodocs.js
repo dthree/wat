@@ -1,11 +1,6 @@
 'use strict';
 
-/**
- * Module dependencies.
- */
-
 const rimraf = require('rimraf');
-const _ = require('lodash');
 const chalk = require('chalk');
 
 const autodocs = {
@@ -15,11 +10,11 @@ const autodocs = {
     const config = self.app.clerk.autodocs.config();
     const lib = String(name).trim();
     let libs = [];
-    options = options || {}
+    options = options || {};
     options.rebuild = options.rebuild || true;
     options.loader = options.loader || function () {};
     options.done = options.done || function () {};
-    
+
     const progress = function (data) {
       options.loader(self.drawLoader(data.downloaded, data.total, data.action));
     };
@@ -28,7 +23,7 @@ const autodocs = {
       options.done(`Wat had trouble reading "./config/config.auto.json".`);
       return;
     }
-    
+
     if (lib === 'all') {
       libs = Object.keys(config);
     } else {
@@ -64,15 +59,15 @@ const autodocs = {
         parser: data.parser,
         static: data.static,
         crawl: false,
-        progress: progress
+        progress
       };
 
       progress({action: 'fetch', total: 50, downloaded: 0});
-      let result = parser.run(libName, opt, function (err, data) {
+      parser.run(libName, opt, function () {
         if (libs.length < 1) {
           if (options.rebuild) {
             progress({action: 'index', total: 50, downloaded: 50});
-            self.app.clerk.indexer.build(function (index, localIndex){
+            self.app.clerk.indexer.build(function (index, localIndex) {
               self.app.clerk.indexer.write(undefined, localIndex);
               progress({action: 'done', total: 50, downloaded: 50});
               self.app.vorpal.emit('wat_library_build', {name: libName});
@@ -91,13 +86,11 @@ const autodocs = {
   },
 
   delete(name, opt, callback) {
-    const options = options || {}
+    const options = options || {};
     options.rebuild = opt.rebuild || true;
     const self = this;
-    const lib = String(name).trim();
-    const temp = this.app.clerk.paths.temp.root;
-    let autodocPath = `${self.app.clerk.paths.static.autodocs}${name}`;
-    let localAutodocPath = `${self.app.clerk.paths.temp.autodocs}${name}`;
+    const autodocPath = `${self.app.clerk.paths.static.autodocs}${name}`;
+    const localAutodocPath = `${self.app.clerk.paths.temp.autodocs}${name}`;
     const config = self.app.clerk.autodocs.config();
 
     if (config[name] === undefined) {
@@ -115,10 +108,10 @@ const autodocs = {
         rimraf.sync(autodocPath);
       }
       rimraf.sync(localAutodocPath);
-    } catch(e) {}
+    } catch (e) {}
 
     if (options.rebuild === true) {
-      self.app.clerk.indexer.build(function (index, localIndex){
+      self.app.clerk.indexer.build(function (index, localIndex) {
         self.app.clerk.indexer.write(undefined, localIndex);
         callback();
       });
@@ -131,7 +124,7 @@ const autodocs = {
     const self = this;
     const config = this.app.clerk.autodocs.config();
     const index = this.app.clerk.indexer.index();
-    options = options || {}
+    options = options || {};
 
     if (config === undefined) {
       callback(`\n  Trouble reading autodoc config.\n`);
@@ -190,23 +183,21 @@ const autodocs = {
     // Add time on to the end of the
     // loader to compensate for building.
     const doneString = done;
-    let multiple = .55;
+    let multiple = 0.55;
     if (action === 'parse') {
-      multiple = .60;
+      multiple = 0.60;
     } else if (action === 'build') {
-      multiple = .65;
+      multiple = 0.65;
     } else if (action === 'write') {
-      multiple = .70;
+      multiple = 0.70;
     } else if (action === 'index') {
-      multiple = .75;
+      multiple = 0.75;
     } else if (action === 'done') {
-      multiple = .80;
+      multiple = 0.80;
     }
     done = Math.floor(done * multiple);
     done = (done < 0) ? 0 : done;
-    let width = 40;
-    let donesPerBar = total / width;
-    let bars = Math.floor(donesPerBar * done);
+    const width = 40;
     let loader = '';
     for (let i = 0; i < width; ++i) {
       if (i <= done) {
@@ -233,8 +224,6 @@ const autodocs = {
     const result = `\n  ${buildStr}\n\n  ${loader}\n`;
     return result;
   }
-
-
 };
 
 module.exports = function (app) {

@@ -1,9 +1,5 @@
 'use strict';
 
-/**
- * Module dependencies.
- */
-
 const _ = require('lodash');
 const walk = require('walk');
 const fs = require('fs');
@@ -79,60 +75,23 @@ const indexer = {
   */
 
   build(callback) {
-    const self = this;
-    const autodocs = this.app.clerk.autodocs.config();
-    let auto;
     let local;
     let staticf;
     let dones = 0;
     function checker() {
       dones++;
       if (dones === 2) {
-        // Merge docs and autodocs folders.
-        //let idx = self.merge(normal, auto);
-
-        // Merge local /tmp docs.
-        //idx = self.mergeLocal(idx, local);
-
-        // Merge config files into index.
-        //let configs = self.merge(normalConfigs, autoConfigs);
-        //idx = self.applyConfigs(idx, configs);
-
-        // Add in unloaded autodoc hints into index.
-        //idx = self.applyLibs(idx);
-
-        // Add in unloaded autodoc hints into index.
-        // console.log(staticf, local);
-
         callback(staticf, local);
       }
     }
-    /*
-    this.buildDir(path.normalize(`${__dirname}/../../autodocs/`), 'auto', function (data) {
-      auto = data;
-      checker();
-    });
-    this.buildDir(path.normalize(`${__dirname}/../../docs/`), 'static', function (data) {
-      normal = data;
-      checker();
-    });
-    this.readConfigs(path.normalize(`${__dirname}/../../autodocs/`), function (data) {
-      autoConfigs = data || {};
-      checker();
-    });
-    this.readConfigs(path.normalize(`${__dirname}/../../docs/`), function (data) {
-      normalConfigs = data || {};
-      checker();
-    });
-    */
-    this.buildLocation('temp', function(localIdx){
+    this.buildLocation('temp', function (localIdx) {
       local = localIdx;
       checker();
-    })
-    this.buildLocation('static', function(localIdx){
+    });
+    this.buildLocation('static', function (localIdx) {
       staticf = localIdx;
       checker();
-    })
+    });
   },
 
   buildLocation(location, callback) {
@@ -179,10 +138,10 @@ const indexer = {
     let index = {};
 
     // Make sure dir exists.
-    var exists = true;
+    let exists = true;
     try {
       exists = fs.statSync(path.normalize(dir));
-    } catch(e) {
+    } catch (e) {
       exists = false;
     }
 
@@ -242,7 +201,7 @@ const indexer = {
 
   readConfigs(dir, callback) {
     callback = callback || {};
-    let configs = {};
+    const configs = {};
     const walker = walk.walk(dir, {});
     walker.on('file', function (root, fileStats, next) {
       if (String(fileStats.name).indexOf('config.json') === -1) {
@@ -251,12 +210,12 @@ const indexer = {
       }
       const pathStr = util.path.getDocRoot(root);
       const dirs = String(pathStr).split(path.sep);
-      let lib = dirs.pop();
+      const lib = dirs.pop();
       let contents;
       try {
         contents = fs.readFileSync(`${path.normalize(root)}${path.sep}${fileStats.name}`, {encoding: 'utf-8'});
         contents = JSON.parse(contents);
-      } catch(e) {}
+      } catch (e) {}
       configs[lib] = contents;
       next();
     });
@@ -274,54 +233,51 @@ const indexer = {
 
   applyConfigs(idx, configs) {
     for (const lib in configs) {
-      let methods = configs[lib].methods || [];
-      let properties = configs[lib].properties || [];
-      let docs = configs[lib].docs || [];
-      let docSequence = configs[lib].docSequence || [];
-      //console.log(docSequence);
-      if (idx[lib]) {
-        util.each(idx[lib], function(key, node, tree){
-          let newTree = _.clone(tree);
-          newTree.push(key);
-          let treePath = newTree.join(path.sep);
-          if (_.isObject(node[key])) {
-            if (methods.indexOf(treePath) > -1) {
-              node[key].__class = 'method';
-            } else if (properties.indexOf(treePath) > -1) {
-              node[key].__class = 'property';
-            } else {
-              let found = false;
-              for (let i = 0; i < docs.length; ++i) {
-                if (treePath.slice(0, docs[i].length) === docs[i] || docs[i].slice(0, key.length) === key) {
-                  if (docSequence[treePath]) {
-                    node[key].__seq = docSequence[treePath];
+      if (configs.hasOwnProperty(lib)) {
+        const methods = configs[lib].methods || [];
+        const properties = configs[lib].properties || [];
+        const docs = configs[lib].docs || [];
+        const docSequence = configs[lib].docSequence || [];
+        if (idx[lib]) {
+          util.each(idx[lib], function (key, node, tree) {
+            const newTree = _.clone(tree);
+            newTree.push(key);
+            const treePath = newTree.join(path.sep);
+            if (_.isObject(node[key])) {
+              if (methods.indexOf(treePath) > -1) {
+                node[key].__class = 'method';
+              } else if (properties.indexOf(treePath) > -1) {
+                node[key].__class = 'property';
+              } else {
+                let found = false;
+                for (let i = 0; i < docs.length; ++i) {
+                  if (treePath.slice(0, docs[i].length) === docs[i] || docs[i].slice(0, key.length) === key) {
+                    if (docSequence[treePath]) {
+                      node[key].__seq = docSequence[treePath];
+                    }
+                    node[key].__class = 'doc';
+                    found = true;
+                    break;
                   }
-                  node[key].__class = 'doc';
-                  found = true;
-                  break;
                 }
-              }
-              if (!found) {
-                // If we still haven't found it, see if its
-                // an object, like `foo` in `foo/bar`.
-                let combined = methods.concat(properties);
-                for (let i = 0; i < combined.length; ++i) {
-                  let parts = combined[i].split(path.sep);
-                  let idx = parts.indexOf(key);
-                  if (idx > -1 && idx != parts.length - 1) {
-                    node[key].__class = 'object';
-                    //console.log(key);
+                if (!found) {
+                  // If we still haven't found it, see if its
+                  // an object, like `foo` in `foo/bar`.
+                  const combined = methods.concat(properties);
+                  for (let i = 0; i < combined.length; ++i) {
+                    const parts = combined[i].split(path.sep);
+                    const idx = parts.indexOf(key);
+                    if (idx > -1 && idx !== parts.length - 1) {
+                      node[key].__class = 'object';
+                    }
                   }
                 }
               }
             }
-          }
-        });
+          });
+        }
       }
-      //console.log(methods);
-      //console.log(properties);
     }
-
     return idx;
   },
 
@@ -335,10 +291,10 @@ const indexer = {
 
   applyAutodocs(idx, autodocs) {
     // Throw downloadable auto-doc libraries in the index.
-    Object.keys(autodocs).forEach(function(item){
-      let exists = (idx[item] !== undefined) ? true : false;
+    Object.keys(autodocs).forEach(function (item) {
+      const exists = (idx[item] !== undefined);
       if (!exists) {
-        idx[item] = { __class: 'unbuilt-lib' }
+        idx[item] = {__class: 'unbuilt-lib'};
       }
     });
 
@@ -359,7 +315,7 @@ const indexer = {
   */
 
   merge(official, local) {
-    const result = {}
+    const result = {};
     for (const item in official) {
       if (official.hasOwnProperty(item)) {
         result[item] = official[item];
@@ -367,8 +323,8 @@ const indexer = {
     }
     for (const item in local) {
       if (local.hasOwnProperty(item)) {
-        let nonexistent = (result[item] === undefined);
-        let unbuilt = (result[item] && (result[item].__class === 'unbuilt-lib'));
+        const nonexistent = (result[item] === undefined);
+        const unbuilt = (result[item] && (result[item].__class === 'unbuilt-lib'));
         if (nonexistent || unbuilt) {
           result[item] = local[item];
         }
@@ -417,12 +373,11 @@ const indexer = {
   */
 
   index() {
-    const self = this;
     function readSafely(path) {
       let result;
       try {
         result = JSON.parse(fs.readFileSync(path, {encoding: 'utf-8'}));
-      } catch(e) {
+      } catch (e) {
         /* istanbul ignore next */
         result = {};
       }
@@ -452,7 +407,7 @@ const indexer = {
         let json;
         try {
           json = JSON.parse(data);
-        } catch(e) {
+        } catch (e) {
           /* istanbul ignore next */
           err2 = true;
           /* istanbul ignore next */
@@ -498,13 +453,12 @@ const indexer = {
     try {
       const stats = fs.statSync(this.app.clerk.paths.temp.index);
       sinceUpdate = Math.floor((new Date() - stats.mtime));
-    } catch(e) {}
+    } catch (e) {}
 
     if (sinceUpdate > self._updateInterval || !sinceUpdate || options.force === true) {
       self.clerk.config.getRemote(function (err, remote) {
         if (!err) {
           const local = self.clerk.config.getLocal();
-          const staticConfig = self.clerk.config.getStatic();
           const localSize = parseFloat(local.docIndexSize || 0);
           const remoteSize = parseFloat(remote.docIndexSize || -1);
           if (localSize !== remoteSize || options.force === true) {
@@ -514,14 +468,14 @@ const indexer = {
                 throw new Error(err);
               } else {
                 self.write(index);
-                self.app.clerk.indexer.build(function(remoteIndex, tempIndex){
+                self.app.clerk.indexer.build(function (remoteIndex, tempIndex) {
                   self.app.clerk.indexer.write(undefined, tempIndex, options);
                   // Check what docs we don't have locally,
                   // and throw them into the updater.
                   try {
                     self.clerk.compareDocs();
-                  } catch(e) {
-                    console.log('HI', e)
+                  } catch (e) {
+                    console.log('HI', e);
                   }
                   callback(undefined, 'Successfully updated index.');
                 });

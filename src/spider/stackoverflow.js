@@ -14,9 +14,9 @@ const stackoverflow = {
   getPage(searchResult, callback) {
     callback = callback || {};
     const self = this;
-    const questionId = (_.isObject(searchResult))
-      ? this.parseQuestionId(searchResult)
-      : searchResult;
+    const questionId = (_.isObject(searchResult)) ?
+      this.parseQuestionId(searchResult) :
+      searchResult;
 
     self.getJSON(questionId, function (err, page) {
       if (err) {
@@ -105,7 +105,7 @@ const stackoverflow = {
         let error;
         try {
           answers = JSON.parse(answ);
-        } catch(e) {
+        } catch (e) {
           error = e;
         }
 
@@ -135,7 +135,7 @@ const stackoverflow = {
         let error;
         try {
           answers = JSON.parse(answ);
-        } catch(e) {
+        } catch (e) {
           error = e;
         }
 
@@ -199,7 +199,11 @@ const stackoverflow = {
     let scoreSpace = this.app.cosmetician.pad(score, margin - 4, ' ');
     scoreSpace = (accepted === true) ? chalk.green(scoreSpace) : scoreSpace;
     const creator = `  ${scoreSpace}  ${chalk.cyan(`${owner.display_name} on ${creation}`)}`;
-    const formatted = this.app.cosmetician.tab(this.app.cosmetician.markdownToTerminal(markdown, {lineWidth: (function(){ return process.stdout.columns - margin - 2})}), margin - 2);
+    const formatted = this.app.cosmetician.tab(this.app.cosmetician.markdownToTerminal(markdown, {
+      lineWidth() {
+        return process.stdout.columns - margin - 2;
+      }
+    }), margin - 2);
 
     return `${creator}\n${formatted}`;
   }

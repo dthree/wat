@@ -6,7 +6,6 @@ module.exports = function (vorpal, options) {
   var app = options.app;
 
   vorpal.command('fetch <lib>', 'Automatically downloads and builds a given library.').option('-r, --rebuild', 'Rebuild index after complete. Defaults to true.').action(function (args, cb) {
-    var self = this;
     var options = {};
     options.rebuild = args.options.rebuild || true;
     options.done = cb;

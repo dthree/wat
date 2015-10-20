@@ -2,7 +2,6 @@
 
 var chalk = require('chalk');
 var stripAnsi = require('strip-ansi');
-var wrapAnsi = require('wrap-ansi');
 var util = require('../util');
 
 function pickSearchResult(results, opts, cbk) {
@@ -30,7 +29,7 @@ function pickSearchResult(results, opts, cbk) {
         message: chalk.yellow('Results:'),
         choices: choices,
         name: 'choice'
-      }, function (a, b) {
+      }, function (a) {
         var pick = stripAnsi(a.choice).replace('\n ', '').split('. ')[0].trim();
         pick = isNaN(pick) ? 'Cancel' : results[parseFloat(pick) - 1] || 'Cancel';
         cbk(pick);

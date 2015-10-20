@@ -32,11 +32,6 @@ var markdownParser = {
 
     allNames.push(repoName);
 
-    // If crawl is set to true, the autodocs
-    // will crawl the given readme files for additional
-    // markdown urls.
-    var crawl = options.crawl || false;
-
     // Set appropriate parsing language.
     this.mdast.language(lang);
 
@@ -45,14 +40,16 @@ var markdownParser = {
     var finalAPI = [];
     var finalDocs = [];
 
-    function traverse(node, path) {
-      path = path || '';
+    function traverse(node, pth) {
+      pth = pth || '';
       for (var item in node) {
-        var fullPath = path !== '' ? path + '/' + item : String(item);
-        if (_.isObject(node[item])) {
-          traverse(node[item], fullPath);
-        } else {
-          tree[fullPath] = node[item];
+        if (node.hasOwnProperty(item)) {
+          var fullPath = pth !== '' ? '' + pth + path.sep + item : String(item);
+          if (_.isObject(node[item])) {
+            traverse(node[item], fullPath);
+          } else {
+            tree[fullPath] = node[item];
+          }
         }
       }
     }
@@ -86,10 +83,11 @@ var markdownParser = {
     }
 
     for (var url in tree) {
-      fetchOne(url, tree[url]);
+      if (tree.hasOwnProperty(url)) {
+        fetchOne(url, tree[url]);
+      }
     }
 
-    var temp = this.app.clerk.paths.temp.root;
     var autodocPath = '' + self.app.clerk.paths['static'].autodocs + repoName;
     var localAutodocPath = '' + self.app.clerk.paths.temp.autodocs + repoName;
     try {
@@ -113,53 +111,51 @@ var markdownParser = {
         });
       }
       for (var result in results) {
-        var md = results[result];
-        md = self.mdast.stripHTML(md);
+        if (results.hasOwnProperty(result)) {
+          var md = results[result];
+          md = self.mdast.stripHTML(md);
 
-        var ast = self.mdast.parse(md);
-        ast = self.mdast.sequenceAst(ast);
-        var _urls = self.mdast.getUrlsFromAst(ast);
-        var repoUrls = self.mdast.filterUrlsByGithubRepo(_urls, undefined, repoName);
+          var ast = self.mdast.parse(md);
+          ast = self.mdast.sequenceAst(ast);
+          var _urls = self.mdast.getUrlsFromAst(ast);
+          var headers = self.mdast.groupByHeaders(ast);
+          var orphans = headers.orphans;
 
-        //console.log(ast);
+          var pathParts = String(result).split('/');
+          var last = pathParts.pop();
+          var resultRoot = pathParts.length > 0 ? pathParts.join('/') : '';
 
-        var headers = self.mdast.groupByHeaders(ast);
-        var orphans = headers.orphans;
+          var api = self.mdast.filterAPINodes(headers, allNames);
+          api = self.mdast.buildAPIPaths(api, repoName);
 
-        var pathParts = String(result).split('/');
-        var last = pathParts.pop();
-        var resultRoot = pathParts.length > 0 ? pathParts.join('/') : '';
+          // Make an index for that doc set.
+          if (headers.length === 1) {
+            headers[0].children = [{ type: 'text', value: last, position: {} }];
+          } else if (headers.length > 1) {
+            headers = [{
+              type: 'heading',
+              ignore: true,
+              depth: 1,
+              children: [{ type: 'text', value: last, position: {} }],
+              position: {},
+              fold: headers,
+              junk: []
+            }];
+          }
 
-        var api = self.mdast.filterAPINodes(headers, allNames);
-        api = self.mdast.buildAPIPaths(api, repoName);
+          var docs = self.mdast.buildDocPaths(headers, '/autodocs/' + repoName + '/' + resultRoot);
 
-        // Make an index for that doc set.
-        if (headers.length === 1) {
-          headers[0].children = [{ type: 'text', value: last, position: {} }];
-        } else if (headers.length > 1) {
-          headers = [{
-            type: 'heading',
-            ignore: true,
-            depth: 1,
-            children: [{ type: 'text', value: last, position: {} }],
-            position: {},
-            fold: headers,
-            junk: []
-          }];
+          finalAPI = finalAPI.concat(api);
+          finalDocs = finalDocs.concat(docs);
+
+          final[result] = {
+            api: api,
+            docs: docs,
+            orphans: orphans || [],
+            headers: headers,
+            urls: _urls
+          };
         }
-
-        var docs = self.mdast.buildDocPaths(headers, '/autodocs/' + repoName + '/' + resultRoot);
-
-        finalAPI = finalAPI.concat(api);
-        finalDocs = finalDocs.concat(docs);
-
-        final[result] = {
-          api: api,
-          docs: docs,
-          orphans: orphans || [],
-          headers: headers,
-          urls: _urls
-        };
       }
 
       if (options.progress) {
@@ -179,7 +175,6 @@ var markdownParser = {
       for (var doc in final) {
         if (final.hasOwnProperty(doc)) {
           config.docs.push(doc);
-          //config.docsSequence[doc] = 0;
           self.writeDocSet(final[doc].docs, final[doc].orphans, writeOptions);
         }
       }
@@ -226,12 +221,12 @@ var markdownParser = {
       }
 
       var temp = this.app.clerk.paths.temp.root;
-      var _path = String(docs[i].docPath);
-      var parts = _path.split('/');
+      var pth = String(docs[i].docPath);
+      var parts = pth.split('/');
       var file = parts.pop();
       var directory = parts.join('/');
       var fileAddon = docs[i].fold.length > 0 ? '/' + file : '';
-      var dir = __dirname + '/../..' + directory;
+      var dir = path.join(__dirname, '/../..', directory);
       var tempDir = temp + directory;
 
       if (options['static']) {
@@ -241,7 +236,7 @@ var markdownParser = {
 
       docs[i].junk = docs[i].junk || [];
 
-      var fullPath = docs[i].fold.length > 0 ? '/' + file + '/' + 'index.md' : '/' + file + '.md';
+      var fullPath = docs[i].fold.length > 0 ? '/' + file + '/index.md' : '/' + file + '.md';
 
       var header = docs[i].ignore !== true ? mdast.stringify(docs[i]) + '\n\n' : '';
       var allJunk = header;
@@ -272,21 +267,16 @@ var markdownParser = {
 
     options = options || {};
 
-    var _loop = function () {
+    var _loop = function (i) {
       var buildFolds = function buildFolds(itm) {
-        var str = mdast.stringify(itm);
         items.push(itm);
         for (var j = 0; j < itm.junk.length; ++j) {
-          var junkie = mdast.stringify(itm.junk[j]);
           items.push(itm.junk[j]);
         }
         for (var j = 0; j < itm.fold.length; ++j) {
           buildFolds(itm.fold[j]);
         }
-      }
-
-      //if (i === 0) {
-      ;
+      };
 
       if (!api[i].apiPath) {
         return 'continue';
@@ -296,7 +286,7 @@ var markdownParser = {
       var parts = pathStr.split('/');
       var file = parts.pop();
       var directory = parts.join('/');
-      var dir = __dirname + '/../..' + directory;
+      var dir = path.join(__dirname, '/../..', directory);
       var tempDir = temp + directory;
 
       if (options['static']) {
@@ -311,8 +301,8 @@ var markdownParser = {
       var lineXBasic = 2;
 
       var items = [];
+
       buildFolds(api[i]);
-      //}
 
       for (var j = 1; j < items.length; ++j) {
         var item = items[j];
@@ -363,7 +353,7 @@ var markdownParser = {
     };
 
     for (var i = 0; i < api.length; ++i) {
-      var _ret = _loop();
+      var _ret = _loop(i);
 
       if (_ret === 'continue') continue;
     }

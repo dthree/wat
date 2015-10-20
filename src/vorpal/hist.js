@@ -7,8 +7,8 @@ const moment = require('moment');
 module.exports = function (vorpal, options) {
   const app = options.app;
   const histTypes = {
-    'command': 'Command',
-    'update': 'Update'
+    command: 'Command',
+    update: 'Update'
   };
 
   vorpal

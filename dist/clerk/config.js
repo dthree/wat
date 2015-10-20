@@ -1,11 +1,6 @@
 'use strict';
 
-/**
- * Module dependencies.
- */
-
 var fs = require('fs');
-var path = require('path');
 var chalk = require('chalk');
 var util = require('../util');
 

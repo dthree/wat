@@ -1,8 +1,8 @@
 const chalk = require('chalk');
 
-module.exports = function(tour, app) {
+module.exports = function (tour, app) {
   const start1 = `\nWelcome to Wat. Let\'s look up how to use Javascript\'s "array.slice()" method.\n\nType "${chalk.white(`js array slice`)}" and press ${chalk.white(`[enter]`)}.\n\n(You can exit using ${chalk.white(`[control] + c`)} at any time.)\n`;
-  const end1  = `\nThis pulled up a rapid description of the ".slice" command, and a usage example.\nThis is the hallmark of wat - just the data you need, and nothing more.\n`;
+  const end1 = `\nThis pulled up a rapid description of the ".slice" command, and a usage example.\nThis is the hallmark of wat - just the data you need, and nothing more.\n`;
   const start2 = `\nNow, let\'s see what content wat has. Press ${chalk.white(`[tab]`)} twice.\n`;
   const end2 = `\nThis shows a list of all of wat\'s currently supported libraries.\n\nThe bolded libraries are already built, while the faded ones can be automatically generated.\n`;
   const start3 = `\nLet\'s generate "chalk", a Node.js module for coloring strings. Type "${chalk.white(`cha`)}", and then hit ${chalk.white(`[tab]`)} twice. Then follow the instructions.\n`;
@@ -13,8 +13,8 @@ module.exports = function(tour, app) {
   const start7 = `\nYou can also view the full readme. Run "${chalk.white(`chalk readme`)}"\n\nNote: As the readme is longer than your screen, wat is going to throw you into a "less" (linux) command automatically. If you are unfamiliar with how to use less, type "${chalk.white(`h`)}" as soon as the readme pulls up.\n\nWhen you're done viewing the readme, press "${chalk.white(`q`)}" to quit less.\n`;
   const start8 = `\nOkay. Let\'s see what a really big library looks like.\n\nDownload "node" using your tab keys, or by typing "${chalk.white(`node`)}" and pressing ${chalk.white(`[enter]`)}.\n`;
   const start9 = `\nNice. Now press ${chalk.white(`[tab]`)} twice to see Node\'s contents.\n`;
-  const end9 = `\nBecause Node\'s API is so large, wat broke it into digestible chunks.\n`; 
-  const start10 = `\nUse the tab key to look into the "os" (Operating System) object and find a method that has to do with what platform you are running. Run that command.\n`; 
+  const end9 = `\nBecause Node\'s API is so large, wat broke it into digestible chunks.\n`;
+  const start10 = `\nUse the tab key to look into the "os" (Operating System) object and find a method that has to do with what platform you are running. Run that command.\n`;
   const start11 = `\nDon't worry, you don't have to type a million words to pull up a command. If you type part of a command, wat will pull up the best results.\n\nType "${chalk.white(`slice`)}" and press ${chalk.white(`[enter]`)}. You'll be prompted to choose between two matches. Pull up the Javascript one.\n`;
   const start12 = `\nUm... what if you downloaded a library you don't use and you don't want it polluting your search results?.\n\nType "${chalk.white(`delete node`)}" to forever banish it.\n`;
   const start13 = `\nIt's gone. Now run "${chalk.white(`slice`)}" again. It should pull up the best result with no questions asked.\n`;
@@ -31,28 +31,28 @@ module.exports = function(tour, app) {
 
   tour.color('cyan');
 
-  tour.prepare(function(cb) {
+  tour.prepare(function (cb) {
     this._tabs = 0;
     this._tabs2 = 0;
-    app.autodocs.delete('chalk', {rebuild: true}, function(){
-      app.autodocs.delete('node', {rebuild: true}, function(){
+    app.autodocs.delete('chalk', {rebuild: true}, function () {
+      app.autodocs.delete('node', {rebuild: true}, function () {
         cb();
       });
     });
-  })
+  });
 
   tour.step(1)
     .begin(start1)
-    .expect("command", function (data, cb) {
+    .expect('command', function (data, cb) {
       cb(String(data.command).toLowerCase().indexOf('slice') > -1);
     })
     .reject('Err.. wrong command.')
     .wait(1000)
-    .end(end1)
+    .end(end1);
 
   tour.step(2)
     .begin(start2)
-    .expect("keypress", function (data, cb) {
+    .expect('keypress', function (data, cb) {
       this._tabs = this._tabs || 0;
       this._tabs = (data.key === 'tab') ? this._tabs + 1 : 0;
       cb(this._tabs === 2);
@@ -62,21 +62,21 @@ module.exports = function(tour, app) {
 
   tour.step(3)
     .begin(start3)
-    .expect("wat_library_build", function (data, cb) {
+    .expect('wat_library_build', function (data, cb) {
       cb(data.name === 'chalk');
     })
-    .reject('Er.. wrong library.')
+    .reject('Er.. wrong library.');
 
   tour.step(4)
-    .expect("keypress", function (data, cb) {
-      cb(data.key === "tab");
+    .expect('keypress', function (data, cb) {
+      cb(data.key === 'tab');
     })
     .wait(1000)
-    .end(end4)
+    .end(end4);
 
   tour.step(5)
     .begin(start5)
-    .expect("command", function (data, cb) {
+    .expect('command', function (data, cb) {
       cb(data.command.toLowerCase().indexOf('strip') > -1);
     })
     .wait(1000)
@@ -85,97 +85,97 @@ module.exports = function(tour, app) {
   tour.step(6)
     .begin(start6)
     .wait(1000)
-    .expect("command", function (data, cb) {
+    .expect('command', function (data, cb) {
       cb(data.command.toLowerCase().indexOf('why') > -1);
     });
 
   tour.step(7)
     .begin(start7)
-    .expect("command", function (data, cb) {
+    .expect('command', function (data, cb) {
       cb(String(data.command).toLowerCase().indexOf('readme') > -1);
     })
-    .wait(1000)
+    .wait(1000);
 
   tour.step(8)
     .begin(start8)
-    .expect("wat_library_build", function (data, cb) {
+    .expect('wat_library_build', function (data, cb) {
       cb(data.name === 'node');
     })
     .reject('Er.. wrong library.');
 
   tour.step(9)
     .end(start9)
-    .expect("keypress", function (data, cb) {
-      this._tabs2 = this._tabs2 || 0; 
+    .expect('keypress', function (data, cb) {
+      this._tabs2 = this._tabs2 || 0;
       this._tabs2 = (data.key === 'tab') ? this._tabs2 + 1 : 0;
       cb(this._tabs2 > 0);
-    }) 
+    })
     .wait(1000)
-    .end(end9)
+    .end(end9);
 
   tour.step(10)
     .begin(start10)
-    .expect("command", function (data, cb) {
-      cb(String(data.command).toLowerCase().indexOf("platform") > -1);
+    .expect('command', function (data, cb) {
+      cb(String(data.command).toLowerCase().indexOf('platform') > -1);
     })
-    .wait(1000)
+    .wait(1000);
 
   tour.step(11)
     .begin(start11)
-    .expect("command", function (data, cb) {
-      cb(String(data.command).toLowerCase().indexOf("slice") > -1);
+    .expect('command', function (data, cb) {
+      cb(String(data.command).toLowerCase().indexOf('slice') > -1);
     })
-    .wait(1000)
+    .wait(1000);
 
   tour.step(12)
     .begin(start12)
-    .expect("command", function (data, cb) {
-      cb(String(data.command).toLowerCase().indexOf("delete") > -1);
+    .expect('command', function (data, cb) {
+      cb(String(data.command).toLowerCase().indexOf('delete') > -1);
     })
-    .wait(500)
+    .wait(500);
 
   tour.step(13)
     .begin(start13)
-    .expect("command", function (data, cb) {
-      cb(String(data.command).toLowerCase().indexOf("slice") > -1);
+    .expect('command', function (data, cb) {
+      cb(String(data.command).toLowerCase().indexOf('slice') > -1);
     })
-    .wait(1000)
+    .wait(1000);
 
   tour.step(14)
     .begin(start14)
-    .expect("command", function (data, cb) {
-      cb(String(data.command).toLowerCase().indexOf("theme") > -1);
+    .expect('command', function (data, cb) {
+      cb(String(data.command).toLowerCase().indexOf('theme') > -1);
     })
-    .wait(1000)
+    .wait(1000);
 
   tour.step(15)
     .begin(start15)
-    .expect("command", function (data, cb) {
-      cb(String(data.command).toLowerCase().indexOf("theme ") > -1);
+    .expect('command', function (data, cb) {
+      cb(String(data.command).toLowerCase().indexOf('theme ') > -1);
     })
     .wait(1000)
-    .end(end15)
+    .end(end15);
 
   tour.step(16)
     .begin(start16)
-    .expect("command", function (data, cb) {
-      cb(String(data.command).toLowerCase().indexOf("stackoverflow") > -1);
+    .expect('command', function (data, cb) {
+      cb(String(data.command).toLowerCase().indexOf('stackoverflow') > -1);
     })
     .wait(1000)
     .end(end16);
 
   tour.step(17)
     .begin(start17)
-    .expect("command", function (data, cb) {
-      cb(String(data.command).toLowerCase().indexOf("dthree wat") > -1);
+    .expect('command', function (data, cb) {
+      cb(String(data.command).toLowerCase().indexOf('dthree wat') > -1);
     })
     .wait(1000)
     .end(end17);
 
   tour.step(18)
     .begin(start18)
-    .expect("command", function (data, cb) {
-      cb(String(data.command).toLowerCase().indexOf("awesome") > -1);
+    .expect('command', function (data, cb) {
+      cb(String(data.command).toLowerCase().indexOf('awesome') > -1);
     })
     .wait(1000)
     .end(end18);

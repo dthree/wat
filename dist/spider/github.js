@@ -1,19 +1,10 @@
 'use strict';
 
-/**
- * Module dependencies.
- */
-
-var _ = require('lodash');
-var moment = require('moment');
-var chalk = require('chalk');
 var mdast = require('mdast');
 var stripBadges = require('mdast-strip-badges');
 var util = require('../util');
 
 var github = {
-
-  testPage: function testPage(path) {},
 
   getPage: function getPage(searchResult, callback) {
     callback = callback || {};
@@ -28,7 +19,6 @@ var github = {
         util.fetchRemote(url, function (err, data) {
           var results = undefined;
           if (!err) {
-
             var md = mdast().use(stripBadges);
             results = md.process(data);
             results = self.app.cosmetician.markdownToTerminal(data, {
@@ -75,7 +65,6 @@ var github = {
     }
     return result;
   }
-
 };
 
 module.exports = function (app) {

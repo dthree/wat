@@ -1,9 +1,5 @@
 'use strict';
 
-/**
- * Module dependencies.
- */
-
 const _ = require('lodash');
 const mkdirp = require('mkdirp');
 const fs = require('fs');
@@ -29,7 +25,7 @@ const clerk = {
       index: `${tempRoot}index.json`,
       localIndex: `${tempRoot}index.local.json`,
       docs: path.normalize(`${tempRoot}docs/`),
-      autodocs: path.normalize(`${tempRoot}autodocs/`),
+      autodocs: path.normalize(`${tempRoot}autodocs/`)
     },
     static: {
       root: staticRoot,
@@ -85,13 +81,13 @@ const clerk = {
     let ver;
     try {
       ver = JSON.parse(fs.readFileSync(`${this.paths.static.root}package.json`)).version;
-    } catch(e) {}
-    return ver;  
+    } catch (e) {}
+    return ver;
   },
 
   load() {
     this.history.getLocal();
-    
+
     // Compare the config that came with the
     // last NPM install to the local temp docs.
     // If there is no temp config (new install),
@@ -112,12 +108,12 @@ const clerk = {
       function rejectFn(str) {
         return (String(str).indexOf('__') > -1);
       }
-      if (idx['__type'] && idx['__type'] !== dirType) {
+      if (idx.__type && idx.__type !== dirType) {
         return;
       }
       for (const key in idx) {
         if (idx.hasOwnProperty(key) && String(key).indexOf('__') === -1) {
-          if ((idx[key]['__type'] && idx[key]['__type'] !== dirType) || !_.isObject(idx[key])) {
+          if ((idx[key].__type && idx[key].__type !== dirType) || !_.isObject(idx[key])) {
             return;
           }
           // Clean out all files with '__...'
@@ -137,7 +133,7 @@ const clerk = {
   },
 
   forEachInIndex(callback, options) {
-    options = options || {}
+    options = options || {};
     const index = this.indexer.index() || {};
     const dir = clerk.paths.temp.docs;
     function traverse(idx, pathStr) {
@@ -161,8 +157,8 @@ const clerk = {
           const fullPath = `${dir}${pathStr}${key}`;
           let accept = true;
           if (options.filter) {
-            accept = options.filter(special)
-          } 
+            accept = options.filter(special);
+          }
           if (accept) {
             for (const item in special) {
               if (special.hasOwnProperty(item)) {
@@ -182,7 +178,7 @@ const clerk = {
   search(str) {
     const search = String(str).split(' ');
     let matches = [];
-    this.forEachInIndex(function (pathStr, key, data) {
+    this.forEachInIndex(function (pathStr, key) {
       if (key !== '__basic') {
         return;
       }
@@ -197,7 +193,7 @@ const clerk = {
         try {
           const reg = new RegExp(`(${word})`);
           commandString = commandString.replace(reg, chalk.blue('$1'));
-        } catch(e) {}
+        } catch (e) {}
         let finds = 0;
         for (let j = 0; j < commands.length; ++j) {
           const cmd = String(commands[j]).toLowerCase().trim();
@@ -206,10 +202,10 @@ const clerk = {
             finds++;
             newPoints += 1;
           } else if (cmd.indexOf(word) > -1) {
-            newPoints += Math.round((word.length / cmd.length) * 100) / 100;;
+            newPoints += Math.round((word.length / cmd.length) * 100) / 100;
             finds++;
           }
-          points += (i === j) ? newPoints * 2 : newPoints * 1;
+          points += (i === j) ? Number(newPoints) * 2 : Number(newPoints) * 1;
         }
         if (finds === 0) {
           dirty++;
@@ -225,8 +221,8 @@ const clerk = {
         });
       }
     }, {
-      filter: function(item) {
-        let okay = item.__class !== 'doc';
+      filter(item) {
+        const okay = item.__class !== 'doc';
         return okay;
       }
     });
@@ -242,9 +238,9 @@ const clerk = {
     });
 
     // Get rid of dirty matches if there are cleans.
-    let clean = _.where(matches, { dirty: 0 });
+    const clean = _.where(matches, {dirty: 0});
     if (clean.length > 0) {
-      matches = clean.filter(function(itm) {
+      matches = clean.filter(function (itm) {
         return itm.dirty === 0;
       });
     }
@@ -265,14 +261,14 @@ const clerk = {
         if (parseFloat(stat.size) !== parseFloat(value)) {
           changes.push(pathStr + exten);
         }
-      } catch(e) {
+      } catch (e) {
         if (e.code === 'ENOENT') {
           newDocs.push(pathStr + exten);
         }
       }
     }, {
-      filter: function(item) {
-        let okay = (item.__type === 'static');
+      filter(item) {
+        const okay = (item.__type === 'static');
         return okay;
       }
     });
@@ -324,9 +320,9 @@ const clerk = {
       const formatted = self.app.cosmetician.markdownToTerminal(local);
       cb(undefined, formatted);
     } else {
-      const remoteDir = (type === 'auto') 
-        ? clerk.paths.remote.autodocs
-        : clerk.paths.remote.docs;
+      const remoteDir = (type === 'auto') ?
+        clerk.paths.remote.autodocs :
+        clerk.paths.remote.docs;
       util.fetchRemote(remoteDir + pathStr, function (err, data) {
         if (err) {
           if (String(err).indexOf('Not Found') > -1) {
@@ -345,22 +341,22 @@ const clerk = {
   },
 
   fetchLocal(pathStr, type) {
-    const directory = (type === 'auto') 
-      ? clerk.paths.temp.autodocs
-      : clerk.paths.temp.docs;
+    const directory = (type === 'auto') ?
+      clerk.paths.temp.autodocs :
+      clerk.paths.temp.docs;
     let file;
     try {
       file = fs.readFileSync(directory + pathStr, {encoding: 'utf-8'});
       return file;
-    } catch(e) {
+    } catch (e) {
       return undefined;
     }
   },
 
-  file(pathStr, type, data, retry) {
-    const rootDir = (type === 'auto')
-      ? clerk.paths.temp.autodocs
-      : clerk.paths.temp.docs;
+  file(pathStr, type, data) {
+    const rootDir = (type === 'auto') ?
+      clerk.paths.temp.autodocs :
+      clerk.paths.temp.docs;
     const file = rootDir + pathStr;
     let dir = String(file).split(path.sep);
     dir.pop();
@@ -368,7 +364,7 @@ const clerk = {
     try {
       mkdirp.sync(dir);
       fs.appendFileSync(file, data, {flag: 'w'});
-    } catch(e) {
+    } catch (e) {
       this.log('Error saving to the local filesystem: ', e);
     }
   }

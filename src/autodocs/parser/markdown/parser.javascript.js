@@ -1,11 +1,5 @@
 'use strict';
 
-/**
- * Module dependencies.
- */
-
-const chalk = require('chalk');
-
 const js = {
 
   /**
@@ -38,7 +32,7 @@ const js = {
   },
 
   /**
-  * Takes an API command string, such as 
+  * Takes an API command string, such as
   * `## lib.foo(text[, bar...])`, and parses
   * it into its component parts, noting any
   * errors in the process.
@@ -52,11 +46,10 @@ const js = {
   */
 
   parseCommandSyntax(str) {
-
     const self = this;
-    const result = {}
+    const result = {};
     let syn = String(str).trim();
-    let errors = [];
+    const errors = [];
 
     const missingRightParam = (syn.match(self.rules.leftParen) && !(syn.match(self.rules.rightParen)));
 
@@ -97,17 +90,15 @@ const js = {
     }
 
     // If we have params, we are a method.
-    let isMethod = (syn.match(self.rules.parameters)) ? true : false;
+    let isMethod = (syn.match(self.rules.parameters));
 
     // Pull out parameters.
     let params = syn.match(self.rules.parameters);
     syn = syn.replace(self.rules.parameters, '');
 
     // If optional methods (chalk.<foo>[<bar>...])
-    let optionalMethods = syn.match(self.rules.orderedBrackets);
     syn = syn.replace(self.rules.orderedBrackets, '');
 
-    let paramArray = [];
     let requiredParamEncountered = false;
     let orderedParams = [];
 
@@ -115,11 +106,11 @@ const js = {
       params = params[1];
       orderedParams = String(params).replace(self.rules.brackets, '').replace(self.rules.questionMark, '').replace(/ +/g, '').split(',');
       function iterate() {
-        let brackets = params.match(self.rules.optionalParameters);
+        const brackets = params.match(self.rules.optionalParameters);
         if (brackets) {
           for (let i = 0; i < brackets.length; ++i) {
             // All brackets and commas.
-            let optionalParam = String(brackets[i]).replace(self.rules.commasAndBrackets, '').replace(self.rules.questionMark, '').replace(/ +/g, '').trim();
+            const optionalParam = String(brackets[i]).replace(self.rules.commasAndBrackets, '').replace(self.rules.questionMark, '').replace(/ +/g, '').trim();
             for (let j = 0; j < orderedParams.length; ++j) {
               if (orderedParams[j] === optionalParam) {
                 orderedParams[j] = `[${orderedParams[j]}]`;
@@ -133,10 +124,10 @@ const js = {
 
       iterate();
 
-      let remainder = String(params).split(',');
-      for (var i = remainder.length-1; i > -1; --i) {
-        let isOptional = remainder[i].match(self.rules.questionMark);
-        let param = String(remainder[i]).replace(self.rules.questionMark, '').replace(/ +/g, '');
+      const remainder = String(params).split(',');
+      for (let i = remainder.length - 1; i > -1; --i) {
+        const isOptional = remainder[i].match(self.rules.questionMark);
+        const param = String(remainder[i]).replace(self.rules.questionMark, '').replace(/ +/g, '');
 
         if (param === '') {
           continue;
@@ -156,13 +147,12 @@ const js = {
               orderedParams[j] = `[${orderedParams[j]}]`;
             }
           }
-
         } else {
           requiredParamEncountered = true;
         }
       }
     }
-    
+
     // Make sure we don't have trailing spaces.
     syn = syn.trim();
 
@@ -172,10 +162,10 @@ const js = {
       syn = syn.replace(self.rules.startPeriod, '');
     }
 
-    let nameParts = String(syn).split('.');
+    const nameParts = String(syn).split('.');
     let name = String(nameParts.pop()).trim();
     let parents = nameParts;
-    
+
     if (name.match(self.rules.nonAlphaNumerical)) {
       errors.push('invalid-signature-chars');
     }
@@ -185,7 +175,7 @@ const js = {
     const methods = ['function', 'method'];
     const nonsense = ['var'];
     let isObject = false;
-    let nameWords = String(name).split(' ');
+    const nameWords = String(name).split(' ');
     if (nameWords.length > 1) {
       const looseWord = String(nameWords[0]).toLowerCase().trim();
       if (objects.indexOf(looseWord) > -1) {
@@ -216,8 +206,6 @@ const js = {
     result.errors = errors;
     result.isImplicitChild = isImplicitChild;
 
-    //console.log(result)
-
     return result;
   },
 
@@ -233,23 +221,23 @@ const js = {
 
   stringifyCommandSyntax(obj) {
     const self = this;
-    let params = obj.params;
+    const params = obj.params;
 
     let result = '';
     let pResult = '';
 
     for (let i = params.length - 1; i > -1; --i) {
       let param = params[i];
-      let optional = params[i].match(self.rules.brackets);
+      const optional = params[i].match(self.rules.brackets);
       if (optional) {
         param = param.replace(self.rules.brackets, '');
       }
       if (optional && i !== 0) {
-        pResult = '[, ' + param + pResult + ']';
+        pResult = `[, ${param}${pResult}]`;
       } else if (optional) {
-        pResult = '[' + param + pResult + ']';
+        pResult = `[${param}${pResult}]`;
       } else if (i !== 0) {
-        pResult = ', ' + param + pResult;
+        pResult = `, ${param}${pResult}`;
       } else {
         pResult = param + pResult;
       }
@@ -257,11 +245,11 @@ const js = {
 
     result = obj.name;
     if (obj.parents.length > 0 || obj.isImplicitChild) {
-      result = '.' + result;
+      result = `.${result}`;
     }
 
     if (obj.type === 'method') {
-      result = result + '(' + pResult + ')';
+      result = `${result}(${pResult})`;
     }
 
     return result;
@@ -282,17 +270,17 @@ const js = {
   isCommandSyntax(str, node) {
     const self = this;
 
-    node = node || {}
+    node = node || {};
     node.parentHeaders = node.parentHeaders || [];
 
-    // Check to see if we're in an example section. 
-    // There shouldn't be any API declarations there: 
+    // Check to see if we're in an example section.
+    // There shouldn't be any API declarations there:
     // rather, misleading things like the filename 'foo.js'
     // which would otherwise read as syntax.
     let isExample = false;
     let isHeader = false;
     for (let i = 0; i < node.parentHeaders.length; ++i) {
-      let parent = String(node.parentHeaders[i]).trim().toLowerCase();
+      const parent = String(node.parentHeaders[i]).trim().toLowerCase();
       if (parent.indexOf('example') > -1) {
         isExample = true;
       }
@@ -302,12 +290,12 @@ const js = {
 
     // To do: Have to deal with single-depth headers.
     // D3, for example, defines all API items with
-    // single headers, but we don't wat the first item 
+    // single headers, but we don't wat the first item
     // in a doc.
-    // If I properly pass in parent headers, I can 
+    // If I properly pass in parent headers, I can
     // check to see if it is at the root of the doc...
 
-    // End early. 
+    // End early.
     if (isExample || (isHeader && node.sequence === 0)) {
       return false;
     }
@@ -315,21 +303,19 @@ const js = {
     let cmd = String(str).trim();
     cmd = cmd.replace(self.rules.startHash, '');
     cmd = cmd.replace(self.rules.startHashWithSpace, '').trim();
-    let cmdWithoutParens = cmd.replace(self.rules.parametersWithParens, '');
+    const cmdWithoutParens = cmd.replace(self.rules.parametersWithParens, '');
 
-    let startsWithWords = cmd.match(self.rules.startsWithWords);
-    let startDot = cmd.match(self.rules.startPeriod);
-    let startWordDotWord = cmd.match(self.rules.startWordDotWord);
-    let hasParens = (cmd.match(self.rules.leftParen) && cmd.match(self.rules.rightParen));
-    let hasLeftParen = (cmd.match(self.rules.leftParen));
-    let hasBrackets = (cmd.match(self.rules.orderedBrackets));
-    let hasMultipleWords = cmdWithoutParens.match(self.rules.multipleWords);
+    const startsWithWords = cmd.match(self.rules.startsWithWords);
+    const startDot = cmd.match(self.rules.startPeriod);
+    const startWordDotWord = cmd.match(self.rules.startWordDotWord);
+    const hasParens = (cmd.match(self.rules.leftParen) && cmd.match(self.rules.rightParen));
+    const hasLeftParen = (cmd.match(self.rules.leftParen));
+    const hasBrackets = (cmd.match(self.rules.orderedBrackets));
+    const hasMultipleWords = cmdWithoutParens.match(self.rules.multipleWords);
 
     let isSyntax = false;
     if (hasParens && !startsWithWords && !hasMultipleWords) {
       isSyntax = true;
-    } else if (1 == 2) {
-      isSyntax = false;
     } else if (startDot && !hasMultipleWords) {
       isSyntax = true;
     } else if (startWordDotWord && !hasMultipleWords) {
@@ -355,8 +341,7 @@ const js = {
     */
 
     return isSyntax;
-  },
-
+  }
 };
 
 module.exports = js;

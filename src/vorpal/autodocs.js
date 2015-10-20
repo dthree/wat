@@ -9,8 +9,7 @@ module.exports = function (vorpal, options) {
     .command('fetch <lib>', 'Automatically downloads and builds a given library.')
     .option('-r, --rebuild', 'Rebuild index after complete. Defaults to true.')
     .action(function (args, cb) {
-      const self = this;
-      let options = {}
+      const options = {};
       options.rebuild = args.options.rebuild || true;
       options.done = cb;
       app.autodocs.run(args.lib, options);
@@ -27,16 +26,15 @@ module.exports = function (vorpal, options) {
       }
 
       function back(err) {
-        if (err) { 
+        if (err) {
           self.log(chalk.yellow(err));
         }
         cb();
-      }      
+      }
       if (args.lib === 'all') {
-        app.autodocs.deleteAll({ progress: progress }, back);
+        app.autodocs.deleteAll({progress}, back);
       } else {
         app.autodocs.delete(args.lib, {}, back);
       }
     });
-
 };

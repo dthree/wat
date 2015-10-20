@@ -73,16 +73,6 @@
     "autodocs",
     "config"
   ],
-  "eslintConfig": {
-    "env": {
-      "node": true,
-      "browser": false
-    },
-    "rules": {
-      "no-underscore-dangle": 0,
-      "no-process-exit": 0
-    }
-  },
   "xo": {
     "envs": [
       "node",
@@ -91,7 +81,11 @@
     "space": true,
     "esnext": true,
     "rules": {
-      "prefer-arrow-callback": 0
+      "prefer-arrow-callback": 0,
+      "no-loop-func": 0,
+      "no-inner-declarations": 0,
+      "prefer-reflect": 0,
+      "global-require": 0
     }
   }
 }

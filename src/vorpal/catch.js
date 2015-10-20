@@ -2,7 +2,6 @@
 
 const chalk = require('chalk');
 const util = require('../util');
-const _ = require('lodash');
 const stripAnsi = require('strip-ansi');
 
 module.exports = function (vorpal, options) {
@@ -14,14 +13,12 @@ module.exports = function (vorpal, options) {
     .option('-d, --detail', 'View detailed markdown on item.')
     .option('-i, --install', 'View installation instructions.')
     .parse(function (str) {
-      return str + ' | less -F';
+      return `${str} | less -F`;
     })
     .autocompletion(function (text, iteration, cb) {
-
       const self = this;
       const index = app.clerk.indexer.index();
-
-      let result = util.autocomplete(text, iteration, index, function (word, options) {
+      const result = util.autocomplete(text, iteration, index, function (word, options) {
         const res = self.match(word, options);
         return res;
       });
@@ -42,10 +39,10 @@ module.exports = function (vorpal, options) {
           .refresh();
         const command = String(response).trim();
         app.autodocs.run(command, {
-          loader: function(loader) {
+          loader(loader) {
             vorpal.ui.redraw(loader).refresh();
           },
-          done: function (err) {
+          done(err) {
             vorpal.ui
               .redraw(`\n\n\n  ${chalk.blue(`Done. Press ${chalk.cyan(`[tab]`)} to explore ${command}.`)}\n`)
               .redraw.done();
@@ -56,10 +53,6 @@ module.exports = function (vorpal, options) {
         });
         cb();
       } else {
-        // vorpal.log(response[0].length, process.stdout.columns);
-        // vorpal.log(require('util').inspect(response));
-        // vorpal.log(response[0]);
-        // vorpal.log(response[0]);
         cb(undefined, response);
         cb();
       }
@@ -73,7 +66,7 @@ module.exports = function (vorpal, options) {
         this.log(app.clerk.version() || 'Unknown version');
         cb();
         return;
-      } 
+      }
 
       // Get rid of any piped commands.
       if (args.commands.indexOf('|') > -1) {
@@ -97,18 +90,16 @@ module.exports = function (vorpal, options) {
         str = util.separator(str);
         self.log(str);
         cb();
-      };
+      }
 
       function execPath(pathObj) {
         // If we are an unbuilt library, build it.
         if (pathObj.index && pathObj.index.__class === 'unbuilt-lib') {
-          //self.log(`\n  ${chalk.blue(`Fetching ${command}...`)}`);
-
           app.autodocs.run(command, {
-            loader: function(loader) {
+            loader(loader) {
               vorpal.ui.redraw(loader).refresh();
             },
-            done: function (err) {
+            done(err) {
               vorpal.ui
                 .redraw(`\n\n\n  ${chalk.blue(`Done. Press ${chalk.cyan(`[tab]`)} to explore ${command}.`)}\n`)
                 .redraw.done();
@@ -116,22 +107,11 @@ module.exports = function (vorpal, options) {
                 self.log(`  ${err}\n`);
               }
               cb();
-              setTimeout(function(){
+              setTimeout(function () {
                 vorpal.ui.input(`${command} `);
               }, 25);
             }
           });
-
-          /*
-          app.autodocs.run(command, {}, function(err){
-            if (err) {
-              self.log(`\n\n  ${err}\n`);
-            } else {
-              self.log(`  ${chalk.blue(`Done!`)}\n`);
-            }
-            cb();
-          });
-          */
           return;
         }
 
@@ -140,7 +120,7 @@ module.exports = function (vorpal, options) {
         const noDetail = (args.options.detail && !pathObj.index.__detail);
         const noInstall = (args.options.install && !pathObj.index.__install);
 
-        if (noDetail) { 
+        if (noDetail) {
           self.log(chalk.yellow(`\n  Sorry, there's no detailed write-up for this command. Showing the basic one instead.`));
         } else if (noInstall) {
           self.log(chalk.yellow(`\n  Sorry, there's no installation write-up for this command. Showing the basic one instead.`));
@@ -168,7 +148,7 @@ module.exports = function (vorpal, options) {
           // Ensure we don't double pad.
           log = log.replace(/\n\n\n/g, '\n\n');
           self.log(log);
-          setTimeout(function(){
+          setTimeout(function () {
             vorpal.ui.input(`${String(command).trim()} `);
           }, 10);
         } else {
@@ -177,8 +157,7 @@ module.exports = function (vorpal, options) {
             self.log(`${chalk.yellow(`\n  Showing results for "`)}${results[0].commandMatch}${chalk.yellow(`":`)}`);
             const path = util.command.buildPath(results[0].command, args.options, app.clerk.indexer.index());
             execPath(path);
-          } else if (results.length > 0) { 
-            //self.log(chalk.yellow(`\n  Did you mean:`));
+          } else if (results.length > 0) {
             self.log(' ');
 
             let choices = [];
@@ -192,19 +171,18 @@ module.exports = function (vorpal, options) {
             self.prompt({
               type: 'list',
               message: chalk.yellow('Did you mean:'),
-              choices: choices,
-              name: 'choice',
-            }, function(a, b) {
-              let pick = stripAnsi(a.choice).replace('\n ', '');
+              choices,
+              name: 'choice'
+            }, function (a) {
+              const pick = stripAnsi(a.choice).replace('\n ', '');
               if (pick !== 'Cancel') {
                 const path = util.command.buildPath(pick, args.options, app.clerk.indexer.index());
                 execPath(path);
               } else {
                 cb();
               }
-            })
+            });
             return;
-
           } else {
             self.log(chalk.yellow(`\n  Sorry, there's no command like that.\n`));
           }
@@ -213,8 +191,5 @@ module.exports = function (vorpal, options) {
       } else {
         execPath(path);
       }
-    }).done(function(){
-      //vorpal.exec('less', function () {
-      //});
     });
 };

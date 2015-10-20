@@ -16,11 +16,11 @@ const autodocs = {
       let config = fs.readFileSync(self.app.clerk.paths.static.autoConfig, {encoding: 'utf-8'});
       config = JSON.parse(config);
       self._config = config;
-    } catch(e) {
-      console.log(e.stack)
+    } catch (e) {
+      console.log(e.stack);
     }
     return self._config;
-  },
+  }
 
 };
 

@@ -21,7 +21,7 @@ const app = {
 
     const modules = ['sigint', 'theme', 'indexer', 'updater', 'spider', 'catch', 'autodocs', 'hist', 'tour', 'proxy'];
     for (let i = 0; i < modules.length; ++i) {
-      vorpal.use(`${dir}/vorpal/${modules[i]}.js`, {app: app});
+      vorpal.use(`${dir}/vorpal/${modules[i]}.js`, {app});
     }
 
     vorpal

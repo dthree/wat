@@ -1,19 +1,10 @@
 'use strict';
 
-/**
- * Module dependencies.
- */
-
 var _ = require('lodash');
 var chalk = require('chalk');
 var fs = require('fs');
 var hljs = require('highlight.js');
 var path = require('path');
-
-/**
- * Expose a function that passes in a Vantage
- * object and options.
- */
 
 var highlighter = {
 
@@ -128,7 +119,6 @@ var highlighter = {
   },
 
   format: function format(str) {
-    //str = str.replace(/\<s\>((.|\n)*?)\<\/s\>/g, '<md-s>$1</md>');
     return str;
   },
 

@@ -1,9 +1,5 @@
 'use strict';
 
-/**
- * Module dependencies.
- */
-
 var _ = require('lodash');
 var walk = require('walk');
 var fs = require('fs');
@@ -79,52 +75,15 @@ var indexer = {
   */
 
   build: function build(callback) {
-    var self = this;
-    var autodocs = this.app.clerk.autodocs.config();
-    var auto = undefined;
     var local = undefined;
     var staticf = undefined;
     var dones = 0;
     function checker() {
       dones++;
       if (dones === 2) {
-        // Merge docs and autodocs folders.
-        //let idx = self.merge(normal, auto);
-
-        // Merge local /tmp docs.
-        //idx = self.mergeLocal(idx, local);
-
-        // Merge config files into index.
-        //let configs = self.merge(normalConfigs, autoConfigs);
-        //idx = self.applyConfigs(idx, configs);
-
-        // Add in unloaded autodoc hints into index.
-        //idx = self.applyLibs(idx);
-
-        // Add in unloaded autodoc hints into index.
-        // console.log(staticf, local);
-
         callback(staticf, local);
       }
     }
-    /*
-    this.buildDir(path.normalize(`${__dirname}/../../autodocs/`), 'auto', function (data) {
-      auto = data;
-      checker();
-    });
-    this.buildDir(path.normalize(`${__dirname}/../../docs/`), 'static', function (data) {
-      normal = data;
-      checker();
-    });
-    this.readConfigs(path.normalize(`${__dirname}/../../autodocs/`), function (data) {
-      autoConfigs = data || {};
-      checker();
-    });
-    this.readConfigs(path.normalize(`${__dirname}/../../docs/`), function (data) {
-      normalConfigs = data || {};
-      checker();
-    });
-    */
     this.buildLocation('temp', function (localIdx) {
       local = localIdx;
       checker();
@@ -273,59 +232,54 @@ var indexer = {
   },
 
   applyConfigs: function applyConfigs(idx, configs) {
-    var _loop = function (lib) {
-      var methods = configs[lib].methods || [];
-      var properties = configs[lib].properties || [];
-      var docs = configs[lib].docs || [];
-      var docSequence = configs[lib].docSequence || [];
-      //console.log(docSequence);
-      if (idx[lib]) {
-        util.each(idx[lib], function (key, node, tree) {
-          var newTree = _.clone(tree);
-          newTree.push(key);
-          var treePath = newTree.join(path.sep);
-          if (_.isObject(node[key])) {
-            if (methods.indexOf(treePath) > -1) {
-              node[key].__class = 'method';
-            } else if (properties.indexOf(treePath) > -1) {
-              node[key].__class = 'property';
-            } else {
-              var found = false;
-              for (var i = 0; i < docs.length; ++i) {
-                if (treePath.slice(0, docs[i].length) === docs[i] || docs[i].slice(0, key.length) === key) {
-                  if (docSequence[treePath]) {
-                    node[key].__seq = docSequence[treePath];
-                  }
-                  node[key].__class = 'doc';
-                  found = true;
-                  break;
-                }
-              }
-              if (!found) {
-                // If we still haven't found it, see if its
-                // an object, like `foo` in `foo/bar`.
-                var combined = methods.concat(properties);
-                for (var i = 0; i < combined.length; ++i) {
-                  var parts = combined[i].split(path.sep);
-                  var _idx = parts.indexOf(key);
-                  if (_idx > -1 && _idx != parts.length - 1) {
-                    node[key].__class = 'object';
-                    //console.log(key);
-                  }
-                }
-              }
-            }
-          }
-        });
-      }
-      //console.log(methods);
-      //console.log(properties);
-    };
-
     for (var lib in configs) {
-      _loop(lib);
+      if (configs.hasOwnProperty(lib)) {
+        (function () {
+          var methods = configs[lib].methods || [];
+          var properties = configs[lib].properties || [];
+          var docs = configs[lib].docs || [];
+          var docSequence = configs[lib].docSequence || [];
+          if (idx[lib]) {
+            util.each(idx[lib], function (key, node, tree) {
+              var newTree = _.clone(tree);
+              newTree.push(key);
+              var treePath = newTree.join(path.sep);
+              if (_.isObject(node[key])) {
+                if (methods.indexOf(treePath) > -1) {
+                  node[key].__class = 'method';
+                } else if (properties.indexOf(treePath) > -1) {
+                  node[key].__class = 'property';
+                } else {
+                  var found = false;
+                  for (var i = 0; i < docs.length; ++i) {
+                    if (treePath.slice(0, docs[i].length) === docs[i] || docs[i].slice(0, key.length) === key) {
+                      if (docSequence[treePath]) {
+                        node[key].__seq = docSequence[treePath];
+                      }
+                      node[key].__class = 'doc';
+                      found = true;
+                      break;
+                    }
+                  }
+                  if (!found) {
+                    // If we still haven't found it, see if its
+                    // an object, like `foo` in `foo/bar`.
+                    var combined = methods.concat(properties);
+                    for (var i = 0; i < combined.length; ++i) {
+                      var parts = combined[i].split(path.sep);
+                      var _idx = parts.indexOf(key);
+                      if (_idx > -1 && _idx !== parts.length - 1) {
+                        node[key].__class = 'object';
+                      }
+                    }
+                  }
+                }
+              }
+            });
+          }
+        })();
+      }
     }
-
     return idx;
   },
 
@@ -340,7 +294,7 @@ var indexer = {
   applyAutodocs: function applyAutodocs(idx, autodocs) {
     // Throw downloadable auto-doc libraries in the index.
     Object.keys(autodocs).forEach(function (item) {
-      var exists = idx[item] !== undefined ? true : false;
+      var exists = idx[item] !== undefined;
       if (!exists) {
         idx[item] = { __class: 'unbuilt-lib' };
       }
@@ -421,7 +375,6 @@ var indexer = {
   */
 
   index: function index() {
-    var self = this;
     function readSafely(path) {
       var result = undefined;
       try {
@@ -508,7 +461,6 @@ var indexer = {
       self.clerk.config.getRemote(function (err, remote) {
         if (!err) {
           var local = self.clerk.config.getLocal();
-          var staticConfig = self.clerk.config.getStatic();
           var localSize = parseFloat(local.docIndexSize || 0);
           var remoteSize = parseFloat(remote.docIndexSize || -1);
           if (localSize !== remoteSize || options.force === true) {

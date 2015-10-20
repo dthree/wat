@@ -2,7 +2,6 @@
 
 var chalk = require('chalk');
 var util = require('../util');
-var _ = require('lodash');
 var stripAnsi = require('strip-ansi');
 
 module.exports = function (vorpal, options) {
@@ -11,10 +10,8 @@ module.exports = function (vorpal, options) {
   vorpal['catch']('[commands...]').option('-v, --version', 'View the current version of Wat.').option('-d, --detail', 'View detailed markdown on item.').option('-i, --install', 'View installation instructions.').parse(function (str) {
     return str + ' | less -F';
   }).autocompletion(function (text, iteration, cb) {
-
     var self = this;
     var index = app.clerk.indexer.index();
-
     var result = util.autocomplete(text, iteration, index, function (word, options) {
       var res = self.match(word, options);
       return res;
@@ -44,10 +41,6 @@ module.exports = function (vorpal, options) {
         cb();
       })();
     } else {
-      // vorpal.log(response[0].length, process.stdout.columns);
-      // vorpal.log(require('util').inspect(response));
-      // vorpal.log(response[0]);
-      // vorpal.log(response[0]);
       cb(undefined, response);
       cb();
     }
@@ -84,13 +77,11 @@ module.exports = function (vorpal, options) {
       str = util.separator(str);
       self.log(str);
       cb();
-    };
+    }
 
     function execPath(pathObj) {
       // If we are an unbuilt library, build it.
       if (pathObj.index && pathObj.index.__class === 'unbuilt-lib') {
-        //self.log(`\n  ${chalk.blue(`Fetching ${command}...`)}`);
-
         app.autodocs.run(command, {
           loader: function loader(_loader2) {
             vorpal.ui.redraw(_loader2).refresh();
@@ -106,17 +97,6 @@ module.exports = function (vorpal, options) {
             }, 25);
           }
         });
-
-        /*
-        app.autodocs.run(command, {}, function(err){
-          if (err) {
-            self.log(`\n\n  ${err}\n`);
-          } else {
-            self.log(`  ${chalk.blue(`Done!`)}\n`);
-          }
-          cb();
-        });
-        */
         return;
       }
 
@@ -164,7 +144,6 @@ module.exports = function (vorpal, options) {
           execPath(_path);
         } else if (results.length > 0) {
           var _ret2 = (function () {
-            //self.log(chalk.yellow(`\n  Did you mean:`));
             self.log(' ');
 
             var choices = [];
@@ -180,7 +159,7 @@ module.exports = function (vorpal, options) {
               message: chalk.yellow('Did you mean:'),
               choices: choices,
               name: 'choice'
-            }, function (a, b) {
+            }, function (a) {
               var pick = stripAnsi(a.choice).replace('\n ', '');
               if (pick !== 'Cancel') {
                 var _path2 = util.command.buildPath(pick, args.options, app.clerk.indexer.index());
@@ -203,8 +182,5 @@ module.exports = function (vorpal, options) {
     } else {
       execPath(path);
     }
-  }).done(function () {
-    //vorpal.exec('less', function () {
-    //});
   });
 };

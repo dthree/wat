@@ -1,11 +1,5 @@
 'use strict';
 
-/**
- * Module dependencies.
- */
-
-var chalk = require('chalk');
-
 var js = {
 
   /**
@@ -38,7 +32,7 @@ var js = {
   },
 
   /**
-  * Takes an API command string, such as 
+  * Takes an API command string, such as
   * `## lib.foo(text[, bar...])`, and parses
   * it into its component parts, noting any
   * errors in the process.
@@ -52,7 +46,6 @@ var js = {
   */
 
   parseCommandSyntax: function parseCommandSyntax(str) {
-
     var self = this;
     var result = {};
     var syn = String(str).trim();
@@ -97,30 +90,26 @@ var js = {
     }
 
     // If we have params, we are a method.
-    var isMethod = syn.match(self.rules.parameters) ? true : false;
+    var isMethod = syn.match(self.rules.parameters);
 
     // Pull out parameters.
     var params = syn.match(self.rules.parameters);
     syn = syn.replace(self.rules.parameters, '');
 
     // If optional methods (chalk.<foo>[<bar>...])
-    var optionalMethods = syn.match(self.rules.orderedBrackets);
     syn = syn.replace(self.rules.orderedBrackets, '');
 
-    var paramArray = [];
     var requiredParamEncountered = false;
     var orderedParams = [];
 
     if (params) {
-      var i;
-
       (function () {
         var iterate = function iterate() {
           var brackets = params.match(self.rules.optionalParameters);
           if (brackets) {
-            for (var _i = 0; _i < brackets.length; ++_i) {
+            for (var i = 0; i < brackets.length; ++i) {
               // All brackets and commas.
-              var optionalParam = String(brackets[_i]).replace(self.rules.commasAndBrackets, '').replace(self.rules.questionMark, '').replace(/ +/g, '').trim();
+              var optionalParam = String(brackets[i]).replace(self.rules.commasAndBrackets, '').replace(self.rules.questionMark, '').replace(/ +/g, '').trim();
               for (var j = 0; j < orderedParams.length; ++j) {
                 if (orderedParams[j] === optionalParam) {
                   orderedParams[j] = '[' + orderedParams[j] + ']';
@@ -138,7 +127,7 @@ var js = {
         iterate();
 
         var remainder = String(params).split(',');
-        for (i = remainder.length - 1; i > -1; --i) {
+        for (var i = remainder.length - 1; i > -1; --i) {
           var isOptional = remainder[i].match(self.rules.questionMark);
           var param = String(remainder[i]).replace(self.rules.questionMark, '').replace(/ +/g, '');
 
@@ -219,8 +208,6 @@ var js = {
     result.parents = parents || [];
     result.errors = errors;
     result.isImplicitChild = isImplicitChild;
-
-    //console.log(result)
 
     return result;
   },
@@ -332,8 +319,6 @@ var js = {
     var isSyntax = false;
     if (hasParens && !startsWithWords && !hasMultipleWords) {
       isSyntax = true;
-    } else if (1 == 2) {
-      isSyntax = false;
     } else if (startDot && !hasMultipleWords) {
       isSyntax = true;
     } else if (startWordDotWord && !hasMultipleWords) {
@@ -360,7 +345,6 @@ var js = {
 
     return isSyntax;
   }
-
 };
 
 module.exports = js;

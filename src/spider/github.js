@@ -1,39 +1,28 @@
 'use strict';
 
-/**
- * Module dependencies.
- */
-
-const _ = require('lodash');
-const moment = require('moment');
-const chalk = require('chalk');
 const mdast = require('mdast');
 const stripBadges = require('mdast-strip-badges');
 const util = require('../util');
 
 const github = {
 
-  testPage(path) {
-  },
-
   getPage(searchResult, callback) {
     callback = callback || {};
     const self = this;
 
-    let details = this.parseSearchLink(searchResult.link);
-    let readmeUrl = this.getRepoReadmeUrl(details);
+    const details = this.parseSearchLink(searchResult.link);
+    const readmeUrl = this.getRepoReadmeUrl(details);
 
     function request(urls, cb) {
-      let url = urls.shift();
+      const url = urls.shift();
       if (url) {
         util.fetchRemote(url, function (err, data) {
           let results;
           if (!err) {
-
-            var md = mdast().use(stripBadges);
+            const md = mdast().use(stripBadges);
             results = md.process(data);
             results = self.app.cosmetician.markdownToTerminal(data, {
-              lineWidth: function () {
+              lineWidth() {
                 return process.stdout.columns - 2;
               }
             });
@@ -51,14 +40,14 @@ const github = {
   },
 
   parseSearchLink(url) {
-    let res = String(url).split('//github.com/')[1];
+    const res = String(url).split('//github.com/')[1];
     let result = {};
     if (res) {
-      let parts = String(res).split('/') || [];
-      let owner = parts[0];
-      let name = parts[1];
+      const parts = String(res).split('/') || [];
+      const owner = parts[0];
+      const name = parts[1];
       if (owner && name) {
-        result = { owner, name };
+        result = {owner, name};
       }
     }
     return result;
@@ -72,11 +61,10 @@ const github = {
         title: `https://raw.githubusercontent.com/${repo.owner}/${repo.name}/master/Readme.md`,
         lower: `https://raw.githubusercontent.com/${repo.owner}/${repo.name}/master/readme.md`,
         out: `https://raw.githubusercontent.com/${repo.owner}/${repo.name}/master/readme.markdown`
-      }
+      };
     }
     return result;
-  },
-
+  }
 };
 
 module.exports = function (app) {

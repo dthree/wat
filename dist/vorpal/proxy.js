@@ -1,7 +1,6 @@
 'use strict';
 
 var chalk = require('chalk');
-var util = require('../util');
 
 module.exports = function (vorpal, options) {
   var app = options.app;
@@ -26,10 +25,6 @@ module.exports = function (vorpal, options) {
       name: 'pass',
       message: chalk.blue('  pass ' + chalk.grey('(optional)') + ': ')
     }];
-    var address = app.clerk.prefs.get('proxy-address');
-    var port = app.clerk.prefs.get('proxy-port');
-    var user = app.clerk.prefs.get('proxy-user');
-    var pass = app.clerk.prefs.get('proxy-pass');
     this.prompt(questions, function (data) {
       app.clerk.prefs.set('proxy', 'on');
       app.clerk.prefs.set('proxy-address', data.address);
@@ -43,7 +38,7 @@ module.exports = function (vorpal, options) {
 
   vorpal.command('proxy remove', 'Removes Wat\'s proxy settings.').action(function (args, cb) {
     var self = this;
-    var isOn = app.clerk.prefs.get('proxy') === 'on' ? true : false;
+    var isOn = app.clerk.prefs.get('proxy') === 'on';
     if (!isOn) {
       self.log('You aren\'t using a proxy!');
       cb();

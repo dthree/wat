@@ -1,12 +1,7 @@
 'use strict';
 
-/**
- * Module dependencies.
- */
-
 const _ = require('lodash');
 const lev = require('leven');
-const fs = require('fs');
 const mkdirp = require('mkdirp');
 const chalk = require('chalk');
 const strip = require('strip-ansi');
@@ -15,8 +10,29 @@ const os = require('os');
 
 const app = require('../');
 
-let request = require('request');
+const request = require('request');
 
+// Colors by class.
+const colors = {
+  'method': 'green',
+  'property': 'blue',
+  'object': 'yellow',
+  'doc': 'white',
+  'lib': 'white',
+  'unbuilt-lib': 'gray',
+  'remainder': 'gray'
+};
+
+// Fancy names by class.
+const names = {
+  'method': 'Methods',
+  'property': 'Properties',
+  'object': 'Objects',
+  'doc': 'Docs',
+  'lib': 'Libraries',
+  'unbuilt-lib': 'Downloadable Libraries',
+  'remainder': 'Other'
+};
 
 const util = {
 
@@ -37,10 +53,9 @@ const util = {
     const lastWord = String(commands[commands.length - 1]).trim();
     const otherWords = commands.slice(0, commands.length - 1);
     const words = String(text).trim().split(' ').length;
-    const poss = [];
 
     // Find the deepest point on the index that
-    // matches the given commands. i.e. 
+    // matches the given commands. i.e.
     // "earth usa cali" against
     // { "earth": { "usa": { "cali": { "foo": "bar" } }}}
     // would return { "foo": "bar" }
@@ -66,30 +81,28 @@ const util = {
         response = [formatted];
       } else if (iteration > 1 && possibilities.length === 1 && (otherWords.length !== levels)) {
         response = `${String(`${original}${possibilities[0]}`).trim()} `;
-      } else {
-        if (levels === 1 && words === 1 && Object.keys(possibleObjects).length === 0 && iteration > 1) {
-          // In this scenario, the user has chosen an autodoc 
-          // lib that hasn't been downloaded yet, and has tabbed.
-          // We tell the user what he can do.
-          if (iteration < 3) {
-            const times = chalk.cyan(`1 more time`);
-            mode = 'pre-build';
-            response = chalk.blue(`\n  This library has not been built. \n  To build, press ${chalk.cyan(`[tab]`)} ${times}, or press ${chalk.cyan(`[enter]`)}.`);
-          } else if (iteration === 3) {
-            mode = 'build';
-            response = original;
-          } else {
-            response = original
-          }
+      } else if (levels === 1 && words === 1 && Object.keys(possibleObjects).length === 0 && iteration > 1) {
+        // In this scenario, the user has chosen an autodoc
+        // lib that hasn't been downloaded yet, and has tabbed.
+        // We tell the user what he can do.
+        if (iteration < 3) {
+          const times = chalk.cyan(`1 more time`);
+          mode = 'pre-build';
+          response = chalk.blue(`\n  This library has not been built. \n  To build, press ${chalk.cyan(`[tab]`)} ${times}, or press ${chalk.cyan(`[enter]`)}.`);
+        } else if (iteration === 3) {
+          mode = 'build';
+          response = original;
         } else {
           response = original;
         }
+      } else {
+        response = original;
       }
     }
 
     return ({
-      mode: mode,
-      response: response
+      mode,
+      response
     });
   },
 
@@ -111,11 +124,11 @@ const util = {
     const self = this;
     const cats = ['method', 'property', 'object', 'doc', 'lib', 'unbuilt-lib'];
     const data = {};
-    
+
     let all = Object.keys(possibilities) || [];
 
     function filter(objs, type) {
-      let results = {};
+      const results = {};
       for (const item in objs) {
         if (objs[item].__class === type) {
           results[item] = objs[item];
@@ -127,30 +140,33 @@ const util = {
         // and then sort them by that.
         let res = [];
         for (const item in results) {
-          res.push([item, results[item].__seq]);
+          if (results.hasOwnProperty(item)) {
+            res.push([item, results[item].__seq]);
+          }
         }
-        res = res.sort(function (a, b) { 
+        res = res.sort(function (a, b) {
           return a[1] - b[1];
-        }).map(function(itm) {
+        }).map(function (itm) {
           return itm[0];
         });
         return res;
-      } else {
-        return Object.keys(results);
       }
+      return Object.keys(results);
     }
-    
+
     // If the object has children, add a slash.
-    let newPoss = {}
+    const newPoss = {};
     for (const item in possibilities) {
-      let keys = Object.keys(possibilities[item]);
-      keys = keys.filter(function(key){
-        return String(key).slice(0, 2) !== '__';
-      });
-      if (keys.length > 0) {
-        newPoss[`${item}/`] = _.clone(possibilities[item]);
-      } else {
-        newPoss[item] = possibilities[item];
+      if (possibilities.hasOwnProperty(item)) {
+        let keys = Object.keys(possibilities[item]);
+        keys = keys.filter(function (key) {
+          return String(key).slice(0, 2) !== '__';
+        });
+        if (keys.length > 0) {
+          newPoss[`${item}/`] = _.clone(possibilities[item]);
+        } else {
+          newPoss[item] = possibilities[item];
+        }
       }
     }
 
@@ -164,8 +180,8 @@ const util = {
 
     // Data.remainer takes care of any items that don't
     // have a `__class` attribute in the index.
-    data.remainder = all.filter(function(item){
-      return (matches.indexOf(item) > -1 || matches.indexOf(item + '/') > -1) ? false : true;
+    data.remainder = all.filter(function (item) {
+      return !(matches.indexOf(item) > -1 || matches.indexOf(`${item}/`) > -1);
     });
 
     // All has been made inconsistent due to adding in '/'es
@@ -175,27 +191,27 @@ const util = {
       all = all.concat(data[cats[i]]);
     }
 
-    let totalWidth = all.join('  ').length + 4;
+    const totalWidth = all.join('  ').length + 4;
 
-    // Get the widest item of them all 
+    // Get the widest item of them all
     // (mirror, mirror on the wall).
     let maxWidth = 0;
-    all.forEach(function(item){
-      let width = String(item).length;
+    all.forEach(function (item) {
+      const width = String(item).length;
       maxWidth = (width > maxWidth) ? width : maxWidth;
     });
-    maxWidth = maxWidth + 3;
+    maxWidth += 3;
 
     // The headers aren't measured for width, and
-    // so if the thinnest property is less than the 
+    // so if the thinnest property is less than the
     // "Properties" header, it's goinna look ugly.
     maxWidth = (maxWidth < 12) ? 12 : maxWidth;
 
     // Determine how many display columns get allocated
     // per data class ('method', 'property', etc.),
     // based on how many children each data class has.
-    let numColumns = Math.floor((process.stdout.columns - 2) / maxWidth);
-    let dataColumns = {}
+    const numColumns = Math.floor((process.stdout.columns - 2) / maxWidth);
+    const dataColumns = {};
     let totalAllocated = 0;
     let maxItem;
     let max = 0;
@@ -210,99 +226,77 @@ const util = {
 
     // Do correction on the above figures to ensure we don't
     // top over the max column amount.
-    let columnOverflow = totalAllocated - numColumns;
+    const columnOverflow = totalAllocated - numColumns;
     if (columnOverflow > 0) {
-      dataColumns[maxItem] = dataColumns[maxItem] - columnOverflow;
+      dataColumns[maxItem] -= columnOverflow;
     }
 
-    let types = Object.keys(dataColumns);
-    let onlyDocs = (types.length === 1 && types[0] === 'doc');
+    const types = Object.keys(dataColumns);
+    const onlyDocs = (types.length === 1 && types[0] === 'doc');
 
-    // Methods and Properties go alphabetical. 
+    // Methods and Properties go alphabetical.
     // Docs go in exact sequences.
     data.method.sort();
     data.property.sort();
-
-    // Colors by class.
-    const colors = {
-      'method': 'green',
-      'property': 'blue',
-      'object': 'yellow',
-      'doc': 'white',
-      'lib': 'white',
-      'unbuilt-lib': 'gray',
-      'remainder': 'gray'
-    };
-
-    // Fancy names by class.
-    const names = {
-      'method': 'Methods',
-      'property': 'Properties',
-      'object': 'Objects',
-      'doc': 'Docs',
-      'lib': 'Libraries',
-      'unbuilt-lib': 'Downloadable Libraries',
-      'remainder': 'Other'
-    };
 
     // Final formatting section.
     let fnl = '';
 
     // If we are only documents, do one straight
-    // line. If we otherwise fit on one line, roll 
+    // line. If we otherwise fit on one line, roll
     // with that. Otherwise, do fancy columns.
     if (onlyDocs) {
-      let docs = data['doc'];
+      let docs = data.doc;
       const max = process.stdout.rows - 5;
       const total = docs.length;
       docs = docs.slice(0, max);
-      if (docs.length > 0 ) {
-        const clr = colors['doc'];
-        let set = '\n  ' + docs.join('\n  ') + '\n';
+      if (docs.length > 0) {
+        const clr = colors.doc;
+        let set = `\n  ${docs.join('\n  ')}\n`;
         set = (clr) ? chalk[clr](set) : set;
         fnl += set;
       }
       if (total !== docs.length) {
-        fnl += chalk.grey('  ' + (total - docs.length) + ' more...\n');
+        fnl += `${chalk.grey(`  ${(total - docs.length)}`)} more...\n`;
       }
     } else if (totalWidth <= process.stdout.columns) {
       for (const item in data) {
-        let arr = data[item];
-        if (arr.length > 0 ) {
-          let clr = colors[item];
-          let set = arr.join('  ') + '  ';
-          set = (clr) ? chalk[clr](set) : set;
-          fnl += set;
+        if (data.hasOwnProperty(item)) {
+          const arr = data[item];
+          if (arr.length > 0) {
+            const clr = colors[item];
+            let set = `${arr.join('  ')}  `;
+            set = (clr) ? chalk[clr](set) : set;
+            fnl += set;
+          }
         }
       }
       fnl = String(fnl).trim();
       fnl = `\n  ${String(fnl).trim()}\n`;
     } else {
-
       // This takes a class, such as `method`,
       // and draws x number of columns for that
-      // item based on the allocated number of 
+      // item based on the allocated number of
       // column (`dataColumns[class]`). Returns
       // a \n-broken chunk of text.
       function drawClassBlock(item) {
         let ctr = 1;
-        let arr = data[item];
-        let columns = dataColumns[item];
-        let width = maxWidth - 2;
-        let color = colors[item];
-        let fullWidth = ((width + 2) * columns);
+        const arr = data[item];
+        const columns = dataColumns[item];
+        const width = maxWidth - 2;
+        const color = colors[item];
         let lines = '';
         let line = '';
         let longestLine = 0;
         function endLine() {
-          let lineWidth = strip(line).length;
+          const lineWidth = strip(line).length;
           longestLine = (lineWidth > longestLine) ? lineWidth : longestLine;
-          lines += line + '\n';
+          lines += `${line}\n`;
           line = '';
           ctr = 1;
         }
         for (let i = 0; i < arr.length; ++i) {
-          let item = self.pad(arr[i], width) + '  ';
+          let item = `${self.pad(arr[i], width)}  `;
           item = (color) ? chalk[color](item) : item;
           line += item;
           if (ctr >= columns) {
@@ -314,12 +308,12 @@ const util = {
         if (line !== '') {
           endLine();
         }
-        lines = lines.split('\n').map(function(ln){
+        lines = lines.split('\n').map(function (ln) {
           return self.pad(ln, longestLine);
         }).join('\n');
-        let title = self.pad(names[item], longestLine);
-        let divider = chalk.gray(self.pad('', longestLine - 2, '-') + '  ');
-        lines = chalk.white(chalk.bold(title)) + '\n' + divider + '\n' + lines;
+        const title = self.pad(names[item], longestLine);
+        const divider = `${chalk.gray(self.pad('', longestLine - 2, '-'))}  `;
+        lines = `${chalk.white(chalk.bold(title))}\n${divider}\n${lines}`;
         return lines;
       }
 
@@ -329,25 +323,27 @@ const util = {
       let combined = [];
       let longest = 0;
       for (const item in dataColumns) {
-        let lines = drawClassBlock(item).split('\n');
-        longest = (lines.length > longest) ? lines.length : longest;
-        combined.push(lines);
+        if (dataColumns.hasOwnProperty(item)) {
+          const lines = drawClassBlock(item).split('\n');
+          longest = (lines.length > longest) ? lines.length : longest;
+          combined.push(lines);
+        }
       }
 
       let maxHeight = process.stdout.rows - 4;
-      maxHeight = (maxHeight > 24) ? 24 : maxHeight; 
+      maxHeight = (maxHeight > 24) ? 24 : maxHeight;
 
-      // Match pad all other blocks with white-space 
-      // lines at the bottom to match the length of 
+      // Match pad all other blocks with white-space
+      // lines at the bottom to match the length of
       // the longest block. In other words, make the
       // blocks... blocks.
-      combined = combined.map(function(lines){
+      combined = combined.map(function (lines) {
         const lineLength = strip(lines[0]).length;
         for (let i = lines.length; i < longest; ++i) {
           lines.push(self.pad('', lineLength));
         }
-        
-        let numRealLines = lines.filter(function(line){
+
+        const numRealLines = lines.filter(function (line) {
           return (strip(line).trim() !== '');
         }).length;
 
@@ -355,7 +351,7 @@ const util = {
         // content, do a fancy `...` and cut the rest
         // of the content.
         if (numRealLines > maxHeight && String(lines[maxHeight - 1]).trim() !== '') {
-          let ellip = (numRealLines - maxHeight) + ' more ...';
+          let ellip = `${(numRealLines - maxHeight)} more ...`;
           ellip = chalk.gray((ellip.length > lineLength) ? '...' : ellip);
           lines = lines.slice(0, maxHeight - 1);
           lines.push(self.pad(ellip, lineLength));
@@ -377,32 +373,29 @@ const util = {
 
       // Interject a two-space pad to the left of
       // the blocks, and do some cleanup at the end.
-      fnl = fnl.split('\n').map(function(ln){
-        return '  ' + ln;
-      }).join('\n').replace(/ +$/, '').replace(/\n$/g, '') + '';
-
+      fnl = String(fnl.split('\n').map(function (ln) {
+        return `  ${ln}`;
+      }).join('\n').replace(/ +$/, '').replace(/\n$/g, ''));
     }
 
     return fnl;
-  }, 
+  },
 
   autocompletionHelper(root, array, text, iteration) {
     const txt = String(text).trim();
-    let arr = array.filter(function (itm) {
+    const arr = array.filter(function (itm) {
       return (itm.slice(0, txt.length) === txt);
     });
     arr.unshift('\n');
     arr.push('\n');
-    var match = this.match(txt, array);
+    const match = this.match(txt, array);
     if (iteration > 1) {
       return arr;
-    } else {
-      if (match) {
-        return 'theme ' + match;
-      } else {
-        return undefined;
-      }
     }
+    if (match) {
+      return `theme ${match}`;
+    }
+    return undefined;
   },
 
   /**
@@ -542,11 +535,13 @@ const util = {
     const self = this;
     parents = parents || [];
     for (const node in nodes) {
-      fn(node, nodes, parents);
-      if (_.isObject(nodes[node])) {
-        let parent = _.clone(parents);
-        parent.push(node);
-        self.each(nodes[node], fn, parent);
+      if (nodes.hasOwnProperty(node)) {
+        fn(node, nodes, parents);
+        if (_.isObject(nodes[node])) {
+          const parent = _.clone(parents);
+          parent.push(node);
+          self.each(nodes[node], fn, parent);
+        }
       }
     }
   },
@@ -564,7 +559,7 @@ const util = {
         proxy = `http://${user}:${pass}@${address}:${port}`;
       }
     }
-    var r = request.defaults({'proxy':proxy});
+    request.defaults({proxy});
     request.get(path, function (err, response, body) {
       if (!err) {
         if (body === 'Not Found') {
@@ -573,8 +568,8 @@ const util = {
           cb(undefined, body, response);
         }
       } else {
-        throw new Error(err);
         cb(err, '');
+        throw new Error(err);
       }
     });
   },
@@ -591,12 +586,12 @@ const util = {
     const hl = windows ? '-' : '─';
     if (str.split('\n').length <= process.stdout.rows) {
       const padding = util.pad('', process.stdout.columns, chalk.blue(hl));
-      str = `\n${padding}\n${str}`; 
+      str = `\n${padding}\n${str}`;
     }
     return str;
   },
 
-  /** 
+  /**
    * Kind of like mkdirp, but without another depedency.
    *
    * @param {String} dir
@@ -604,14 +599,14 @@ const util = {
    * @api public
    */
 
-  mkdirSafe(dir, levels) {
+  mkdirSafe(dir) {
     return mkdirp.sync(dir);
   },
 
   extensions: {
-    '__basic': '.md',
-    '__detail': '.detail.md',
-    '__install': '.install.md'
+    __basic: '.md',
+    __detail: '.detail.md',
+    __install: '.install.md'
   },
 
   command: {
@@ -629,9 +624,9 @@ const util = {
     prepare(str, options, index) {
       options = options || {};
       const all = [];
-      let commands = (_.isArray(str))
-        ? str
-        : String(str).trim().split(' ');
+      let commands = (_.isArray(str)) ?
+        str :
+        String(str).trim().split(' ');
       commands = commands.join(' ')
         .replace(/\//g, ' ')
         .replace(/\\/g, ' ')
@@ -675,14 +670,13 @@ const util = {
       if (!indexObject) {
         response.exists = false;
       } else if (_.isArray(indexObject)) {
-        let sugg = util.autocomplete(str, 2, index, function (word, options) {
+        const sugg = util.autocomplete(str, 2, index, function (word, options) {
           return options;
         }).response;
         if (_.isArray(sugg)) {
           response.suggestions = sugg;
         } else {
           response.suggestions = ['', sugg];
-          //response.suggestions = indexObject;
         }
       } else {
         response.index = indexObject;
@@ -770,7 +764,7 @@ const util = {
         throw new Error(`Invalid path passed into util.getDocRoot: "${pathString}". Parsed path: ${normalized}.`);
       }
       return parts[1];
-    },
+    }
   }
 
 };

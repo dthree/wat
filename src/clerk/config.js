@@ -1,11 +1,6 @@
 'use strict';
 
-/**
- * Module dependencies.
- */
-
 const fs = require('fs');
-const path = require('path');
 const chalk = require('chalk');
 const util = require('../util');
 
@@ -34,11 +29,11 @@ const config = {
       config = JSON.parse(fs.readFileSync(self.app.clerk.paths.static.config, {encoding: 'utf-8'}));
       this._staticConfig = config;
     /* istanbul ignore next */
-    } catch(e) {
+    } catch (e) {
       console.log(chalk.yellow(`\n\nHouston, we have a problem.\nWat can\'t read its static config file, which should be at ${this.app.clerk.paths.static.config}. Without this, Wat can\'t do much. Try re-installing Wat from scratch.\n\nIf that doesn\'t work, please file an issue.\n`));
       throw new Error(e);
     }
-    const tempStatic = this._staticConfig || {}
+    const tempStatic = this._staticConfig || {};
     self.app.clerk.paths.remote.docs = tempStatic.remoteDocUrl || self.app.clerk.paths.remote.docs;
     self.app.clerk.paths.remote.autodocs = tempStatic.remoteAutodocUrl || self.app.clerk.paths.remote.autodocs;
     self.app.clerk.paths.remote.config = tempStatic.remoteConfigUrl || self.app.clerk.paths.remote.config;
@@ -52,7 +47,7 @@ const config = {
       try {
         config = JSON.parse(fs.readFileSync(this.app.clerk.paths.temp.config, {encoding: 'utf-8'}));
         this._config = config;
-      } catch(e) {  
+      } catch (e) {
         /* istanbul ignore next */
         this._config = this.getStatic();
       }
@@ -72,7 +67,7 @@ const config = {
           const json = JSON.parse(data);
           callback(undefined, json);
         /* istanbul ignore next */
-        } catch(e) {
+        } catch (e) {
           callback(`Error parsing json: ${data}, Error: ${e}, url: ${url}`);
         }
       } else {

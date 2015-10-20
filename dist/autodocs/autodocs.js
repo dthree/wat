@@ -1,11 +1,6 @@
 'use strict';
 
-/**
- * Module dependencies.
- */
-
 var rimraf = require('rimraf');
-var _ = require('lodash');
 var chalk = require('chalk');
 
 var autodocs = {
@@ -68,7 +63,7 @@ var autodocs = {
       };
 
       progress({ action: 'fetch', total: 50, downloaded: 0 });
-      var result = parser.run(libName, opt, function (err, data) {
+      parser.run(libName, opt, function () {
         if (libs.length < 1) {
           if (options.rebuild) {
             progress({ action: 'index', total: 50, downloaded: 50 });
@@ -94,8 +89,6 @@ var autodocs = {
     var options = options || {};
     options.rebuild = opt.rebuild || true;
     var self = this;
-    var lib = String(name).trim();
-    var temp = this.app.clerk.paths.temp.root;
     var autodocPath = '' + self.app.clerk.paths['static'].autodocs + name;
     var localAutodocPath = '' + self.app.clerk.paths.temp.autodocs + name;
     var config = self.app.clerk.autodocs.config();
@@ -190,23 +183,21 @@ var autodocs = {
     // Add time on to the end of the
     // loader to compensate for building.
     var doneString = done;
-    var multiple = .55;
+    var multiple = 0.55;
     if (action === 'parse') {
-      multiple = .60;
+      multiple = 0.60;
     } else if (action === 'build') {
-      multiple = .65;
+      multiple = 0.65;
     } else if (action === 'write') {
-      multiple = .70;
+      multiple = 0.70;
     } else if (action === 'index') {
-      multiple = .75;
+      multiple = 0.75;
     } else if (action === 'done') {
-      multiple = .80;
+      multiple = 0.80;
     }
     done = Math.floor(done * multiple);
     done = done < 0 ? 0 : done;
     var width = 40;
-    var donesPerBar = total / width;
-    var bars = Math.floor(donesPerBar * done);
     var loader = '';
     for (var i = 0; i < width; ++i) {
       if (i <= done) {
@@ -233,7 +224,6 @@ var autodocs = {
     var result = '\n  ' + buildStr + '\n\n  ' + loader + '\n';
     return result;
   }
-
 };
 
 module.exports = function (app) {

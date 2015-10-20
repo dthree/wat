@@ -1,19 +1,10 @@
 'use strict';
 
-/**
- * Module dependencies.
- */
-
 const _ = require('lodash');
 const chalk = require('chalk');
 const fs = require('fs');
 const hljs = require('highlight.js');
 const path = require('path');
-
-/**
- * Expose a function that passes in a Vantage
- * object and options.
- */
 
 const highlighter = {
 
@@ -27,7 +18,7 @@ const highlighter = {
     let config;
     try {
       config = require(file);
-    } catch(e) {
+    } catch (e) {
       return false;
     }
 
@@ -83,7 +74,7 @@ const highlighter = {
       } else {
         try {
           hl = hljs.highlight(lang, hl);
-        } catch(e) {
+        } catch (e) {
           hl = hljs.highlightAuto(hl);
         }
       }
@@ -128,7 +119,6 @@ const highlighter = {
   },
 
   format(str) {
-    //str = str.replace(/\<s\>((.|\n)*?)\<\/s\>/g, '<md-s>$1</md>');
     return str;
   },
 

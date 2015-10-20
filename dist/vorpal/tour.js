@@ -1,6 +1,5 @@
 'use strict';
 
-var chalk = require('chalk');
 var vtour = require('vorpal-tour');
 
 module.exports = function (vorpal, options) {
@@ -10,7 +9,8 @@ module.exports = function (vorpal, options) {
     command: 'tour',
     description: 'A tour through Wat.',
     tour: function tour(_tour) {
-      _tour = require('./../tour')(_tour, app);
+      var t = require('./../tour')(_tour, app);
+      _tour = t;
       return _tour;
     }
   });

@@ -43,80 +43,80 @@ module.exports = function (tour, app) {
     });
   });
 
-  tour.step(1).begin(start1).expect("command", function (data, cb) {
+  tour.step(1).begin(start1).expect('command', function (data, cb) {
     cb(String(data.command).toLowerCase().indexOf('slice') > -1);
   }).reject('Err.. wrong command.').wait(1000).end(end1);
 
-  tour.step(2).begin(start2).expect("keypress", function (data, cb) {
+  tour.step(2).begin(start2).expect('keypress', function (data, cb) {
     this._tabs = this._tabs || 0;
     this._tabs = data.key === 'tab' ? this._tabs + 1 : 0;
     cb(this._tabs === 2);
   }).wait(1000).end(end2);
 
-  tour.step(3).begin(start3).expect("wat_library_build", function (data, cb) {
+  tour.step(3).begin(start3).expect('wat_library_build', function (data, cb) {
     cb(data.name === 'chalk');
   }).reject('Er.. wrong library.');
 
-  tour.step(4).expect("keypress", function (data, cb) {
-    cb(data.key === "tab");
+  tour.step(4).expect('keypress', function (data, cb) {
+    cb(data.key === 'tab');
   }).wait(1000).end(end4);
 
-  tour.step(5).begin(start5).expect("command", function (data, cb) {
+  tour.step(5).begin(start5).expect('command', function (data, cb) {
     cb(data.command.toLowerCase().indexOf('strip') > -1);
   }).wait(1000).end(end5);
 
-  tour.step(6).begin(start6).wait(1000).expect("command", function (data, cb) {
+  tour.step(6).begin(start6).wait(1000).expect('command', function (data, cb) {
     cb(data.command.toLowerCase().indexOf('why') > -1);
   });
 
-  tour.step(7).begin(start7).expect("command", function (data, cb) {
+  tour.step(7).begin(start7).expect('command', function (data, cb) {
     cb(String(data.command).toLowerCase().indexOf('readme') > -1);
   }).wait(1000);
 
-  tour.step(8).begin(start8).expect("wat_library_build", function (data, cb) {
+  tour.step(8).begin(start8).expect('wat_library_build', function (data, cb) {
     cb(data.name === 'node');
   }).reject('Er.. wrong library.');
 
-  tour.step(9).end(start9).expect("keypress", function (data, cb) {
+  tour.step(9).end(start9).expect('keypress', function (data, cb) {
     this._tabs2 = this._tabs2 || 0;
     this._tabs2 = data.key === 'tab' ? this._tabs2 + 1 : 0;
     cb(this._tabs2 > 0);
   }).wait(1000).end(end9);
 
-  tour.step(10).begin(start10).expect("command", function (data, cb) {
-    cb(String(data.command).toLowerCase().indexOf("platform") > -1);
+  tour.step(10).begin(start10).expect('command', function (data, cb) {
+    cb(String(data.command).toLowerCase().indexOf('platform') > -1);
   }).wait(1000);
 
-  tour.step(11).begin(start11).expect("command", function (data, cb) {
-    cb(String(data.command).toLowerCase().indexOf("slice") > -1);
+  tour.step(11).begin(start11).expect('command', function (data, cb) {
+    cb(String(data.command).toLowerCase().indexOf('slice') > -1);
   }).wait(1000);
 
-  tour.step(12).begin(start12).expect("command", function (data, cb) {
-    cb(String(data.command).toLowerCase().indexOf("delete") > -1);
+  tour.step(12).begin(start12).expect('command', function (data, cb) {
+    cb(String(data.command).toLowerCase().indexOf('delete') > -1);
   }).wait(500);
 
-  tour.step(13).begin(start13).expect("command", function (data, cb) {
-    cb(String(data.command).toLowerCase().indexOf("slice") > -1);
+  tour.step(13).begin(start13).expect('command', function (data, cb) {
+    cb(String(data.command).toLowerCase().indexOf('slice') > -1);
   }).wait(1000);
 
-  tour.step(14).begin(start14).expect("command", function (data, cb) {
-    cb(String(data.command).toLowerCase().indexOf("theme") > -1);
+  tour.step(14).begin(start14).expect('command', function (data, cb) {
+    cb(String(data.command).toLowerCase().indexOf('theme') > -1);
   }).wait(1000);
 
-  tour.step(15).begin(start15).expect("command", function (data, cb) {
-    cb(String(data.command).toLowerCase().indexOf("theme ") > -1);
+  tour.step(15).begin(start15).expect('command', function (data, cb) {
+    cb(String(data.command).toLowerCase().indexOf('theme ') > -1);
   }).wait(1000).end(end15);
 
-  tour.step(16).begin(start16).expect("command", function (data, cb) {
-    cb(String(data.command).toLowerCase().indexOf("stackoverflow") > -1);
+  tour.step(16).begin(start16).expect('command', function (data, cb) {
+    cb(String(data.command).toLowerCase().indexOf('stackoverflow') > -1);
   }).wait(1000).end(end16);
 
-  tour.step(17).begin(start17).expect("command", function (data, cb) {
-    cb(String(data.command).toLowerCase().indexOf("dthree wat") > -1);
+  tour.step(17).begin(start17).expect('command', function (data, cb) {
+    cb(String(data.command).toLowerCase().indexOf('dthree wat') > -1);
   }).wait(1000).end(end17);
 
-  tour.step(18).begin(start18).expect("command", function (data, cb) {
-    cb(String(data.command).toLowerCase().indexOf("awesome") > -1);
+  tour.step(18).begin(start18).expect('command', function (data, cb) {
+    cb(String(data.command).toLowerCase().indexOf('awesome') > -1);
   }).wait(1000).end(end18);
 
   tour.end(conclusion);
