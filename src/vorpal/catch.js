@@ -68,6 +68,8 @@ module.exports = function (vorpal, options) {
         return;
       }
 
+      args.commands = args.commands || [];
+
       // Get rid of any piped commands.
       if (args.commands.indexOf('|') > -1) {
         args.commands = args.commands.slice(0, args.commands.indexOf('|'));
