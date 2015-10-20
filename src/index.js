@@ -30,6 +30,14 @@ const app = {
       .delimiter('?')
       .show();
 
+    if (process.argv.indexOf('dev') > -1) {
+      options.updateRemotely = false;
+      process.argv.splice(2, process.argv.length);
+      vorpal.log('\n  You\'re now in document development mode.\n  You will be able to see your local document changes.\n');
+    }
+
+    this.updateRemotely = options.updateRemotely;
+
     this.clerk.start(options);
 
     if (process.argv.length > 2) {

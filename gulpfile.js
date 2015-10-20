@@ -12,7 +12,7 @@ gulp.task('lint', function(){
   return gulp.src(['lib/*.js', './*.js', './bin/*.js'])
     .pipe(eslint())
     .pipe(eslint.format());
-    //.pipe(eslint.failOnError());
+    // .pipe(eslint.failOnError());
 });
 
 gulp.task('initClerk', function () {

@@ -31,6 +31,7 @@ const clerk = {
       root: staticRoot,
       config: path.normalize(`${staticRoot}config/config.json`),
       autoConfig: path.normalize(`${staticRoot}config/autodocs.json`),
+      index: path.normalize(`${staticRoot}config/index.json`),
       docs: path.normalize(`${staticRoot}docs/`),
       autodocs: path.normalize(`${staticRoot}docs/`)
     },
@@ -341,9 +342,12 @@ const clerk = {
   },
 
   fetchLocal(pathStr, type) {
-    const directory = (type === 'auto') ?
+    let directory = (type === 'auto') ?
       clerk.paths.temp.autodocs :
       clerk.paths.temp.docs;
+    directory = (this.app.updateRemotely === false && type !== 'auto') ?
+      clerk.paths.static.docs :
+      directory;
     let file;
     try {
       file = fs.readFileSync(directory + pathStr, {encoding: 'utf-8'});

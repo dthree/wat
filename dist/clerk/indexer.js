@@ -387,7 +387,11 @@ var indexer = {
     }
     if (!this._remoteIndex || !this._localIndex || this._mergedIndex) {
       this._localIndex = readSafely(this.app.clerk.paths.temp.localIndex);
-      this._remoteIndex = readSafely(this.app.clerk.paths.temp.index);
+      if (this.app.updateRemotely === false) {
+        this._remoteIndex = readSafely(this.app.clerk.paths['static'].index);
+      } else {
+        this._remoteIndex = readSafely(this.app.clerk.paths.temp.index);
+      }
       this._mergedIndex = this.merge(this._remoteIndex, this._localIndex) || {};
     }
     return this._mergedIndex;
