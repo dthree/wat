@@ -12,7 +12,7 @@ var autodocs = {
 
   config: function config() {
     var self = autodocs;
-    var readPath = this.app.updateRemotely === false ? this.app.clerk.paths.temp.autoConfig : this.app.clerk.paths['static'].autoConfig;
+    var readPath = this.app.updateRemotely === false ? this.app.clerk.paths['static'].autoConfig : this.app.clerk.paths.temp.autoConfig;
     try {
       var config = fs.readFileSync(readPath, { encoding: 'utf-8' });
       config = JSON.parse(config);

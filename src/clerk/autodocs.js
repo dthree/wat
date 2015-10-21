@@ -13,8 +13,8 @@ const autodocs = {
   config() {
     const self = autodocs;
     const readPath = (this.app.updateRemotely === false) ? 
-      this.app.clerk.paths.temp.autoConfig : 
-      this.app.clerk.paths.static.autoConfig;
+      this.app.clerk.paths.static.autoConfig : 
+      this.app.clerk.paths.temp.autoConfig;
     try {
       let config = fs.readFileSync(readPath, {encoding: 'utf-8'});
       config = JSON.parse(config);

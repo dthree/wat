@@ -157,7 +157,6 @@ const indexer = {
       const pathStr = util.path.getDocRoot(root);
       const dirs = String(pathStr).split(path.sep);
       dirs.push(fileStats.name);
-      // console.log('buildDir', pathStr, dirs);
       const remainder = _.clone(dirs);
       function build(idx, arr) {
         const item = String(arr.shift());
@@ -503,6 +502,7 @@ const indexer = {
           if (localAutodocSize !== remoteAutodocSize || options.force === true) {
             total++;
             self.getRemoteJSON(`${self.clerk.paths.remote.config}autodocs.json`, function (err, autodocs) {
+              console.log('FETCHED REMOTE');
               if (err === undefined) {
                 self.clerk.autodocs.write(autodocs);
               }
