@@ -1,5 +1,6 @@
 {
-  "chalk": {
+  "chalks": {
+    "aliases": ["chalk"],
     "language": "javascript",
     "parser": "markdown",
     "urls": {
