@@ -1,8 +1,5 @@
 {
-  "chalkestifical": {
-    "aliases": [
-      "chalk"
-    ],
+  "chalk": {
     "language": "javascript",
     "parser": "markdown",
     "urls": {

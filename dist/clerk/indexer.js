@@ -28,8 +28,7 @@ var indexer = {
   // the last index.json was pulled
   // before trying again, unless the
   // update is forced.
-  // _updateInterval: 3600000,
-  _updateInterval: 6000,
+  _updateInterval: 3600000,
 
   // When building your docs with gulp,
   // you sometimes don't want Wat to
@@ -56,7 +55,7 @@ var indexer = {
     }
 
     if (this.updateRemotely === true) {
-      setInterval(this.update.bind(this), 6000);
+      setInterval(this.update.bind(this), 3600000);
       self.update();
     }
     return this;
@@ -502,7 +501,6 @@ var indexer = {
           if (localAutodocSize !== remoteAutodocSize || options.force === true) {
             total++;
             self.getRemoteJSON(self.clerk.paths.remote.config + 'autodocs.json', function (err, autodocs) {
-              console.log('FETCHED REMOTE');
               if (err === undefined) {
                 self.clerk.autodocs.write(autodocs);
               }

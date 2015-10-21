@@ -32,7 +32,7 @@ const autodocs = {
     const writeMethod = (this.app.updateRemotely === false) ? 'setStatic' : 'setLocal';
     const writePath = this.app.clerk.paths.temp.autoConfig; 
     fs.writeFileSync(writePath, JSON.stringify(json, null, '  '));
-    self.app.clerk.config[writeMethod]('autodocsSize', String(JSON.stringify(json)).length);
+    self.app.clerk.config[writeMethod]('autodocsSize', String(JSON.stringify(json, null, '  ')).length);
     self._config = json;
     return this;
   }
