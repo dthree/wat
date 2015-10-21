@@ -247,6 +247,13 @@
     "urls": {
       "readme": "https://raw.githubusercontent.com/dthree/vantage/master/README.md"
     }
+  },
+  "winston": {
+    "language": "javascript",
+    "parser": "markdown",
+    "urls": {
+      "readme": "https://raw.githubusercontent.com/winstonjs/winston/master/README.md"
+    }
   }
 }
 

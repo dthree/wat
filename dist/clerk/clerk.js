@@ -21,6 +21,7 @@ var clerk = {
       prefs: tempRoot + 'prefs.json',
       cache: tempRoot + 'cache.json',
       config: tempRoot + 'config.json',
+      autoConfig: tempRoot + 'autodocs.json',
       hist: tempRoot + 'hist.json',
       index: tempRoot + 'index.json',
       localIndex: tempRoot + 'index.local.json',
@@ -98,6 +99,7 @@ var clerk = {
     var localConfig = this.config.getLocal();
     if (!localConfig) {
       delete staticConfig.docIndexSize;
+      delete staticConfig.autodocsSize;
       delete staticConfig.remoteSize;
       this.config.writeLocal(staticConfig);
     }

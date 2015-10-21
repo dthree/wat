@@ -28,7 +28,8 @@ var indexer = {
   // the last index.json was pulled
   // before trying again, unless the
   // update is forced.
-  _updateInterval: 3600000,
+  // _updateInterval: 3600000,
+  _updateInterval: 6000,
 
   // When building your docs with gulp,
   // you sometimes don't want Wat to
@@ -55,10 +56,7 @@ var indexer = {
     }
 
     if (this.updateRemotely === true) {
-      setInterval(this.update, 3600000);
-      setTimeout(function () {
-        self.update();
-      }, 60000);
+      setInterval(this.update.bind(this), 6000);
       self.update();
     }
     return this;
@@ -347,15 +345,12 @@ var indexer = {
     options = options || {
       'static': false
     };
-    if (options['static'] === true && remoteIdx) {
-      fs.writeFileSync(path.normalize(this.app.clerk.paths['static'].root + 'config/index.json'), JSON.stringify(remoteIdx, null));
-      this._remoteIndex = remoteIdx;
-      self.app.clerk.config.setStatic('docIndexLastWrite', new Date());
-      self.app.clerk.config.setStatic('docIndexSize', String(JSON.stringify(remoteIdx)).length);
-    } else if (remoteIdx) {
-      fs.writeFileSync(this.app.clerk.paths.temp.index, JSON.stringify(remoteIdx, null));
-      self.app.clerk.config.setLocal('docIndexLastWrite', new Date());
-      self.app.clerk.config.setLocal('docIndexSize', String(JSON.stringify(remoteIdx)).length);
+    if (remoteIdx) {
+      var writeMethod = options['static'] === true ? 'setStatic' : 'setLocal';
+      var writePath = options['static'] === true ? path.normalize(this.app.clerk.paths['static'].root + 'config/index.json') : this.app.clerk.paths.temp.index;
+      fs.writeFileSync(writePath, JSON.stringify(remoteIdx, null));
+      self.app.clerk.config[writeMethod]('docIndexLastWrite', new Date());
+      self.app.clerk.config[writeMethod]('docIndexSize', String(JSON.stringify(remoteIdx)).length);
       this._remoteIndex = remoteIdx;
     }
     if (localIdx) {
@@ -405,9 +400,9 @@ var indexer = {
   * @api public
   */
 
-  getRemoteIndex: function getRemoteIndex(callback) {
+  getRemoteJSON: function getRemoteJSON(remotePath, callback) {
     var self = this;
-    util.fetchRemote(self.clerk.paths.remote.config + 'index.json', function (err, data) {
+    util.fetchRemote(remotePath, function (err, data) {
       if (!err) {
         var err2 = false;
         var json = undefined;
@@ -417,7 +412,7 @@ var indexer = {
           /* istanbul ignore next */
           err2 = true;
           /* istanbul ignore next */
-          callback('Error parsing remote index json: ' + data + ', Error: ' + e + ', url: ' + self.clerk.paths.remote.config + 'index.json');
+          callback('Error parsing remote json: ' + data + ', Error: ' + e + ', url: ' + remotePath);
         }
         if (!err2) {
           callback(undefined, json);
@@ -457,56 +452,96 @@ var indexer = {
     // If we can't read the file,
     // assume we just download it newly.
     try {
-      var stats = fs.statSync(this.app.clerk.paths.temp.index);
+      var stats = fs.statSync(self.app.clerk.paths.temp.index);
       sinceUpdate = Math.floor(new Date() - stats.mtime);
     } catch (e) {}
+
+    /* istanbul ignore next */
+    function die(err, msg) {
+      console.log('');
+      console.log(msg || err);
+      callback(err);
+    }
+
+    function rebuild(cbk) {
+      self.app.clerk.indexer.build(function (remoteIndex, tempIndex) {
+        self.app.clerk.indexer.write(undefined, tempIndex, options);
+        // console.log('rebuilt');
+        self.clerk.compareDocs();
+        cbk();
+      });
+    }
+
+    var total = 1;
+    var dones = 0;
+    var errorCache = undefined;
+    function handler(err) {
+      if (err) {
+        errorCache = err;
+      }
+      dones++;
+      if (dones >= total) {
+        if (errorCache) {
+          die(errorCache);
+          return;
+        }
+        if (total > 1) {
+          rebuild(function () {
+            callback(undefined, 'Successfully updated index.');
+          });
+        } else {
+          callback(undefined, 'Successfully updated index.');
+        }
+      }
+    }
 
     if (sinceUpdate > self._updateInterval || !sinceUpdate || options.force === true) {
       self.clerk.config.getRemote(function (err, remote) {
         if (!err) {
           var local = self.clerk.config.getLocal();
+          var localAutodocSize = parseFloat(local.autodocsSize || 0);
+          var remoteAutodocSize = parseFloat(remote.autodocsSize || -1);
+          if (localAutodocSize !== remoteAutodocSize || options.force === true) {
+            total++;
+            self.getRemoteJSON(self.clerk.paths.remote.config + 'autodocs.json', function (err, autodocs) {
+              // console.log('fetched autodocs');
+              if (err === undefined) {
+                self.clerk.autodocs.write(autodocs);
+              }
+              handler(err);
+            });
+          }
+
           var localSize = parseFloat(local.docIndexSize || 0);
           var remoteSize = parseFloat(remote.docIndexSize || -1);
           if (localSize !== remoteSize || options.force === true) {
-            self.getRemoteIndex(function (err, index) {
-              if (err) {
-                /* istanbul ignore next */
-                throw new Error(err);
-              } else {
+            total++;
+            self.getRemoteJSON(self.clerk.paths.remote.config + 'index.json', function (err2, index) {
+              // console.log('fetched index');
+              if (err2 === undefined) {
                 self.write(index);
-                self.app.clerk.indexer.build(function (remoteIndex, tempIndex) {
-                  self.app.clerk.indexer.write(undefined, tempIndex, options);
-                  // Check what docs we don't have locally,
-                  // and throw them into the updater.
-                  try {
-                    self.clerk.compareDocs();
-                  } catch (e) {
-                    console.log('HI', e);
-                  }
-                  callback(undefined, 'Successfully updated index.');
-                });
               }
+              handler(err2);
             });
           }
+
+          handler();
           /* istanbul ignore next */
         } else if (String(err).indexOf('Not Found') > -1) {
             var lellow = chalk.yellow('\nWat could not locate the remote config directory and so does not know where to pull docs from.\nRe-installing your instance of Wat through NPM should solve this problem.');
-            var error = lellow + '\n\nUrl Attempted: ' + self.clerk.paths.remote.config + 'config.json';
-            console.log(error);
-            throw new Error(err);
+            var msg = lellow + '\n\nUrl Attempted: ' + self.clerk.paths.remote.config + 'config.json';
+            die(err, msg);
             /* istanbul ignore next */
           } else if (err.code === 'EAI_AGAIN') {
-              var error = chalk.yellow('\n\nEr, Wat\'s having DNS resolution errors. Are you sure you\'re connected to the internet?');
-              console.log(error);
-              throw new Error(err);
+              var msg = chalk.yellow('\n\nEr, Wat\'s having DNS resolution errors. Are you sure you\'re connected to the internet?');
+              die(err, error);
               /* istanbul ignore next */
             } else if (err.code === 'ETIMEDOUT') {
-                var error = chalk.yellow('\n\nHmm.. Wat had a connection timeout when trying to fetch its index. \nHow\'s that internet connection looking?');
-                console.log(error);
+                var msg = chalk.yellow('\n\nHmm.. Wat had a connection timeout when trying to fetch its index. \nHow\'s that internet connection looking?');
+                die(err, msg);
                 /* istanbul ignore next */
               } else {
-                  console.log(chalk.yellow('\nWat had an unexpected error while requesting the remote index:\n'));
-                  console.log(err);
+                  die(err, chalk.yellow('\nWat had an unexpected error while requesting the remote index:\n'));
                 }
       });
     }
