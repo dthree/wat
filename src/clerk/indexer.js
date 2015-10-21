@@ -466,7 +466,6 @@ const indexer = {
     function rebuild(cbk) {
       self.app.clerk.indexer.build(function (remoteIndex, tempIndex) {
         self.app.clerk.indexer.write(undefined, tempIndex, options);
-        // console.log('rebuilt');
         self.clerk.compareDocs();
         cbk();
       });
@@ -504,7 +503,6 @@ const indexer = {
           if (localAutodocSize !== remoteAutodocSize || options.force === true) {
             total++;
             self.getRemoteJSON(`${self.clerk.paths.remote.config}autodocs.json`, function (err, autodocs) {
-              // console.log('fetched autodocs');
               if (err === undefined) {
                 self.clerk.autodocs.write(autodocs);
               }
@@ -517,7 +515,6 @@ const indexer = {
           if (localSize !== remoteSize || options.force === true) {
             total++;
             self.getRemoteJSON(`${self.clerk.paths.remote.config}index.json`, function (err2, index) {
-              // console.log('fetched index');
               if (err2 === undefined) {
                 self.write(index);
               }

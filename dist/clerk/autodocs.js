@@ -12,8 +12,9 @@ var autodocs = {
 
   config: function config() {
     var self = autodocs;
+    var readPath = this.app.updateRemotely === false ? this.app.clerk.paths.temp.autoConfig : this.app.clerk.paths['static'].autoConfig;
     try {
-      var config = fs.readFileSync(self.app.clerk.paths.temp.autoConfig, { encoding: 'utf-8' });
+      var config = fs.readFileSync(readPath, { encoding: 'utf-8' });
       config = JSON.parse(config);
       self._config = config;
     } catch (e) {
@@ -25,8 +26,11 @@ var autodocs = {
 
   write: function write(json) {
     var self = this;
-    fs.writeFileSync(this.app.clerk.paths.temp.autoConfig, JSON.stringify(json));
-    self.app.clerk.config.setLocal('autodocsSize', String(JSON.stringify(json)).length);
+
+    var writeMethod = this.app.updateRemotely === false ? 'setStatic' : 'setLocal';
+    var writePath = this.app.clerk.paths.temp.autoConfig;
+    fs.writeFileSync(writePath, JSON.stringify(json, null, '  '));
+    self.app.clerk.config[writeMethod]('autodocsSize', String(JSON.stringify(json)).length);
     self._config = json;
     return this;
   }

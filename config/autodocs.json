@@ -1,6 +1,8 @@
 {
   "chalks": {
-    "aliases": ["chalk"],
+    "aliases": [
+      "chalk"
+    ],
     "language": "javascript",
     "parser": "markdown",
     "urls": {
@@ -55,7 +57,7 @@
         "geo-streams": "https://raw.githubusercontent.com/wiki/mbostock/d3/Geo-Streams.md",
         "geom": "https://raw.githubusercontent.com/wiki/mbostock/d3/Geometry.md",
         "voronoi-geom": "https://raw.githubusercontent.com/wiki/mbostock/d3/Voronoi-Geom.md",
-        "quadtree-geom": "https://raw.githubusercontent.com/wiki/mbostock/d3/Quadtree-Geom.md",   
+        "quadtree-geom": "https://raw.githubusercontent.com/wiki/mbostock/d3/Quadtree-Geom.md",
         "hull-geom": "https://raw.githubusercontent.com/wiki/mbostock/d3/Hull-Geom.md",
         "polygon-geom": "https://raw.githubusercontent.com/wiki/mbostock/d3/Polygon-Geom.md",
         "behaviors": "https://raw.githubusercontent.com/wiki/mbostock/d3/Behaviors.md",
@@ -92,7 +94,6 @@
         "mdastrc5": "https://raw.githubusercontent.com/wooorm/mdast/master/doc/mdastrc.5.md",
         "mdastsetting7": "https://raw.githubusercontent.com/wooorm/mdast/master/doc/mdastsetting.7.md"
       }
-
     }
   },
   "node": {
@@ -142,7 +143,9 @@
     }
   },
   "node-http-proxy": {
-    "aliases": ["http-proxy"], 
+    "aliases": [
+      "http-proxy"
+    ],
     "language": "javascript",
     "parser": "markdown",
     "urls": {
@@ -157,7 +160,9 @@
     }
   },
   "npm-debug": {
-    "aliases": ["debug"], 
+    "aliases": [
+      "debug"
+    ],
     "language": "javascript",
     "parser": "markdown",
     "urls": {
@@ -165,7 +170,9 @@
     }
   },
   "npm-download": {
-    "aliases": ["download"], 
+    "aliases": [
+      "download"
+    ],
     "language": "javascript",
     "parser": "markdown",
     "urls": {
@@ -173,7 +180,9 @@
     }
   },
   "npm-got": {
-    "aliases": ["got"], 
+    "aliases": [
+      "got"
+    ],
     "language": "javascript",
     "parser": "markdown",
     "urls": {
@@ -183,13 +192,17 @@
   "npm-mkdirp": {
     "language": "javascript",
     "parser": "markdown",
-    "aliases": ["mkdirp"], 
+    "aliases": [
+      "mkdirp"
+    ],
     "urls": {
       "readme": "https://raw.githubusercontent.com/substack/node-mkdirp/master/readme.markdown"
     }
   },
   "npm-request": {
-    "aliases": ["request"], 
+    "aliases": [
+      "request"
+    ],
     "language": "javascript",
     "parser": "markdown",
     "urls": {
@@ -217,7 +230,9 @@
   "screenful": {
     "language": "javascript",
     "parser": "markdown",
-    "aliases": ["screenful.js"],
+    "aliases": [
+      "screenful.js"
+    ],
     "urls": {
       "readme": "https://raw.githubusercontent.com/sindresorhus/screenfull.js/gh-pages/readme.md"
     }
@@ -257,6 +272,3 @@
     }
   }
 }
-
-
-
