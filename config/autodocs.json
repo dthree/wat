@@ -70,6 +70,13 @@
       "readme": "https://raw.githubusercontent.com/SBoudrias/Inquirer.js/master/README.md"
     }
   },
+  "markdown-js": {
+    "language": "javascript",
+    "parser": "markdown",
+    "urls": {
+      "readme": "https://github.com/evilstreak/markdown-js/blob/master/README.md"
+    }
+  },
   "mdast": {
     "language": "javascript",
     "parser": "markdown",
