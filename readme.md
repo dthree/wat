@@ -100,7 +100,7 @@ Same data, new fancy interface.
 
 ##### Node.js Libraries
 
-> [Chalk](https://github.com/sindresorhus/chalk), [debug](https://github.com/visionmedia/debug), [download](https://github.com/kevva/download), [got](https://github.com/sindresorhus/got), [MDAST](https://github.com/wooorm/mdast), [mkdirp](https://github.com/substack/node-mkdirp), [Node HTTP Proxy](https://github.com/nodejitsu/node-http-proxy), [Node Inspector](https://github.com/node-inspector/node-inspector), [Pageres](https://github.com/sindresorhus/pageres), [request](https://github.com/request/request), [RobotJS](https://github.com/octalmage/robotjs), [Screenful](https://github.com/sindresorhus/screenful), [Vantage](https://github.com/dthree/vantage), [Vorpal](https://github.com/dthree/vorpal)
+> [Chalk](https://github.com/chalk/chalk), [debug](https://github.com/visionmedia/debug), [download](https://github.com/kevva/download), [got](https://github.com/sindresorhus/got), [MDAST](https://github.com/wooorm/mdast), [mkdirp](https://github.com/substack/node-mkdirp), [Node HTTP Proxy](https://github.com/nodejitsu/node-http-proxy), [Node Inspector](https://github.com/node-inspector/node-inspector), [Pageres](https://github.com/sindresorhus/pageres), [request](https://github.com/request/request), [RobotJS](https://github.com/octalmage/robotjs), [Screenful](https://github.com/sindresorhus/screenful), [Vantage](https://github.com/dthree/vantage), [Vorpal](https://github.com/dthree/vorpal)
 
 ## FAQ
 
