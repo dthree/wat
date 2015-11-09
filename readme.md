@@ -96,7 +96,7 @@ Same data, new fancy interface.
 
 ##### Javascript Libraries
 
-> [D3](https://github.com/mbostock/d3)
+> [D3](https://github.com/mbostock/d3),
 > [markdown-js](https://github.com/evilstreak/markdown-js)
 
 ##### Node.js Libraries
