@@ -88,7 +88,7 @@ Same data, new fancy interface.
 ## Projects now documented on Wat
 
 [![2 Languages](https://img.shields.io/badge/languages-2-brightgreen.svg)](#)
-[![16 Libraries](https://img.shields.io/badge/libraries-15-blue.svg)](#)
+[![16 Libraries](https://img.shields.io/badge/libraries-16-blue.svg)](#)
 
 ##### Languages
 
