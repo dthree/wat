@@ -241,6 +241,13 @@
       "readme": "https://raw.githubusercontent.com/sindresorhus/screenfull.js/gh-pages/readme.md"
     }
   },
+  "slick": {
+    "language": "javascript",
+    "parser": "markdown",
+    "urls": {
+      "readme": "https://raw.githubusercontent.com/kenwheeler/slick/master/README.markdown"
+    }
+  },
   "vorpal": {
     "language": "javascript",
     "parser": "markdown",
