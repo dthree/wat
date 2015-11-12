@@ -167,7 +167,7 @@
     "language": "javascript",
     "parser": "markdown",
     "urls": {
-      "readme": "https://raw.githubusercontent.com/brianc/node-postgres/master/README.md"",
+      "readme": "https://raw.githubusercontent.com/brianc/node-postgres/master/README.md",
       "wiki": {
         "pg": "https://raw.github.com/wiki/brianc/node-postgres/pg.md",
         "pg.client": "https://raw.github.com/wiki/brianc/node-postgres/Client.md",
