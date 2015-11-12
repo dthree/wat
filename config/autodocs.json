@@ -74,7 +74,7 @@
     "language": "javascript",
     "parser": "markdown",
     "urls": {
-      "readme": https:"//raw.githubusercontent.com/localtunnel/localtunnel/master/README.md"
+      "readme": "https://raw.githubusercontent.com/localtunnel/localtunnel/master/README.md"
     }
   },
   "markdown-js": {
