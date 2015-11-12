@@ -241,6 +241,13 @@
       "readme": "https://raw.githubusercontent.com/sindresorhus/screenfull.js/gh-pages/readme.md"
     }
   },
+  "snapjs": {
+    "language": "javascript",
+    "parser": "markdown",
+    "urls": {
+      "readme": "https://raw.githubusercontent.com/jakiestfu/Snap.js/develop/README.md"
+    }
+  }","
   "vorpal": {
     "language": "javascript",
     "parser": "markdown",
