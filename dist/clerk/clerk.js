@@ -365,7 +365,7 @@ var clerk = {
       mkdirp.sync(dir);
       fs.appendFileSync(file, data, { flag: 'w' });
     } catch (e) {
-      this.log('Error saving to the local filesystem: ', e);
+      console.log('Error saving to the local filesystem: ', e);
     }
   }
 };
