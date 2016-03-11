@@ -55,7 +55,7 @@ Wat combines indexes, edit-distance algorithms, auto-completion and common sense
 
 #### It shreds red tape like a frisky cat
 
-Wat's content is not perfect, it isn't formal and it isn't pedantic. Wat doesn't aim to provide letter-perfect, offical documentation for languages. Work like that [is in good hands](https://developer.mozilla.org/en-US/).
+Wat's content is not perfect, it isn't formal and it isn't pedantic. Wat doesn't aim to provide letter-perfect, official documentation for languages. Work like that [is in good hands](https://developer.mozilla.org/en-US/).
 
 If you're building a web browser, refer to [W3C](http://www.w3.org/) for specifications. Wat is targeted for the 99.99% of us who have the basic familiarity with a library and simply need to look up API or usage samples.
 
