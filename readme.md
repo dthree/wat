@@ -5,6 +5,7 @@
 [![Gitter, Dude](https://img.shields.io/badge/gitter-join%20chat-brightgreen.svg)](https://gitter.im/dthree/wat?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge) 
 [![XO: Linted](https://img.shields.io/badge/xo-linted-blue.svg)](https://github.com/sindresorhus/xo)
 [![NPM Version](https://img.shields.io/npm/v/wat.svg)](https://www.npmjs.com/package/wat)
+[![Open ❤ Source](https://badges.frapsoft.com/os/v1/open-source.svg?v=103)](https://github.com/ellerbrock/open-source-badge/)
 
 > Rebelliously practical docs. For and by the community. Wat.
 
