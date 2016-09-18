@@ -20,6 +20,11 @@ Wat was designed for ease. It takes you:
 - [5 minutes to master](#learn)
 - [15 minutes to contribute](#contribute)
 
+
+## Notice
+
+This is now an [OPEN Open Source](http://openopensource.org/) project. I have not able to invest enough time into completing Wat and so am looking for volunteers who would like to take the project over and push it to completion. If you are interested, shoot me a note.
+
 ## Contents
 
 - [Introduction](#introduction)
