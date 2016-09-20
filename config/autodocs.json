@@ -163,6 +163,13 @@
       "readme": "https://raw.githubusercontent.com/node-inspector/node-inspector/master/README.md"
     }
   },
+  "node-jws": {
+    "language": "javascript",
+    "parser": "markdown",
+    "urls": {
+      "readme": "https://raw.githubusercontent.com/brianloveswords/node-jws/master/readme.md"
+    }
+  },
   "npm-debug": {
     "aliases": [
       "debug"
