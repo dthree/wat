@@ -220,6 +220,67 @@
       "readme": "https://raw.githubusercontent.com/sindresorhus/pageres/master/readme.md"
     }
   },
+  "rivets": {
+    "language": "javascript",
+    "parser": "markdown",
+    "aliases": [
+      "rivets.js",
+      "rivets-js",
+      "rivetsjs",
+    ],
+    "urls": {
+      "readme": "https://raw.githubusercontent.com/mikeric/rivets/master/README.md",
+      "guide": {
+        "install": "https://raw.githubusercontent.com/mikeric/rivets/master/docs/docs/guide/_sections/install.md",
+        "usage": {
+          "templates": "https://raw.githubusercontent.com/mikeric/rivets/master/docs/docs/guide/_sections/usage/templates.md",
+          "binding": "https://raw.githubusercontent.com/mikeric/rivets/master/docs/docs/guide/_sections/usage/binding.md",
+          "configuring": "https://raw.githubusercontent.com/mikeric/rivets/master/docs/docs/guide/_sections/usage/configuring.md"
+        },
+        "binders": {
+          "intro": "https://raw.githubusercontent.com/mikeric/rivets/master/docs/docs/guide/_sections/binders.md",
+          "one-way": "https://raw.githubusercontent.com/mikeric/rivets/master/docs/docs/guide/_sections/binders/one-way.md",
+          "two-way": "https://raw.githubusercontent.com/mikeric/rivets/master/docs/docs/guide/_sections/binders/two-way.md",
+          "api": "https://raw.githubusercontent.com/mikeric/rivets/master/docs/docs/guide/_sections/binders/api.md"
+        },
+        "formatters": {
+          "intro": "https://raw.githubusercontent.com/mikeric/rivets/master/docs/docs/guide/_sections/formatters.md",
+          "one-way": "https://raw.githubusercontent.com/mikeric/rivets/master/docs/docs/guide/_sections/formatters/one-way.md",
+          "two-way": "https://raw.githubusercontent.com/mikeric/rivets/master/docs/docs/guide/_sections/formatters/two-way.md",
+          "arguments": "https://raw.githubusercontent.com/mikeric/rivets/master/docs/docs/guide/_sections/formatters/arguments.md"
+        },
+        "components": "https://raw.githubusercontent.com/mikeric/rivets/master/docs/docs/guide/_sections/components.md",
+        "adapters": {
+          "intro": "https://raw.githubusercontent.com/mikeric/rivets/master/docs/docs/guide/_sections/adapters.md",
+          "default": "https://raw.githubusercontent.com/mikeric/rivets/master/docs/docs/guide/_sections/adapters/default.md",
+          "creating": "https://raw.githubusercontent.com/mikeric/rivets/master/docs/docs/guide/_sections/adapters/creating.md"
+        },
+        "computed-properties": "https://raw.githubusercontent.com/mikeric/rivets/master/docs/docs/guide/_sections/computed-properties.md",
+        "iteration": {
+          "intro": "https://raw.githubusercontent.com/mikeric/rivets/master/docs/docs/guide/_sections/iteration.md",
+          "index": "https://raw.githubusercontent.com/mikeric/rivets/master/docs/docs/guide/_sections/iteration/index.md"
+        },
+        "functions-call": "https://raw.githubusercontent.com/mikeric/rivets/master/docs/docs/guide/_sections/functions-call.md"
+      },
+      "reference": {
+        "[attribute]": "https://github.com/mikeric/rivets/blob/master/docs/docs/reference/_binders/[attribute].md",
+        "checked": "https://github.com/mikeric/rivets/blob/master/docs/docs/reference/_binders/checked.md",
+        "class-[classname]": "https://github.com/mikeric/rivets/blob/master/docs/docs/reference/_binders/class-[classname].md",
+        "disabled": "https://github.com/mikeric/rivets/blob/master/docs/docs/reference/_binders/disabled.md",
+        "each-[item]": "https://github.com/mikeric/rivets/blob/master/docs/docs/reference/_binders/each-[item].md",
+        "enabled": "https://github.com/mikeric/rivets/blob/master/docs/docs/reference/_binders/enabled.md",
+        "hide": "https://github.com/mikeric/rivets/blob/master/docs/docs/reference/_binders/hide.md",
+        "html": "https://github.com/mikeric/rivets/blob/master/docs/docs/reference/_binders/html.md",
+        "if": "https://github.com/mikeric/rivets/blob/master/docs/docs/reference/_binders/if.md",
+        "on-[event]": "https://github.com/mikeric/rivets/blob/master/docs/docs/reference/_binders/on-[event].md",
+        "show": "https://github.com/mikeric/rivets/blob/master/docs/docs/reference/_binders/show.md",
+        "text": "https://github.com/mikeric/rivets/blob/master/docs/docs/reference/_binders/text.md",
+        "unchecked": "https://github.com/mikeric/rivets/blob/master/docs/docs/reference/_binders/unchecked.md",
+        "unless": "https://github.com/mikeric/rivets/blob/master/docs/docs/reference/_binders/unless.md",
+        "value": "https://github.com/mikeric/rivets/blob/master/docs/docs/reference/_binders/value.md"
+      }
+    }
+  },
   "robotjs": {
     "language": "javascript",
     "parser": "markdown",
