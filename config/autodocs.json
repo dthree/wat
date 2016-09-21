@@ -6,6 +6,13 @@
       "readme": "https://raw.githubusercontent.com/chalk/chalk/master/readme.md"
     }
   },
+  "cropperjs": {
+    "language": "javascript",
+    "parser": "markdown",
+    "urls": {
+      "readme": "https://raw.githubusercontent.com/fengyuanchen/cropperjs/master/README.md"
+    }
+  },
   "d3": {
     "language": "javascript",
     "parser": "markdown",
