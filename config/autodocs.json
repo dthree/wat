@@ -1,4 +1,11 @@
 {
+  "brick": {
+    "language": "javascript",
+    "parser": "markdown",
+    "urls": {
+      "readme": "https://raw.githubusercontent.com/mozbrick/brick/master/README.md"
+    }
+  },
   "chalk": {
     "language": "javascript",
     "parser": "markdown",
