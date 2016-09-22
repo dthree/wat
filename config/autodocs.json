@@ -163,6 +163,20 @@
       "readme": "https://raw.githubusercontent.com/node-inspector/node-inspector/master/README.md"
     }
   },
+  "node-postgres": {
+    "language": "javascript",
+    "parser": "markdown",
+    "urls": {
+      "readme": "https://raw.githubusercontent.com/brianc/node-postgres/master/README.md",
+      "wiki": {
+        "pg": "https://raw.github.com/wiki/brianc/node-postgres/pg.md",
+        "pg.client": "https://raw.github.com/wiki/brianc/node-postgres/Client.md",
+        "pg.Query": "https//raw.github.com/wiki/brianc/node-postgres/Query.md",
+        "pg.pools": "https://raw.github.com/wiki/brianc/node-postgres/pools.md",
+        "pg.Connection": "https://raw.github.com/wiki/brianc/node-postgres/Connection.md"
+      }
+    }
+  },
   "npm-debug": {
     "aliases": [
       "debug"
