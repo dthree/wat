@@ -220,6 +220,13 @@
       "readme": "https://raw.githubusercontent.com/sindresorhus/pageres/master/readme.md"
     }
   },
+  "pre-commit": {
+    "language": "javascript",
+    "parser": "markdown",
+    "urls": {
+      "readme": "https://raw.githubusercontent.com/observing/pre-commit/master/README.md"
+    }
+  },
   "robotjs": {
     "language": "javascript",
     "parser": "markdown",
