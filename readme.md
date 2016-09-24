@@ -93,7 +93,7 @@ Same data, new fancy interface.
 ## Projects now documented on Wat
 
 [![2 Languages](https://img.shields.io/badge/languages-2-brightgreen.svg)](#)
-[![15 Libraries](https://img.shields.io/badge/libraries-15-blue.svg)](#)
+[![16 Libraries](https://img.shields.io/badge/libraries-16-blue.svg)](#)
 
 ##### Languages
 
@@ -101,7 +101,8 @@ Same data, new fancy interface.
 
 ##### Javascript Libraries
 
-> [D3](https://github.com/mbostock/d3)
+> [D3](https://github.com/mbostock/d3),
+> [markdown-js](https://github.com/evilstreak/markdown-js)
 
 ##### Node.js Libraries
 
