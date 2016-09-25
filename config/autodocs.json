@@ -70,6 +70,13 @@
       "readme": "https://raw.githubusercontent.com/SBoudrias/Inquirer.js/master/README.md"
     }
   },
+  "localtunnel": {
+    "language": "javascript",
+    "parser": "markdown",
+    "urls": {
+      "readme": "https://raw.githubusercontent.com/localtunnel/localtunnel/master/README.md"
+    }
+  },
   "markdown-js": {
     "language": "javascript",
     "parser": "markdown",
