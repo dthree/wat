@@ -63,6 +63,13 @@
       }
     }
   },
+  "ember": {
+    "language": "javascript",
+    "parser": "markdown",
+    "urls": {
+      "readme": "https://raw.githubusercontent.com/emberjs/ember.js/master/README.md"
+    }
+  },
   "inquirer": {
     "language": "javascript",
     "parser": "markdown",
